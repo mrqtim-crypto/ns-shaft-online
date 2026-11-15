@@ -56,8 +56,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(15, 18, 23, 0.72);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 18, 23, 0.84);
       padding: 4px 8px;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -72,8 +71,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(15, 18, 23, 0.8);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 18, 23, 0.88);
       padding: 4px 10px;
       border-radius: 10px;
       border: 1px solid rgba(250, 204, 21, 0.45);
@@ -98,8 +96,7 @@
       left: 10px;
       z-index: 12;
       max-width: 235px;
-      background: rgba(15, 18, 23, 0.72);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 18, 23, 0.84);
       padding: 4px 8px;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -199,8 +196,7 @@
       gap: 6px;
       padding: 4px 8px;
       border-radius: 999px;
-      background: rgba(15, 18, 23, 0.72);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 18, 23, 0.84);
       border: 1px solid rgba(255, 255, 255, 0.16);
       font-size: 11px;
       color: #e4e4e7;
@@ -280,9 +276,8 @@
       width: 108px;
       height: 108px;
       border-radius: 50%;
-      background: rgba(15, 23, 42, 0.32);
+      background: rgba(15, 23, 42, 0.42);
       border: 1.5px solid rgba(255, 255, 255, 0.34);
-      backdrop-filter: blur(6px);
       display: block;
       z-index: 15;
       touch-action: none;
@@ -1307,8 +1302,7 @@
         if (action === 'hurt') {
           targetCtx.globalAlpha = 0.85;
         } else if (action === 'shocked') {
-          targetCtx.shadowColor = '#facc15';
-          targetCtx.shadowBlur = 10;
+          targetCtx.globalAlpha = 0.75 + Math.sin(now * 0.05) * 0.25;
         }
 
         if (img && img.complete && img.naturalWidth) {
@@ -2359,21 +2353,30 @@
         else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { input.down = false; syncKeyboardVisuals(); }
       });
 
+      const hudCache = { hp: -1, dist: -1, time: '', skill: '' };
       function updateHUD() {
-        hpTextEl.textContent = `${hp}/${MAX_HP}`;
-        hpUnits.forEach((unit, idx) => {
-          unit.className = 'hp-unit';
-          if (idx < hp) {
-            unit.classList.add(hp <= 4 ? 'danger' : 'active');
-          }
-        });
+        if (hudCache.hp !== hp) {
+          hudCache.hp = hp;
+          hpTextEl.textContent = `${hp}/${MAX_HP}`;
+          hpUnits.forEach((unit, idx) => {
+            unit.className = 'hp-unit';
+            if (idx < hp) {
+              unit.classList.add(hp <= 4 ? 'danger' : 'active');
+            }
+          });
+        }
         const distM = Math.floor(scrollDistance / 35);
+        if (hudCache.dist !== distM) {
+          hudCache.dist = distM;
+          distTextEl.textContent = `📏 ${distM} m`;
+        }
         const mins = Math.floor(survivalTime / 60);
         const secs = survivalTime % 60;
-        const padMin = String(mins).padStart(2, '0');
-        const padSec = secs.toFixed(1).padStart(4, '0');
-        distTextEl.textContent = `📏 ${distM} m`;
-        timeTextEl.textContent = `⏱️ ${padMin}:${padSec}`;
+        const timeStr = `⏱️ ${String(mins).padStart(2, '0')}:${secs.toFixed(1).padStart(4, '0')}`;
+        if (hudCache.time !== timeStr) {
+          hudCache.time = timeStr;
+          timeTextEl.textContent = timeStr;
+        }
         const curAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         if (hudSkillEl) {
           let chargeHtml = '';
@@ -2388,15 +2391,21 @@
             const w = chargeCfg.ready && !chargeCfg.active ? 100 : Math.max(0, Math.min(100, chargeCfg.pct));
             chargeHtml = `<div class="hud-charge-wrap"><div class="hud-charge-bar"><div class="hud-charge-fill ${cls}" style="width:${w.toFixed(0)}%"></div></div><span class="hud-charge-txt">${chargeCfg.label}：${chargeCfg.txt}</span></div>`;
           }
-          hudSkillEl.innerHTML = `<strong>${curAni.name}</strong>${curAni.desc}${chargeHtml}`;
+          const skillHtml = `<strong>${curAni.name}</strong>${curAni.desc}${chargeHtml}`;
+          if (hudCache.skill !== skillHtml) {
+            hudCache.skill = skillHtml;
+            hudSkillEl.innerHTML = skillHtml;
+          }
         }
       }
 
       function addPopup(x, y, text, color) {
+        if (popups.length > 24) popups.shift();
         popups.push({ x, y, text, color, life: 0.9, maxLife: 0.9 });
       }
 
       function spawnParticles(x, y, color, count = 8) {
+        if (particles.length > 90) particles.splice(0, particles.length - 90);
         for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2;
           const spd = 40 + Math.random() * 115;
@@ -3750,31 +3759,35 @@
       }
 
       // ================== 蒼白迷霧 × 高反差廢墟背景渲染 ==================
+      let cachedBgTier = -1, cachedBgH = -1, cachedBgGrad = null;
       function drawAtmosphericBackground() {
-        const grad = ctx.createLinearGradient(0, 0, 0, H);
-        if (floor < 30) {
-          // 繪本暖陽森林樹洞
-          grad.addColorStop(0, '#fffbeb');
-          grad.addColorStop(0.5, '#fef3c7');
-          grad.addColorStop(1, '#dcfce7');
-        } else if (floor < 60) {
-          // 繪本薰衣草蘑菇奇境
-          grad.addColorStop(0, '#faf5ff');
-          grad.addColorStop(0.55, '#ede9fe');
-          grad.addColorStop(1, '#dbeafe');
-        } else {
-          // 繪本蜜桃糖果地心
-          grad.addColorStop(0, '#fff7ed');
-          grad.addColorStop(0.55, '#ffedd5');
-          grad.addColorStop(1, '#fed7aa');
+        const bgTier = floor < 30 ? 0 : (floor < 60 ? 1 : 2);
+        if (!cachedBgGrad || cachedBgTier !== bgTier || cachedBgH !== H) {
+          cachedBgTier = bgTier;
+          cachedBgH = H;
+          const grad = ctx.createLinearGradient(0, 0, 0, H);
+          if (bgTier === 0) {
+            grad.addColorStop(0, '#fffbeb');
+            grad.addColorStop(0.5, '#fef3c7');
+            grad.addColorStop(1, '#dcfce7');
+          } else if (bgTier === 1) {
+            grad.addColorStop(0, '#faf5ff');
+            grad.addColorStop(0.55, '#ede9fe');
+            grad.addColorStop(1, '#dbeafe');
+          } else {
+            grad.addColorStop(0, '#fff7ed');
+            grad.addColorStop(0.55, '#ffedd5');
+            grad.addColorStop(1, '#fed7aa');
+          }
+          cachedBgGrad = grad;
         }
-        ctx.fillStyle = grad;
+        ctx.fillStyle = cachedBgGrad;
         ctx.fillRect(0, 0, LOGIC_W, H);
 
         // 柔和手繪樹枝與遠景層次
         const bgScroll = (scrollDistance * 0.25) % 210;
+        ctx.fillStyle = bgTier === 0 ? 'rgba(134, 239, 172, 0.26)' : (bgTier === 1 ? 'rgba(196, 181, 253, 0.22)' : 'rgba(253, 186, 116, 0.26)');
         for (let y = -bgScroll; y < H + 210; y += 210) {
-          ctx.fillStyle = floor < 30 ? 'rgba(134, 239, 172, 0.26)' : (floor < 60 ? 'rgba(196, 181, 253, 0.22)' : 'rgba(253, 186, 116, 0.26)');
           ctx.beginPath();
           ctx.ellipse(LOGIC_W * 0.25, y + 60, 75, 22, -0.1, 0, Math.PI * 2);
           ctx.ellipse(LOGIC_W * 0.78, y + 145, 68, 20, 0.12, 0, Math.PI * 2);
@@ -3782,15 +3795,13 @@
         }
 
         // 繪本柔白小雲朵
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.42)';
         for (const mc of mistClouds) {
-          ctx.save();
-          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.65, mc.alpha + 0.25)})`;
           ctx.beginPath();
           ctx.arc(mc.x, mc.y, mc.r * 0.55, 0, Math.PI * 2);
           ctx.arc(mc.x - mc.r * 0.35, mc.y + 4, mc.r * 0.38, 0, Math.PI * 2);
           ctx.arc(mc.x + mc.r * 0.35, mc.y + 4, mc.r * 0.38, 0, Math.PI * 2);
           ctx.fill();
-          ctx.restore();
         }
 
         // 繪本圓木岩壁（單側推擠事件時推到畫面中心，剩餘 55% 空間）
