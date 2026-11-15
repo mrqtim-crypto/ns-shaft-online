@@ -1498,6 +1498,7 @@
         walkFrame: 0,
         runTime: 0,
         canDoubleJump: true,
+        canWallTrigger: true,
         stunTimer: 0,
         adrenalineTimer: 0,
         invulnerable: 0,
@@ -2117,6 +2118,41 @@
       floatJoystick.addEventListener('pointerup', releaseJoystick);
       floatJoystick.addEventListener('pointercancel', releaseJoystick);
 
+      // 手機按畫布左下角／右下角（無圖示透明感應區）亦可直接向左／向右
+      const cornerPointers = new Map();
+      function syncCornerInput() {
+        if (joyPointerId !== null) return;
+        let l = false, r = false;
+        for (const dir of cornerPointers.values()) {
+          if (dir === 'left') l = true;
+          else if (dir === 'right') r = true;
+        }
+        input.left = l;
+        input.right = r;
+        updateBtnVisuals(l && !r ? -36 : (r && !l ? 36 : 0));
+      }
+
+      canvasWrap.addEventListener('pointerdown', (e) => {
+        if (state !== 'PLAYING') return;
+        if (e.target !== canvas && e.target !== canvasWrap) return;
+        const rect = canvasWrap.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height * 0.45) return; // 下半部（左下角／右下角區域）
+        e.preventDefault();
+        initAudio();
+        const dir = e.clientX < rect.left + rect.width * 0.5 ? 'left' : 'right';
+        cornerPointers.set(e.pointerId, dir);
+        try { canvasWrap.setPointerCapture(e.pointerId); } catch (_) {}
+        syncCornerInput();
+      });
+
+      const releaseCornerPointer = (e) => {
+        if (!cornerPointers.has(e.pointerId)) return;
+        cornerPointers.delete(e.pointerId);
+        syncCornerInput();
+      };
+      canvasWrap.addEventListener('pointerup', releaseCornerPointer);
+      canvasWrap.addEventListener('pointercancel', releaseCornerPointer);
+
       window.addEventListener('keydown', (e) => {
         if (document.activeElement === nameInput || document.activeElement === roomInput) return;
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
@@ -2293,6 +2329,7 @@
         player.onPlatform = startPlat;
         player.runTime = 0;
         player.canDoubleJump = true;
+        player.canWallTrigger = true;
         player.stunTimer = 0;
         player.adrenalineTimer = 0;
         player.invulnerable = 0;
@@ -2392,6 +2429,7 @@
         player.y = plat.y + plat.sagY - player.h;
         player.vy = 0;
         player.canDoubleJump = true;
+        player.canWallTrigger = true;
 
         const cx = player.x + player.w / 2;
         const cy = player.y;
@@ -2938,8 +2976,9 @@
 
           const towardWall = moveDir === side || (totalVx * side) > 35;
 
-          // 變色龍：碰到牆壁瞬間從另一邊牆壁出來
-          if (ani.id === 'chameleon' && player.wallEffectCd <= 0 && towardWall) {
+          // 變色龍：碰到牆壁瞬間從另一邊牆壁出來（每次落地限一次）
+          if (ani.id === 'chameleon' && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
             player.x = side < 0 ? (LOGIC_W - rightWallW - player.w - 6) : (leftWallW + 6);
             player.wallEffectCd = 0.45;
             player.phaseTimer = Math.max(player.phaseTimer, 0.45);
@@ -2949,9 +2988,10 @@
             return;
           }
 
-          // 跳羚：空中貼牆蹬牆跳
-          if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+          // 跳羚：空中貼牆蹬牆跳（每次落地限一次）
+          if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump && player.canWallTrigger) {
             player.canDoubleJump = false;
+            player.canWallTrigger = false;
             player.vy = -295;
             player.pushVx = pushDir * 165;
             player.facing = pushDir;
@@ -2959,10 +2999,11 @@
             return;
           }
 
-          // 貓科蹬牆反彈跳（依體型/種類區分反彈遠近）
+          // 貓科蹬牆反彈跳（依體型/種類區分反彈遠近，每次落地限一次）
           const felineBounce = { sandcat: [420, -265], leopardcat: [350, -245], jaguar: [330, -240], lion: [240, -205] };
-          if (felineBounce[ani.id] && !player.onPlatform && player.wallEffectCd <= 0 && towardWall) {
+          if (felineBounce[ani.id] && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
             const [bx, by] = felineBounce[ani.id];
+            player.canWallTrigger = false;
             player.pushVx = pushDir * bx;
             player.vy = by;
             player.facing = pushDir;
@@ -2973,8 +3014,9 @@
             return;
           }
 
-          // 台灣穿山甲：縮球撞牆如彈珠高速彈射並可撞飛對手
-          if (ani.id === 'pangolin' && player.wallEffectCd <= 0 && towardWall) {
+          // 台灣穿山甲：縮球撞牆如彈珠高速彈射並可撞飛對手（每次落地限一次）
+          if (ani.id === 'pangolin' && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
             player.pushVx = pushDir * 440;
             player.vy = Math.min(player.vy, -210);
             player.facing = pushDir;
@@ -2985,8 +3027,9 @@
             return;
           }
 
-          // 滑翔類（蜜袋鼯／大角鴞／安第斯神鷹）：借力反向滑翔推進
-          if (ani.posture === 'soaring_bird' && !player.onPlatform && player.wallEffectCd <= 0 && towardWall) {
+          // 滑翔類（蜜袋鼯／大角鴞／安第斯神鷹）：借力反向滑翔推進（每次落地限一次，不可連續貼牆往上飛）
+          if (ani.posture === 'soaring_bird' && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
             player.pushVx = pushDir * 255;
             player.vy = Math.min(player.vy, -155);
             player.facing = pushDir;
@@ -3080,6 +3123,7 @@
             if (AQUATIC_IDS.has(ani.id)) {
               player.onPlatform = null;
               player.canDoubleJump = true;
+              player.canWallTrigger = true;
               const bobY = Math.sin(Date.now() * 0.008) * 2.5;
               player.y = floodTop - player.h + 4 + bobY;
               if (player.vy > 0) player.vy = 0;
