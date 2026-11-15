@@ -1580,6 +1580,7 @@
       let survivalTime = 0;
       let countdownTimer = 0;
       let lastCountdownSec = 0;
+      let startGraceTimer = 0;
       let scrollSpeed = 112;
       let nextSpawnWorldY = 0;
       let shakeTime = 0;
@@ -1983,7 +1984,7 @@
             playSound('stomp');
           }
         } else if (msg.t === 'skill') {
-          if (state !== 'PLAYING' || !player.onPlatform || Math.abs(player.onPlatform.worldY - msg.wy) >= 24) return;
+          if (state !== 'PLAYING' || countdownTimer > 0 || startGraceTimer > 0 || !player.onPlatform || Math.abs(player.onPlatform.worldY - msg.wy) >= 24) return;
           const myCx = player.x + 15;
           const dir = myCx >= msg.x ? 1 : -1;
           if (player.phaseTimer > 0 || myAnimalId === 'sandcat') {
@@ -2446,6 +2447,7 @@
         survivalTime = 0;
         countdownTimer = 3.0;
         lastCountdownSec = 4;
+        startGraceTimer = 2.0;
         scrollSpeed = 112;
         shakeTime = 0;
         platforms = [];
@@ -2461,7 +2463,12 @@
         updateBtnVisuals(0, 0);
 
         const startPlat = createPlatformAtWorldY(210, true);
-        startPlat.x = LOGIC_W / 2 - startPlat.w / 2;
+        startPlat.x = WALL_W;
+        startPlat.w = LOGIC_W - WALL_W * 2;
+        startPlat.type = 'fragile';
+        startPlat.brittle = true;
+        startPlat.isStartPlat = true;
+        startPlat.pickup = null;
         startPlat.touched = true;
         platforms.push(startPlat);
 
@@ -2471,8 +2478,23 @@
           nextSpawnWorldY += 76;
         }
 
-        player.x = startPlat.x + startPlat.w / 2 - player.w / 2;
+        const rosterIds = [myId, ...peers.keys()].sort();
+        const totalRacers = Math.max(1, rosterIds.length);
+        const getStartX = (idx) => {
+          const pad = 18;
+          const usableW = Math.max(player.w, startPlat.w - pad * 2 - player.w);
+          const ratio = totalRacers === 1 ? 0.5 : (idx / (totalRacers - 1));
+          return startPlat.x + pad + usableW * ratio;
+        };
+        const myIdx = rosterIds.indexOf(myId);
+        player.x = getStartX(myIdx >= 0 ? myIdx : 0);
         player.y = startPlat.y - player.h;
+        for (const [pid, rp] of peers.entries()) {
+          const pIdx = rosterIds.indexOf(pid);
+          rp.x = getStartX(pIdx >= 0 ? pIdx : 0);
+          rp.worldY = startPlat.worldY - player.h;
+          rp.vy = 0;
+        }
         player.vx = 0;
         player.vy = 0;
         player.pushVx = 0;
@@ -2722,12 +2744,26 @@
             playSound('bump');
           }
           if (countdownTimer <= 0) {
+            for (const p of platforms) {
+              if (p.isStartPlat && !p.broken) {
+                p.broken = true;
+                for (let k = 0; k < 6; k++) {
+                  spawnParticles(p.x + (p.w * (k + 0.5)) / 6, p.y + p.h / 2, '#d97706', 4);
+                }
+              }
+            }
+            if (player.onPlatform && player.onPlatform.isStartPlat) {
+              player.onPlatform = null;
+            }
+            playSound('stomp');
             playSound('spring');
-            addPopup(LOGIC_W / 2, H * 0.38, '出發！GO!', '#16a34a');
+            addPopup(LOGIC_W / 2, H * 0.38, '出發！GO! (2秒免碰撞)', '#16a34a');
           }
           player.walkFrame += dt * 3;
           return;
         }
+
+        if (startGraceTimer > 0) startGraceTimer = Math.max(0, startGraceTimer - dt);
 
         const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
 
@@ -3118,8 +3154,8 @@
         else if (moveDir !== 0) player.actionState = 'run';
         else player.actionState = 'idle';
 
-        // 同一塊階梯上自動觸發動物專屬技能
-        if (player.onPlatform && player.skillCooldown <= 0) {
+        // 同一塊階梯上自動觸發動物專屬技能（開局 2 秒保護期內不觸發）
+        if (startGraceTimer <= 0 && player.onPlatform && player.skillCooldown <= 0) {
           const curP = player.onPlatform;
           let hasSamePlatPeer = false;
           for (const rp of peers.values()) {
@@ -3139,10 +3175,10 @@
           }
         }
 
-        // 多人猛獸碰撞（幽靈無相期間無視實體碰撞）
+        // 多人猛獸碰撞（幽靈無相期間與開局 2 秒保護期內無視實體碰撞）
         const myWorldY = player.y + scrollDistance;
         for (const rp of peers.values()) {
-          if (!rp.alive || player.phaseTimer > 0) continue;
+          if (startGraceTimer > 0 || !rp.alive || player.phaseTimer > 0) continue;
           const rpAni = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
           const dx = (player.x + player.w / 2) - (rp.x + 15);
           const dyWorld = myWorldY - rp.worldY;
