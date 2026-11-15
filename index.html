@@ -988,7 +988,7 @@
           posture: 'bipedal_bear', postureName: '微笑抓地姿', face: 0,
           weight: 1.64, sizeScale: 1.05, speedMul: 0.88, pushMul: 1.53,
           wStat: 6, sStat: 2, cStat: 7, wPct: 60, sPct: 20, pPct: 70,
-          desc: '【不動如山】強韌長爪死抓階梯，完全免疫狂風、磁場與他人推擠擊退！'
+          desc: '【不動如山】強韌長爪死抓階梯，完全免疫狂風與他人推擠擊退！'
         },
         {
           id: 'chameleon', name: '變色龍', en: "VEILED CHAMELEON", isTW: false,
@@ -1497,7 +1497,6 @@
         { id: 'wind',      icon: '💨', color: '#0891b2', label: '強風吹襲 5 秒！' },
         { id: 'giant',     icon: '🍄', color: '#ea580c', label: '巨無霸 5 秒！' },
         { id: 'rush',      icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
-        { id: 'magnet',    icon: '🧲', color: '#db2777', label: '中央磁場 5 秒！' },
         { id: 'brittle',   icon: '💥', color: '#b45309', label: '階梯脆化 0.4 秒！' },
         { id: 'rockslide', icon: '🪨', color: '#78350f', label: '土石流落石 5 秒！' }
       ];
@@ -1512,7 +1511,6 @@
         windTimer: 0,
         windDir: 1,
         rushTimer: 0,
-        magnetTimer: 0,
         brittleTimer: 0,
         rockslideTimer: 0
       };
@@ -1561,7 +1559,6 @@
         fieldEvents.windTimer = 0;
         fieldEvents.windDir = 1;
         fieldEvents.rushTimer = 0;
-        fieldEvents.magnetTimer = 0;
         fieldEvents.brittleTimer = 0;
         fieldEvents.rockslideTimer = 0;
         fieldBanner.timer = 0;
@@ -1624,9 +1621,6 @@
         } else if (kind === 'rush') {
           fieldEvents.rushTimer = 5.0;
           playSound('stomp');
-        } else if (kind === 'magnet') {
-          fieldEvents.magnetTimer = 5.0;
-          playSound('bump');
         } else if (kind === 'brittle') {
           fieldEvents.brittleTimer = 5.0;
           for (const plat of platforms) {
@@ -2485,7 +2479,6 @@
         if (fieldEvents.wallTimer > 0) fieldEvents.wallTimer = Math.max(0, fieldEvents.wallTimer - dt);
         if (fieldEvents.windTimer > 0) fieldEvents.windTimer = Math.max(0, fieldEvents.windTimer - dt);
         if (fieldEvents.rushTimer > 0) fieldEvents.rushTimer = Math.max(0, fieldEvents.rushTimer - dt);
-        if (fieldEvents.magnetTimer > 0) fieldEvents.magnetTimer = Math.max(0, fieldEvents.magnetTimer - dt);
         if (fieldEvents.brittleTimer > 0) fieldEvents.brittleTimer = Math.max(0, fieldEvents.brittleTimer - dt);
         if (fieldEvents.rockslideTimer > 0) fieldEvents.rockslideTimer = Math.max(0, fieldEvents.rockslideTimer - dt);
         if (fieldBanner.timer > 0) fieldBanner.timer = Math.max(0, fieldBanner.timer - dt);
@@ -2809,10 +2802,6 @@
         const isFieldImmune = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'bison' || ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'chameleon';
         if (fieldEvents.windTimer > 0 && !isFieldImmune) {
           totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135);
-        }
-        if (fieldEvents.magnetTimer > 0 && ani.id !== 'sloth') {
-          const toCenter = (LOGIC_W / 2) - (player.x + player.w / 2);
-          totalVx += Math.sign(toCenter) * Math.min(95, Math.abs(toCenter) * 0.8);
         }
 
         if (player.onPlatform) {
@@ -3587,16 +3576,6 @@
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(dir > 0 ? '💨 強風向右吹襲中 >>>' : '<<< 強風向左吹襲中 💨', LOGIC_W / 2, H - 83);
-          ctx.restore();
-        }
-        if (fieldEvents.magnetTimer > 0) {
-          ctx.save();
-          const r = 24 + Math.sin(Date.now() * 0.015) * 8;
-          ctx.strokeStyle = 'rgba(236, 72, 153, 0.55)';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(LOGIC_W / 2, H * 0.45, r, 0, Math.PI * 2);
-          ctx.stroke();
           ctx.restore();
         }
 
