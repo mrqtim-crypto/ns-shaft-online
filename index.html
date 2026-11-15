@@ -181,38 +181,6 @@
       height: 100%;
     }
 
-    /* 野性呼喊快捷列 */
-    .emote-bar {
-      position: absolute;
-      right: 8px;
-      bottom: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      z-index: 12;
-    }
-
-    .emote-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      border: 1px solid rgba(39, 39, 42, 0.55);
-      background: rgba(24, 24, 27, 0.78);
-      color: #fafafa;
-      font-size: 12px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-    }
-
-    .emote-btn:active {
-      transform: scale(0.86);
-      background: rgba(217, 119, 6, 0.85);
-    }
-
     /* 下方正中央半透明懸浮拖曳搖桿 */
     .float-joystick {
       position: absolute;
@@ -775,14 +743,6 @@
           <span id="roomLabel">房: ----</span>
         </div>
         <div class="mp-players-strip" id="mpStrip"></div>
-      </div>
-
-      <!-- 野性呼喊互動鈕 -->
-      <div class="emote-bar">
-        <button class="emote-btn" data-emote="咆哮!">吼</button>
-        <button class="emote-btn" data-emote="獵殺!">爪</button>
-        <button class="emote-btn" data-emote="小心!">危</button>
-        <button class="emote-btn" data-emote="霸主!">王</button>
       </div>
 
       <!-- 下方正中央半透明懸浮按鈕（按住往左或右拉，選角時隱藏） -->
@@ -1468,6 +1428,10 @@
         hurtTimer: 0,
         shockTimer: 0,
         jumpTimer: 0,
+        skillCooldown: 0,
+        phaseTimer: 0,
+        reverseTimer: 0,
+        slowTimer: 0,
         actionState: 'idle'
       };
 
@@ -1673,8 +1637,60 @@
             playSound('stomp');
             addPopup(player.x + 15, player.y, '震波彈飛！', '#b45309');
           }
-        } else if (msg.t === 'emote') {
-          addPopup(p.x + 15, p.worldY - scrollDistance - 16, msg.emoji, '#18181b');
+        } else if (msg.t === 'skill') {
+          if (state !== 'PLAYING' || !player.onPlatform || Math.abs(player.onPlatform.worldY - msg.wy) >= 24) return;
+          const myCx = player.x + 15;
+          const dir = myCx >= msg.x ? 1 : -1;
+          // 5 大對抗免疫規則
+          if (player.phaseTimer > 0 || myAnimalId === 'sandcat') {
+            if (myAnimalId === 'sandcat' && player.phaseTimer <= 0) player.phaseTimer = 1.6;
+            addPopup(myCx, player.y - 10, '幽靈無相免疫！', '#64748b');
+            return;
+          }
+          const isUnstoppable = myAnimalId === 'elephant' || myAnimalId === 'bison';
+          const isThickHide = myAnimalId === 'hippo' || myAnimalId === 'bear';
+          const isVacuum = myAnimalId === 'octopus';
+          const k = msg.ani;
+          if (k === 'octopus') {
+            if (isThickHide) { addPopup(myCx, player.y - 10, '厚皮免疫劇毒！', '#15803d'); return; }
+            player.reverseTimer = 2.6;
+            playSound('shock');
+            addPopup(myCx, player.y - 10, '藍環劇毒：方向顛倒！', '#0284c7');
+          } else if (k === 'lemur') {
+            if (isThickHide) { addPopup(myCx, player.y - 10, '厚皮免疫臭氣！', '#15803d'); return; }
+            player.slowTimer = 2.2;
+            addPopup(myCx, player.y - 10, '狐猴臭氣緩速！', '#65a30d');
+          } else if (k === 'bear') {
+            if (isThickHide) { addPopup(myCx, player.y - 10, '厚皮免疫暈眩！', '#15803d'); return; }
+            player.stunTimer = 0.9;
+            player.hurtTimer = 0.4;
+            playSound('stomp');
+            addPopup(myCx, player.y - 10, '熊抱震暈！', '#78350f');
+          } else if (k === 'beaver') {
+            if (player.onPlatform && player.onPlatform.type !== 'supply') {
+              player.onPlatform.broken = true;
+              player.onPlatform = null;
+              playSound('stomp');
+              addPopup(myCx, player.y - 10, '河狸啃斷階梯！', '#92400e');
+            }
+          } else {
+            if (isUnstoppable || isVacuum) {
+              addPopup(myCx, player.y - 10, isVacuum ? '吸盤抓牢免疫！' : '霸體不動免疫！', '#b45309');
+              return;
+            }
+            if (k === 'elephant' || k === 'deer' || k === 'springbok') {
+              player.onPlatform = null;
+              player.vy = -265;
+              player.jumpTimer = 0.3;
+              player.pushVx = dir * 190;
+              playSound('stomp');
+              addPopup(myCx, player.y - 10, '同階梯彈飛！', '#b45309');
+            } else {
+              player.pushVx = dir * 245;
+              playSound('bump');
+              addPopup(myCx, player.y - 10, '同階梯突襲推撞！', '#dc2626');
+            }
+          }
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -1815,15 +1831,6 @@
         } catch (_) {
           prompt('請複製連結分享給好友：', shareUrl);
         }
-      });
-
-      document.querySelectorAll('.emote-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const emoji = btn.getAttribute('data-emote');
-          addPopup(player.x + player.w / 2, player.y - 12, emoji, '#78350f');
-          publishMsg({ t: 'emote', emoji });
-        });
       });
 
       // ============== 操控輸入（正下方半透明懸浮拖曳搖桿 + 鍵盤） ==============
@@ -2050,6 +2057,10 @@
         player.hurtTimer = 0;
         player.shockTimer = 0;
         player.jumpTimer = 0;
+        player.skillCooldown = 0;
+        player.phaseTimer = 0;
+        player.reverseTimer = 0;
+        player.slowTimer = 0;
         player.actionState = 'idle';
 
         updateAnimalSelectionUI();
@@ -2237,6 +2248,10 @@
         if (player.hurtTimer > 0) player.hurtTimer = Math.max(0, player.hurtTimer - dt);
         if (player.shockTimer > 0) player.shockTimer = Math.max(0, player.shockTimer - dt);
         if (player.jumpTimer > 0) player.jumpTimer = Math.max(0, player.jumpTimer - dt);
+        if (player.skillCooldown > 0) player.skillCooldown = Math.max(0, player.skillCooldown - dt);
+        if (player.phaseTimer > 0) player.phaseTimer = Math.max(0, player.phaseTimer - dt);
+        if (player.reverseTimer > 0) player.reverseTimer = Math.max(0, player.reverseTimer - dt);
+        if (player.slowTimer > 0) player.slowTimer = Math.max(0, player.slowTimer - dt);
 
         while (nextSpawnWorldY < scrollDistance + H + 80) {
           platforms.push(createPlatformAtWorldY(nextSpawnWorldY, false));
@@ -2323,6 +2338,7 @@
         if (player.stunTimer <= 0) {
           if (input.left) moveDir -= 1;
           if (input.right) moveDir += 1;
+          if (player.reverseTimer > 0) moveDir = -moveDir;
         }
 
         if (moveDir !== 0 && moveDir === player.facing) {
@@ -2332,6 +2348,7 @@
         }
 
         let speedMultiplier = ani.speedMul;
+        if (player.slowTimer > 0) speedMultiplier *= 0.55;
         let boarCharging = false;
         if (ani.id === 'bison' && player.runTime > 0.32) {
           speedMultiplier *= 1.32;
@@ -2402,15 +2419,46 @@
         else if (moveDir !== 0) player.actionState = 'run';
         else player.actionState = 'idle';
 
-        // 多人猛獸碰撞
+        // 同一塊階梯上自動觸發動物專屬技能
+        if (player.onPlatform && player.skillCooldown <= 0) {
+          const curP = player.onPlatform;
+          let hasSamePlatPeer = false;
+          for (const rp of peers.values()) {
+            if (!rp.alive) continue;
+            const onSame = Math.abs((rp.worldY + 28) - curP.worldY) < 22 &&
+                           (rp.x + 26 > curP.x) && (rp.x + 2 < curP.x + curP.w);
+            if (onSame) { hasSamePlatPeer = true; break; }
+          }
+          if (hasSamePlatPeer) {
+            player.skillCooldown = 3.6;
+            const cx = player.x + 15;
+            publishMsg({ t: 'skill', ani: ani.id, wy: Math.round(curP.worldY), x: Math.round(cx) });
+            if (ani.id === 'sandcat' || ani.id === 'fox') {
+              player.phaseTimer = 2.0;
+              addPopup(cx, player.y - 12, ani.id === 'sandcat' ? '幽靈無相！' : '寒霜閃避！', '#0284c7');
+            } else if (ani.id === 'beaver' && curP.type !== 'supply') {
+              curP.broken = true;
+              player.onPlatform = null;
+              player.vy = -215;
+              player.jumpTimer = 0.25;
+              addPopup(cx, player.y - 12, '暴牙啃斷！', '#92400e');
+            } else {
+              addPopup(cx, player.y - 12, `${ani.name}發動技能！`, '#b45309');
+            }
+            playSound('bump');
+          }
+        }
+
+        // 多人猛獸碰撞（幽靈無相期間無視實體碰撞）
         const myWorldY = player.y + scrollDistance;
         for (const rp of peers.values()) {
-          if (!rp.alive) continue;
+          if (!rp.alive || player.phaseTimer > 0) continue;
           const rpAni = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
           const dx = (player.x + player.w / 2) - (rp.x + 15);
           const dyWorld = myWorldY - rp.worldY;
 
-          if (Math.abs(dx) < 25 && Math.abs(dyWorld) < 26) {
+          const hitW = Math.max(36, 18 * (ani.sizeScale + rpAni.sizeScale));
+          if (Math.abs(dx) < hitW && Math.abs(dyWorld) < 34) {
             if (ani.id === 'jaguar' && dyWorld < -8 && player.vy > 0) {
               player.onPlatform = null;
               player.vy = -315;
@@ -2861,24 +2909,26 @@
         ctx.save();
         ctx.globalAlpha = alpha;
 
+        const inGameBaseScale = 1.7;
+        const s = inGameBaseScale * ani.sizeScale;
         const cx = x + 15;
-        const cy = y + 14;
-
-        const labelOffset = ani.posture === 'bipedal_bear' ? 20 : (ani.posture === 'colossal' ? 18 : 12);
+        // 腳底精準對齊 y + 28（階梯表面）
+        const cy = (y + 28) - 15 * s;
+        const headY = cy - 22 * s;
 
         ctx.font = '900 11px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = isLocal ? '#78350f' : '#27272a';
-        ctx.fillText(name, cx, y - labelOffset);
+        ctx.fillText(name, cx, headY - 6);
 
-        const barW = 26;
+        const barW = 28;
         ctx.fillStyle = 'rgba(24, 24, 27, 0.85)';
-        ctx.fillRect(cx - barW / 2, y - labelOffset + 3, barW, 3.5);
+        ctx.fillRect(cx - barW / 2, headY - 3, barW, 3.5);
         ctx.fillStyle = hpVal > 4 ? '#d97706' : '#dc2626';
-        ctx.fillRect(cx - barW / 2, y - labelOffset + 3, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
+        ctx.fillRect(cx - barW / 2, headY - 3, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
 
         const pitch = ani.posture === 'bipedal_bear' ? 0 : Math.max(-0.28, Math.min(0.28, vy * 0.0005));
-        drawAuthenticAnimal(ctx, animalId, cx, cy, 0.96, facing, walkFrame, pitch, action);
+        drawAuthenticAnimal(ctx, animalId, cx, cy, inGameBaseScale, facing, walkFrame, pitch, action);
 
         ctx.restore();
       }
@@ -2959,7 +3009,7 @@
             myAnimalId,
             myName,
             hp,
-            1,
+            player.phaseTimer > 0 ? 0.42 : 1,
             true,
             player.vy,
             player.actionState
