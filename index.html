@@ -1550,6 +1550,8 @@
       let floor = 0;
       let scrollDistance = 0;
       let survivalTime = 0;
+      let countdownTimer = 0;
+      let lastCountdownSec = 0;
       let scrollSpeed = 112;
       let nextSpawnWorldY = 0;
       let shakeTime = 0;
@@ -2380,6 +2382,8 @@
         floor = 1;
         scrollDistance = 0;
         survivalTime = 0;
+        countdownTimer = 3.0;
+        lastCountdownSec = 4;
         scrollSpeed = 112;
         shakeTime = 0;
         platforms = [];
@@ -2630,6 +2634,21 @@
         }
 
         if (state !== 'PLAYING') return;
+
+        if (countdownTimer > 0) {
+          countdownTimer = Math.max(0, countdownTimer - dt);
+          const sec = Math.ceil(countdownTimer);
+          if (sec > 0 && sec !== lastCountdownSec) {
+            lastCountdownSec = sec;
+            playSound('bump');
+          }
+          if (countdownTimer <= 0) {
+            playSound('spring');
+            addPopup(LOGIC_W / 2, H * 0.38, '出發！GO!', '#16a34a');
+          }
+          player.walkFrame += dt * 3;
+          return;
+        }
 
         const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
 
@@ -3976,6 +3995,34 @@
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(fieldBanner.text, LOGIC_W / 2, by + 15);
+          ctx.restore();
+        }
+
+        // 開局同步 3 秒倒數（清楚看到站位與下方階梯）
+        if (state === 'PLAYING' && countdownTimer > 0) {
+          const sec = Math.max(1, Math.ceil(countdownTimer));
+          const frac = countdownTimer - Math.floor(countdownTimer);
+          const pulse = 1 + Math.sin(frac * Math.PI) * 0.16;
+          ctx.save();
+          ctx.translate(LOGIC_W / 2, 108);
+          ctx.scale(pulse, pulse);
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+          ctx.beginPath();
+          ctx.roundRect(-84, -38, 168, 76, 18);
+          ctx.fill();
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = '900 40px Georgia, serif';
+          ctx.fillStyle = '#fef08a';
+          ctx.fillText(String(sec), 0, -6);
+
+          ctx.font = '800 12px system-ui, sans-serif';
+          ctx.fillStyle = '#f8fafc';
+          ctx.fillText('準備起跑 · 觀察下方階梯', 0, 24);
           ctx.restore();
         }
       }
