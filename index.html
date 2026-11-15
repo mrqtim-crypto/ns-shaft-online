@@ -1062,9 +1062,9 @@
 
       let bestFloor = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
 
-      // ================== 動物動態動作引擎（騰空 / 跳躍 / 刺到 / 電到 / 滾輪驚訝） ==================
+      // ================== 動物動態動作引擎（移動 / 跳躍 / 騰空 / 刺到 / 電到 / 滾輪驚訝） ==================
       const SPRITES = {};
-      ANIMALS.forEach((a) => { const img = new Image(); img.src = `animals/${a.id}.png`; SPRITES[a.id] = img; });
+      ANIMALS.forEach((a) => { const img = new Image(); img.src = `animals/${a.id}.png?v=2`; SPRITES[a.id] = img; });
 
       function drawAuthenticAnimal(targetCtx, animalId, cx, cy, baseScale, facing, phase, leapPitch = 0, action = 'idle') {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
@@ -1075,34 +1075,39 @@
         targetCtx.translate(cx, cy);
 
         // 地面投影（騰空/跳躍時縮小變淡）
-        const shadowScale = (action === 'airborne' || action === 'jumping') ? 0.58 : 1;
+        const shadowScale = (action === 'airborne' || action === 'jumping') ? 0.56 : 1;
         targetCtx.save();
         targetCtx.scale((facing || 1) * s * shadowScale, s * shadowScale);
-        targetCtx.fillStyle = (action === 'airborne' || action === 'jumping') ? 'rgba(15, 23, 42, 0.12)' : 'rgba(15, 23, 42, 0.24)';
+        targetCtx.fillStyle = (action === 'airborne' || action === 'jumping') ? 'rgba(92, 58, 33, 0.12)' : 'rgba(92, 58, 33, 0.24)';
         targetCtx.beginPath();
         targetCtx.ellipse(0, 15, ani.posture === 'colossal' ? 18 : 13, 3.2, 0, 0, Math.PI * 2);
         targetCtx.fill();
         targetCtx.restore();
 
-        // 動作形變與晃動
+        // 動作形變與生動表情
         let jx = 0, jy = 0, sx = 1, sy = 1, rot = leapPitch;
         if (action === 'hurt') {
-          jx = Math.sin(now * 0.08) * 3.5;
-          jy = Math.cos(now * 0.09) * 2;
-          rot -= 0.16;
-          sx = 1.08; sy = 0.92;
+          jx = Math.sin(now * 0.085) * 4;
+          jy = Math.cos(now * 0.095) * 2.5;
+          rot -= 0.18;
+          sx = 1.1; sy = 0.9;
         } else if (action === 'shocked') {
-          jx = (Math.random() - 0.5) * 6;
-          jy = (Math.random() - 0.5) * 4;
-          sx = 1.05; sy = 0.95;
+          jx = (Math.random() - 0.5) * 7;
+          jy = (Math.random() - 0.5) * 5;
+          sx = 1.06; sy = 0.94;
         } else if (action === 'jumping') {
           sx = 0.88; sy = 1.18;
-          rot -= 0.12;
+          rot -= 0.13;
         } else if (action === 'airborne') {
           sx = 0.94; sy = 1.08;
+          rot += Math.sin(now * 0.015) * 0.09;
         } else if (action === 'slipping') {
-          rot -= 0.24 + Math.sin(now * 0.03) * 0.09;
-          jy = Math.abs(Math.sin(phase * 1.8)) * -2.2;
+          rot -= 0.24 + Math.sin(now * 0.03) * 0.1;
+          jy = Math.abs(Math.sin(phase * 1.8)) * -2.4;
+        } else if (action === 'run') {
+          rot += Math.sin(phase * 1.6) * 0.07;
+          sx = 1 + Math.sin(phase * 3.2) * 0.04;
+          sy = 1 - Math.sin(phase * 3.2) * 0.04;
         }
 
         targetCtx.translate(jx, jy);
@@ -1111,68 +1116,83 @@
 
         const isFlyer = ani.posture === 'soaring_bird';
         const bob = isFlyer
-          ? 3 + Math.sin(phase * 0.6) * 2.2
-          : (action === 'jumping' ? 4 : Math.abs(Math.sin(phase)) * (action === 'slipping' ? 2.4 : 1.4));
+          ? 3 + Math.sin(phase * 0.6) * 2.4
+          : (action === 'jumping' ? 4.5 : (action === 'run' ? Math.abs(Math.sin(phase * 1.6)) * 2.6 : Math.abs(Math.sin(phase)) * 1.1));
         const squash = (1 + Math.sin(phase * 2) * 0.025) * sy;
         targetCtx.scale((ani.face === -1 ? -1 : 1) * sx, squash);
 
         if (img && img.complete && img.naturalWidth) {
           const ar = img.naturalWidth / img.naturalHeight;
+          const baseDim = 40;
           let dw, dh;
-          if (ar >= 1) { dw = ar > 1.6 ? 44 : 40; dh = dw / ar; } else { dh = 36; dw = dh * ar; }
+          if (ar >= 1) { dw = baseDim; dh = dw / ar; } else { dh = baseDim; dw = dh * ar; }
           targetCtx.drawImage(img, -dw / 2, 15 - dh - bob, dw, dh);
         } else {
-          targetCtx.fillStyle = '#52525b';
+          targetCtx.fillStyle = '#a16207';
           targetCtx.beginPath();
           targetCtx.ellipse(0, 2 - bob, 14, 12, 0, 0, Math.PI * 2);
           targetCtx.fill();
         }
         targetCtx.restore();
 
-        // 狀態特效（電到電弧、刺到紅閃/驚嚇、跳躍氣流、滾輪驚訝）
+        // 狀態對應表情符號與動作特效
         if (action === 'shocked') {
           targetCtx.save();
           targetCtx.translate(cx, cy);
           targetCtx.strokeStyle = '#38bdf8';
-          targetCtx.lineWidth = 2;
-          for (let k = 0; k < 3; k++) {
-            const ang = (now * 0.02 + k * 2.1);
+          targetCtx.lineWidth = 2.2;
+          for (let k = 0; k < 4; k++) {
+            const ang = (now * 0.022 + k * 1.57);
             targetCtx.beginPath();
-            targetCtx.moveTo(Math.cos(ang) * 10, Math.sin(ang) * 10);
-            targetCtx.lineTo(Math.cos(ang + 0.5) * 18, Math.sin(ang + 0.5) * 18);
+            targetCtx.moveTo(Math.cos(ang) * 10 * s, Math.sin(ang) * 10 * s);
+            targetCtx.lineTo(Math.cos(ang + 0.45) * 19 * s, Math.sin(ang + 0.45) * 19 * s);
             targetCtx.stroke();
           }
-          targetCtx.fillStyle = '#facc15';
-          targetCtx.font = '900 13px sans-serif';
+          targetCtx.font = '900 14px sans-serif';
           targetCtx.textAlign = 'center';
-          targetCtx.fillText('⚡', cx - cx, -22 * s);
+          targetCtx.fillText('⚡😵', 0, -21 * s);
           targetCtx.restore();
         } else if (action === 'hurt') {
           targetCtx.save();
           targetCtx.translate(cx, cy);
-          targetCtx.fillStyle = '#ef4444';
           targetCtx.font = '900 14px sans-serif';
           targetCtx.textAlign = 'center';
-          targetCtx.fillText('💢', 10, -18 * s);
+          targetCtx.fillText('💢😣', 4, -19 * s);
           targetCtx.restore();
         } else if (action === 'slipping') {
           targetCtx.save();
           targetCtx.translate(cx, cy);
-          targetCtx.fillStyle = '#0284c7';
           targetCtx.font = '900 13px sans-serif';
           targetCtx.textAlign = 'center';
-          targetCtx.fillText('💦⁉', 0, -20 * s);
+          targetCtx.fillText('💦⁉️', 0, -20 * s);
           targetCtx.restore();
         } else if (action === 'jumping') {
           targetCtx.save();
           targetCtx.translate(cx, cy + 12 * s);
-          targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.78)';
-          targetCtx.lineWidth = 1.8;
+          targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+          targetCtx.lineWidth = 2;
           targetCtx.beginPath();
           targetCtx.moveTo(-10, 0); targetCtx.lineTo(-12, 8);
           targetCtx.moveTo(0, 2); targetCtx.lineTo(0, 11);
           targetCtx.moveTo(10, 0); targetCtx.lineTo(12, 8);
           targetCtx.stroke();
+          targetCtx.restore();
+        } else if (action === 'airborne') {
+          targetCtx.save();
+          targetCtx.translate(cx, cy);
+          targetCtx.font = '900 12px sans-serif';
+          targetCtx.textAlign = 'center';
+          targetCtx.fillText('💦', 11 * s, -15 * s);
+          targetCtx.restore();
+        } else if (action === 'run') {
+          targetCtx.save();
+          targetCtx.translate(cx - (facing || 1) * 14 * s, cy + 13 * s);
+          targetCtx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+          const puff = (now * 0.015) % 6;
+          targetCtx.beginPath();
+          targetCtx.arc(-puff * (facing || 1), -puff * 0.5, 3, 0, Math.PI * 2);
+          targetCtx.arc(-(puff + 4) * (facing || 1), -puff * 0.3, 2, 0, Math.PI * 2);
+          targetCtx.fill();
           targetCtx.restore();
         }
       }
@@ -1484,16 +1504,16 @@
 
       const PICKUPS = [
         { id: 'heal',    icon: '❤️', color: '#ef4444', label: '急救補血' },
-        { id: 'freeze',  icon: '❄️', color: '#38bdf8', label: '全場冷凍 1 秒！' },
+        { id: 'freeze',  icon: '❄️', color: '#0284c7', label: '全場冷凍 5 秒！' },
         { id: 'ceiling', icon: '🔻', color: '#dc2626', label: '頂刺下壓 5 秒！' },
-        { id: 'walls',   icon: '🧱', color: '#f59e0b', label: '牆壁推擠縮窄！' },
-        { id: 'feather', icon: '⚡', color: '#eab308', label: '疾風緩降加速！' },
-        { id: 'reverse', icon: '🌀', color: '#8b5cf6', label: '全場方向反轉！' },
-        { id: 'wind',    icon: '💨', color: '#06b6d4', label: '橫向狂風吹襲！' },
-        { id: 'giant',   icon: '🍄', color: '#f97316', label: '巨無霸推土機！' },
-        { id: 'rush',    icon: '⬆️', color: '#e11d48', label: '地下加速崩塌！' },
-        { id: 'magnet',  icon: '🧲', color: '#ec4899', label: '中央磁場吸聚！' },
-        { id: 'brittle', icon: '💥', color: '#b45309', label: '全場階梯脆化！' }
+        { id: 'walls',   icon: '🧱', color: '#d97706', label: '牆壁推擠 5 秒！' },
+        { id: 'feather', icon: '⚡', color: '#ca8a04', label: '疾風加速 5 秒！' },
+        { id: 'reverse', icon: '🌀', color: '#7c3aed', label: '全場反轉 5 秒！' },
+        { id: 'wind',    icon: '💨', color: '#0891b2', label: '強風吹襲 5 秒！' },
+        { id: 'giant',   icon: '🍄', color: '#ea580c', label: '巨無霸 5 秒！' },
+        { id: 'rush',    icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
+        { id: 'magnet',  icon: '🧲', color: '#db2777', label: '中央磁場 5 秒！' },
+        { id: 'brittle', icon: '💥', color: '#b45309', label: '階梯脆化 5 秒！' }
       ];
       const PICKUP_MAP = Object.fromEntries(PICKUPS.map(p => [p.id, p]));
 
@@ -1508,6 +1528,7 @@
         magnetTimer: 0,
         brittleTimer: 0
       };
+      const fieldBanner = { text: '', color: '#d97706', timer: 0, maxTimer: 3.4 };
 
       function resetFieldEvents() {
         fieldEvents.freezeTimer = 0;
@@ -1519,49 +1540,64 @@
         fieldEvents.rushTimer = 0;
         fieldEvents.magnetTimer = 0;
         fieldEvents.brittleTimer = 0;
+        fieldBanner.timer = 0;
       }
 
-      function triggerPickupEvent(kind, isMine, extraDir = 1) {
+      function triggerPickupEvent(kind, isMine, extraDir = 1, actorName = '') {
         const pk = PICKUP_MAP[kind];
         if (!pk) return;
-        addPopup(LOGIC_W / 2, 72, pk.label, pk.color);
+        const who = actorName ? `${actorName} ` : '';
+        let bannerLabel = pk.label;
+        if (kind === 'wind') {
+          bannerLabel = extraDir > 0 ? '強風向右吹 5 秒！➡️' : '⬅️ 強風向左吹 5 秒！';
+        }
+        if (kind !== 'heal' && kind !== 'feather' && kind !== 'giant') {
+          fieldBanner.text = `${pk.icon} ${who}觸發【${bannerLabel}】`;
+          fieldBanner.color = pk.color;
+          fieldBanner.timer = fieldBanner.maxTimer;
+        } else if (isMine) {
+          fieldBanner.text = `${pk.icon} ${who}獲得【${bannerLabel}】`;
+          fieldBanner.color = pk.color;
+          fieldBanner.timer = 2.4;
+        }
+        addPopup(LOGIC_W / 2, 72, `${pk.icon} ${bannerLabel}`, pk.color);
         if (kind === 'heal') {
           if (isMine) {
             if (hp < MAX_HP) healPlayer(3, player.x + 15, player.y, '急救 +3 HP!');
-            else { player.invulnerable = 2.0; addPopup(player.x + 15, player.y, '滿血無敵護盾！', '#ef4444'); }
+            else { player.invulnerable = 5.0; addPopup(player.x + 15, player.y, '滿血無敵 5 秒！', '#ef4444'); }
             playSound('supply');
           }
         } else if (kind === 'freeze') {
-          fieldEvents.freezeTimer = 1.0;
+          fieldEvents.freezeTimer = 5.0;
           fieldEvents.freezeByMe = isMine;
           playSound('shock');
         } else if (kind === 'ceiling') {
           fieldEvents.ceilingTimer = 5.8; // 0.8s預警 + 5s下壓與退回
           playSound('stomp');
         } else if (kind === 'walls') {
-          fieldEvents.wallTimer = 5.5;
+          fieldEvents.wallTimer = 5.0;
           playSound('stomp');
         } else if (kind === 'feather') {
-          if (isMine) { player.featherTimer = 4.0; playSound('spring'); }
+          if (isMine) { player.featherTimer = 5.0; playSound('spring'); }
         } else if (kind === 'reverse') {
-          if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'bear' && myAnimalId !== 'sandcat') {
-            player.reverseTimer = 2.5;
+          if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'bear' && myAnimalId !== 'sandcat' && myAnimalId !== 'chameleon') {
+            player.reverseTimer = 5.0;
             playSound('shock');
           }
         } else if (kind === 'wind') {
-          fieldEvents.windTimer = 4.0;
+          fieldEvents.windTimer = 5.0;
           fieldEvents.windDir = extraDir || 1;
           playSound('bump');
         } else if (kind === 'giant') {
           if (isMine) { player.giantTimer = 5.0; playSound('stomp'); }
         } else if (kind === 'rush') {
-          fieldEvents.rushTimer = 2.5;
+          fieldEvents.rushTimer = 5.0;
           playSound('stomp');
         } else if (kind === 'magnet') {
-          fieldEvents.magnetTimer = 3.0;
+          fieldEvents.magnetTimer = 5.0;
           playSound('bump');
         } else if (kind === 'brittle') {
-          fieldEvents.brittleTimer = 4.0;
+          fieldEvents.brittleTimer = 5.0;
           for (const plat of platforms) {
             if (plat.type === 'steel' && !plat.broken) plat.brittle = true;
           }
@@ -1831,7 +1867,7 @@
               plat.pickup.taken = true;
             }
           }
-          triggerPickupEvent(msg.kind, false, msg.dir || 1);
+          triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -2412,6 +2448,7 @@
         if (fieldEvents.rushTimer > 0) fieldEvents.rushTimer = Math.max(0, fieldEvents.rushTimer - dt);
         if (fieldEvents.magnetTimer > 0) fieldEvents.magnetTimer = Math.max(0, fieldEvents.magnetTimer - dt);
         if (fieldEvents.brittleTimer > 0) fieldEvents.brittleTimer = Math.max(0, fieldEvents.brittleTimer - dt);
+        if (fieldBanner.timer > 0) fieldBanner.timer = Math.max(0, fieldBanner.timer - dt);
 
         const isFrozenTarget = fieldEvents.freezeTimer > 0 && !fieldEvents.freezeByMe;
         const scrollFrozen = fieldEvents.freezeTimer > 0;
@@ -2747,7 +2784,7 @@
           if (Math.abs((player.x + player.w / 2) - pkX) < 28) {
             pk.taken = true;
             const wDir = Math.random() < 0.5 ? -1 : 1;
-            triggerPickupEvent(pk.type, true, wDir);
+            triggerPickupEvent(pk.type, true, wDir, myName);
             publishMsg({ t: 'pickup', wy: Math.round(player.onPlatform.worldY), kind: pk.type, dir: wDir });
             spawnParticles(pkX, player.onPlatform.y - 10, pk.color, 12);
           }
@@ -3334,16 +3371,41 @@
         }
         if (fieldEvents.windTimer > 0) {
           ctx.save();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-          ctx.lineWidth = 2;
-          const tShift = (Date.now() * 0.45 * fieldEvents.windDir) % LOGIC_W;
-          for (let wy = 60; wy < H - 40; wy += 75) {
-            const wx = ((wy * 3 + tShift) % LOGIC_W + LOGIC_W) % LOGIC_W;
+          const dir = fieldEvents.windDir >= 0 ? 1 : -1;
+          const now = Date.now();
+          const tShift = (now * 0.52 * dir) % LOGIC_W;
+          // 明確流動風向線條與尾端箭頭
+          for (let wy = 58; wy < H - 36; wy += 44) {
+            const wx = ((wy * 4 + tShift) % LOGIC_W + LOGIC_W) % LOGIC_W;
+            const len = 54;
+            const endX = wx + len * dir;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.lineWidth = 2.8;
+            ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(wx, wy);
-            ctx.lineTo(wx + 36 * fieldEvents.windDir, wy);
+            ctx.quadraticCurveTo(wx + len * 0.5 * dir, wy - 5, endX, wy);
+            ctx.stroke();
+            // 箭頭尖端
+            ctx.beginPath();
+            ctx.moveTo(endX - 7 * dir, wy - 5);
+            ctx.lineTo(endX, wy);
+            ctx.lineTo(endX - 7 * dir, wy + 5);
             ctx.stroke();
           }
+          // 醒目風向提示牌
+          ctx.fillStyle = 'rgba(8, 145, 178, 0.88)';
+          ctx.beginPath();
+          ctx.roundRect(LOGIC_W / 2 - 96, H - 96, 192, 26, 13);
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '900 12px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(dir > 0 ? '💨 強風向右吹襲中 >>>' : '<<< 強風向左吹襲中 💨', LOGIC_W / 2, H - 83);
           ctx.restore();
         }
         if (fieldEvents.magnetTimer > 0) {
@@ -3383,6 +3445,29 @@
           ctx.fillText(pp.text, pp.x + 1, pp.y + 1);
           ctx.fillStyle = pp.color;
           ctx.fillText(pp.text, pp.x, pp.y);
+          ctx.restore();
+        }
+
+        // 全場效果全員文字橫幅提醒
+        if (fieldBanner.timer > 0 && fieldBanner.text) {
+          ctx.save();
+          const fade = Math.min(1, fieldBanner.timer * 2.2);
+          ctx.globalAlpha = fade;
+          const bw = Math.min(LOGIC_W - 24, 332);
+          const bx = (LOGIC_W - bw) / 2;
+          const by = 46;
+          ctx.fillStyle = 'rgba(255, 251, 235, 0.95)';
+          ctx.beginPath();
+          ctx.roundRect(bx, by, bw, 30, 15);
+          ctx.fill();
+          ctx.strokeStyle = fieldBanner.color;
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.fillStyle = '#451a03';
+          ctx.font = '900 13px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(fieldBanner.text, LOGIC_W / 2, by + 15);
           ctx.restore();
         }
       }
