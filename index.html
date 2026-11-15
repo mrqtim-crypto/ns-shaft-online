@@ -151,6 +151,178 @@
       white-space: nowrap;
     }
 
+    .spectate-banner {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 22;
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid #fbbf24;
+      color: #fef08a;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .spectate-banner.hidden {
+      display: none;
+    }
+
+    .result-card {
+      width: 100%;
+      max-width: 390px;
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border: 3px solid #78350f;
+      border-radius: 20px;
+      padding: 14px 14px 16px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.48);
+      color: #451a03;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .result-title {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: #78350f;
+      letter-spacing: 1px;
+    }
+
+    .podium-stage {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 4px 0;
+      min-height: 155px;
+    }
+
+    .podium-col {
+      flex: 1;
+      max-width: 112px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .podium-crown {
+      font-size: 18px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .podium-avatar {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    .podium-name {
+      font-size: 11px;
+      font-weight: 900;
+      color: #451a03;
+      max-width: 96px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .podium-dist {
+      font-size: 11px;
+      font-weight: 800;
+      color: #b45309;
+      margin-bottom: 4px;
+    }
+
+    .podium-block {
+      width: 100%;
+      border-radius: 10px 10px 4px 4px;
+      border: 2px solid #78350f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    }
+
+    .podium-block.p1 {
+      height: 62px;
+      background: linear-gradient(180deg, #facc15, #d97706);
+    }
+
+    .podium-block.p2 {
+      height: 46px;
+      background: linear-gradient(180deg, #e2e8f0, #94a3b8);
+    }
+
+    .podium-block.p3 {
+      height: 36px;
+      background: linear-gradient(180deg, #fdba74, #b45309);
+    }
+
+    .result-rank-list {
+      max-height: 150px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1.5px solid #d97706;
+      border-radius: 12px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .result-row.me {
+      background: rgba(251, 191, 36, 0.34);
+      border: 1px solid #d97706;
+    }
+
+    .result-row img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .result-row .r-rank {
+      width: 22px;
+      text-align: center;
+      color: #92400e;
+      font-weight: 900;
+    }
+
+    .result-row .r-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-row .r-score {
+      color: #b45309;
+      font-variant-numeric: tabular-nums;
+    }
+
     .hp-bar {
       display: flex;
       gap: 2px;
@@ -912,6 +1084,21 @@
           </div>
         </div>
       </div>
+
+      <!-- 觀戰狀態條 -->
+      <div class="spectate-banner hidden" id="spectateBanner">👁️ 已倒下 · 觀戰中（等待全員結束）</div>
+
+      <!-- 全員死亡最終結算與前三名頒獎台 -->
+      <div class="overlay hidden" id="resultOverlay">
+        <div class="result-card">
+          <div class="result-title">🏆 本場最終戰績 🏆</div>
+          <div class="podium-stage" id="podiumStage"></div>
+          <div class="result-rank-list" id="resultRankList"></div>
+          <div class="btn-group">
+            <button class="primary-btn" id="resultBackBtn">返回大廳選角</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1190,6 +1377,11 @@
       const overlay = document.getElementById('overlay');
       const overlayBadge = document.getElementById('overlayBadge');
       const overlayTitle = document.getElementById('overlayTitle');
+      const resultOverlay = document.getElementById('resultOverlay');
+      const podiumStage = document.getElementById('podiumStage');
+      const resultRankList = document.getElementById('resultRankList');
+      const resultBackBtn = document.getElementById('resultBackBtn');
+      const spectateBanner = document.getElementById('spectateBanner');
       const bestScoreText = document.getElementById('bestScoreText');
       const startMpBtn = document.getElementById('startMpBtn');
       const startSoloBtn = document.getElementById('startSoloBtn');
@@ -1612,6 +1804,9 @@
       let countdownTimer = 0;
       let lastCountdownSec = 0;
       let startGraceTimer = 0;
+      const matchParticipants = new Map();
+      let myFinalDist = 0;
+      let myFinalFloor = 1;
       let scrollSpeed = 112;
       let nextSpawnWorldY = 0;
       let shakeTime = 0;
@@ -1952,6 +2147,7 @@
           roll: player.pangolinRollTimer > 0 ? 1 : 0,
           hp,
           fl: floor,
+          dm: Math.floor(scrollDistance / 35),
           alive: hp > 0
         });
       }
@@ -2008,7 +2204,15 @@
           p.rolling = !!msg.roll;
           p.hp = msg.hp;
           p.floor = msg.fl;
+          if (msg.dm !== undefined) p.distM = Math.max(p.distM || 0, msg.dm);
           p.alive = !!msg.alive;
+          if (matchParticipants.has(msg.id)) {
+            const rec = matchParticipants.get(msg.id);
+            rec.floor = Math.max(rec.floor, p.floor || 1);
+            rec.distM = Math.max(rec.distM, p.distM || 0);
+            rec.animalId = p.animalId;
+            rec.name = p.name;
+          }
           if (!p.hasPos || Math.abs(p.x - msg.x) > 160 || Math.abs(p.worldY - msg.wy) > 160) {
             p.x = msg.x;
             p.worldY = msg.wy;
@@ -2095,9 +2299,17 @@
           p.alive = false;
           p.hp = 0;
           p.floor = msg.fl || p.floor;
+          if (msg.dm !== undefined) p.distM = Math.max(p.distM || 0, msg.dm);
+          if (matchParticipants.has(msg.id)) {
+            const rec = matchParticipants.get(msg.id);
+            rec.floor = Math.max(rec.floor, p.floor || 1);
+            rec.distM = Math.max(rec.distM, p.distM || 0);
+            rec.alive = false;
+          }
           const ani = ANIMAL_MAP[p.animalId] || ANIMALS[0];
           addPopup(LOGIC_W / 2, 86, `${ani.name} (${p.name}) 倒下了`, '#991b1b');
           renderRoster();
+          checkAllDeadAndShowResult();
         }
       }
 
@@ -2110,7 +2322,10 @@
             changed = true;
           }
         }
-        if (changed) renderRoster();
+        if (changed) {
+          renderRoster();
+          checkAllDeadAndShowResult();
+        }
         broadcastHeartbeat();
         renderMpStrip();
       }, 1500);
@@ -2613,6 +2828,16 @@
         updateAnimalSelectionUI();
         updateHUD();
         state = 'PLAYING';
+        myFinalDist = 0;
+        myFinalFloor = 1;
+        matchParticipants.clear();
+        matchParticipants.set(myId, { id: myId, name: myName, animalId: myAnimalId, distM: 0, floor: 1, isMe: true, alive: true });
+        for (const [pid, rp] of peers.entries()) {
+          rp.distM = 0;
+          matchParticipants.set(pid, { id: pid, name: rp.name, animalId: rp.animalId, distM: 0, floor: 1, isMe: false, alive: true });
+        }
+        resultOverlay.classList.add('hidden');
+        spectateBanner.classList.add('hidden');
         overlay.classList.add('hidden');
         floatJoystick.classList.remove('hidden');
         broadcastHeartbeat();
@@ -2661,11 +2886,97 @@
         }
       }
 
-      function triggerGameOver() {
+      function showMatchResultOverlay() {
         state = 'GAMEOVER';
+        spectateBanner.classList.add('hidden');
+        floatJoystick.classList.add('hidden');
+
+        // 同步最新統計
+        if (matchParticipants.has(myId)) {
+          const meRec = matchParticipants.get(myId);
+          meRec.distM = Math.max(meRec.distM, myFinalDist);
+          meRec.floor = Math.max(meRec.floor, myFinalFloor);
+          meRec.animalId = myAnimalId;
+          meRec.name = myName;
+          meRec.alive = false;
+        }
+        for (const [pid, rp] of peers.entries()) {
+          if (matchParticipants.has(pid)) {
+            const rec = matchParticipants.get(pid);
+            rec.distM = Math.max(rec.distM, rp.distM || 0);
+            rec.floor = Math.max(rec.floor, rp.floor || 1);
+            rec.animalId = rp.animalId;
+            rec.name = rp.name;
+          }
+        }
+
+        const rankings = Array.from(matchParticipants.values()).sort((a, b) => {
+          if (b.distM !== a.distM) return b.distM - a.distM;
+          if (b.floor !== a.floor) return b.floor - a.floor;
+          return a.isMe ? -1 : 1;
+        });
+
+        // 前三名頒獎台順序：左(第2) - 中(第1) - 右(第3)
+        const podiumOrder = [
+          { idx: 1, cls: 'p2', medal: '🥈', num: '2' },
+          { idx: 0, cls: 'p1', medal: '👑', num: '1' },
+          { idx: 2, cls: 'p3', medal: '🥉', num: '3' }
+        ];
+        podiumStage.innerHTML = podiumOrder.map(slot => {
+          const r = rankings[slot.idx];
+          if (!r) return '';
+          const ani = ANIMAL_MAP[r.animalId] || ANIMALS[0];
+          return `
+            <div class="podium-col">
+              <div class="podium-crown">${slot.medal}</div>
+              <img class="podium-avatar" src="animals/${ani.id}.png" alt="${ani.name}" />
+              <div class="podium-name">${r.name}</div>
+              <div class="podium-dist">${r.distM} m · ${r.floor}F</div>
+              <div class="podium-block ${slot.cls}">${slot.num}</div>
+            </div>
+          `;
+        }).join('');
+
+        resultRankList.innerHTML = rankings.map((r, i) => {
+          const ani = ANIMAL_MAP[r.animalId] || ANIMALS[0];
+          const rankIcon = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `${i + 1}`));
+          return `
+            <div class="result-row ${r.isMe ? 'me' : ''}">
+              <span class="r-rank">${rankIcon}</span>
+              <img src="animals/${ani.id}.png" alt="${ani.name}" />
+              <span class="r-name">${r.name} (${ani.name})${r.isMe ? ' [你]' : ''}</span>
+              <span class="r-score">${r.distM} m · ${r.floor}F</span>
+            </div>
+          `;
+        }).join('');
+
+        resultOverlay.classList.remove('hidden');
+        renderRoster();
+        renderMpStrip();
+      }
+
+      function checkAllDeadAndShowResult() {
+        if (state !== 'SPECTATING') return;
+        const anyAlive = Array.from(peers.values()).some(rp => rp.alive);
+        if (!anyAlive) {
+          showMatchResultOverlay();
+        }
+      }
+
+      resultBackBtn.addEventListener('click', () => {
+        resultOverlay.classList.add('hidden');
+        const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
+        overlayBadge.textContent = `生存結束`;
+        overlayTitle.textContent = `${ani.name} 準備再戰`;
+        overlay.classList.remove('hidden');
+      });
+
+      function triggerGameOver() {
         myReady = false;
+        myFinalDist = Math.floor(scrollDistance / 35);
+        myFinalFloor = floor;
         playSound('gameover');
-        publishMsg({ t: 'dead', fl: floor });
+        publishMsg({ t: 'dead', fl: floor, dm: myFinalDist });
         broadcastHeartbeat();
 
         if (floor > bestFloor) {
@@ -2673,13 +2984,16 @@
           localStorage.setItem(STORAGE_KEY, String(bestFloor));
         }
 
-        const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
-        overlayBadge.textContent = `生存結束`;
-        overlayTitle.textContent = `${ani.name} 生存終止`;
-        floatJoystick.classList.add('hidden');
-        overlay.classList.remove('hidden');
-        renderRoster();
-        renderMpStrip();
+        const anyAlive = Array.from(peers.values()).some(rp => rp.alive);
+        if (anyAlive) {
+          state = 'SPECTATING';
+          floatJoystick.classList.add('hidden');
+          spectateBanner.classList.remove('hidden');
+          renderRoster();
+          renderMpStrip();
+        } else {
+          showMatchResultOverlay();
+        }
       }
 
       function handleLanding(plat, impactVy) {
@@ -2826,18 +3140,37 @@
           if (mc.x > LOGIC_W + 60) mc.x = -60;
         }
 
-        if (state !== 'PLAYING') return;
+        if (state !== 'PLAYING' && state !== 'SPECTATING') return;
 
         // 60fps 對手位置平滑內插與速度推算（解決連線畫面頓挫感）
         const nowMs = performance.now();
         const smoothAlpha = 1 - Math.exp(-20 * dt);
+        let spectateTarget = null;
         for (const rp of peers.values()) {
+          if (rp.alive && !spectateTarget) spectateTarget = rp;
           if (!rp.alive || !rp.hasPos) continue;
           const extrap = Math.min(0.14, Math.max(0, (nowMs - (rp.lastPosTime || nowMs)) / 1000));
           const predX = Math.max(13, Math.min(LOGIC_W - 43, rp.targetX + (rp.vx || 0) * extrap));
           const predY = rp.targetWorldY + (rp.vy || 0) * extrap;
           rp.x += (predX - rp.x) * smoothAlpha;
           rp.worldY += (predY - rp.worldY) * smoothAlpha;
+        }
+
+        if (state === 'SPECTATING') {
+          if (spectateTarget) {
+            const targetScroll = Math.max(scrollDistance, spectateTarget.worldY - H * 0.45);
+            scrollDistance += (targetScroll - scrollDistance) * Math.min(1, dt * 6);
+            while (nextSpawnWorldY < scrollDistance + H + 80) {
+              platforms.push(createPlatformAtWorldY(nextSpawnWorldY, false));
+              nextSpawnWorldY += 76;
+            }
+            for (let i = platforms.length - 1; i >= 0; i--) {
+              platforms[i].y = platforms[i].worldY - scrollDistance;
+              if (platforms[i].y < -50) platforms.splice(i, 1);
+            }
+          }
+          checkAllDeadAndShowResult();
+          return;
         }
 
         if (countdownTimer > 0) {
@@ -4508,7 +4841,7 @@
         drawPlatforms();
         drawRemotePlayers();
 
-        if (!(player.invulnerable > 0 && Math.floor(player.invulnerable * 20) % 2 === 0)) {
+        if (state === 'PLAYING' && !(player.invulnerable > 0 && Math.floor(player.invulnerable * 20) % 2 === 0)) {
           drawInGameAnimal(
             player.x,
             player.y,
