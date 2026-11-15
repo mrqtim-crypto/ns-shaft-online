@@ -34,6 +34,7 @@
     #app {
       position: relative;
       width: 100%;
+      min-width: 0;
       max-width: 450px;
       height: 100%;
       max-height: 940px;
@@ -46,48 +47,37 @@
       border-right: 1px solid #334155;
     }
 
-    /* 頂部寫實荒野風 HUD */
-    .hud {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 10px;
-      background: linear-gradient(180deg, #181c22 0%, #0f1217 100%);
-      border-bottom: 2px solid #3f3f46;
-      z-index: 10;
-      gap: 6px;
-      color: #f4f4f5;
-    }
-
-    .hud-left {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .hp-label {
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      color: #d4d4d8;
+    /* 精簡懸浮血條（無動物名、無地點、無音/獸按鈕、無 B24） */
+    .hud-minimal {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      z-index: 12;
       display: flex;
       align-items: center;
       gap: 6px;
+      background: rgba(15, 18, 23, 0.72);
+      backdrop-filter: blur(4px);
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      pointer-events: none;
     }
 
     .hp-bar {
       display: flex;
       gap: 2px;
       background: #090b0e;
-      padding: 3px;
-      border-radius: 3px;
+      padding: 2px 3px;
+      border-radius: 4px;
       border: 1px solid #52525b;
     }
 
     .hp-unit {
-      width: 8px;
-      height: 11px;
+      width: 7px;
+      height: 10px;
       background: #27272a;
+      border-radius: 1px;
       transition: background-color 0.15s ease;
     }
 
@@ -101,110 +91,70 @@
       box-shadow: 0 0 5px rgba(239, 68, 68, 0.85);
     }
 
-    .hud-center {
-      text-align: center;
-      background: #090b0e;
-      padding: 2px 10px;
-      border-radius: 4px;
-      border: 1px solid #52525b;
-      min-width: 108px;
-    }
-
-    .floor-title {
-      font-size: 12px;
-      color: #d97706;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-
-    .floor-num {
-      font-size: 18px;
+    .hp-num {
+      font-size: 11px;
       font-weight: 900;
-      font-family: Georgia, 'Times New Roman', serif;
+      color: #fbbf24;
       font-variant-numeric: tabular-nums;
-      color: #fafafa;
-      letter-spacing: 1px;
     }
 
-    .hud-right {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .icon-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 5px;
-      border: 1px solid #52525b;
-      background: #27272a;
-      color: #f4f4f5;
-      font-size: 14px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.92);
-      background: #3f3f46;
-    }
-
-    /* 多人即時生存條 */
+    /* 多人即時生存條（極簡懸浮右上角） */
     .mp-bar {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      z-index: 12;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 4px 10px;
-      background: #14171c;
-      border-bottom: 1px solid #27272a;
-      font-size: 12px;
-      z-index: 9;
       gap: 6px;
-      min-height: 27px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 18, 23, 0.72);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      font-size: 11px;
       color: #e4e4e7;
+      max-width: 54%;
+      pointer-events: none;
     }
 
     .mp-status {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       font-weight: 800;
-      color: #d4d4d8;
+      color: #fbbf24;
       white-space: nowrap;
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #52525b;
     }
 
     .dot.online {
-      background: #f59e0b;
-      box-shadow: 0 0 6px #f59e0b;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e;
     }
 
     .mp-players-strip {
       display: flex;
       align-items: center;
-      gap: 5px;
-      overflow-x: auto;
-      scrollbar-width: none;
+      gap: 4px;
+      overflow: hidden;
     }
 
     .mp-chip {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 1px 7px;
-      border-radius: 3px;
+      gap: 3px;
+      padding: 1px 5px;
+      border-radius: 999px;
       background: #27272a;
       border: 1px solid #3f3f46;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 700;
       color: #f4f4f5;
       white-space: nowrap;
@@ -263,62 +213,91 @@
       background: rgba(217, 119, 6, 0.85);
     }
 
-    /* 底部手機觸控控制器 */
-    .controls {
-      height: 96px;
-      background: linear-gradient(0deg, #090b0e 0%, #181c22 100%);
-      border-top: 2px solid #3f3f46;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px));
-      z-index: 10;
-      touch-action: none;
-    }
-
-    .ctrl-btn {
-      position: relative;
-      border-radius: 8px;
-      border: 2px solid #52525b;
-      background: linear-gradient(180deg, #27272a 0%, #18181b 100%);
-      color: #f4f4f5;
+    /* 下方正中央半透明懸浮拖曳搖桿 */
+    .float-joystick {
+      position: absolute;
+      left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+      width: 152px;
+      height: 54px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.34);
+      border: 1.5px solid rgba(255, 255, 255, 0.32);
+      backdrop-filter: blur(6px);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-size: 19px;
+      justify-content: space-between;
+      padding: 0 14px;
+      z-index: 15;
+      touch-action: none;
+      user-select: none;
+      transition: opacity 0.2s ease, background 0.15s ease;
+    }
+
+    .float-joystick.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .float-joystick.active {
+      background: rgba(15, 23, 42, 0.52);
+      border-color: rgba(251, 191, 36, 0.72);
+    }
+
+    .joy-arrow {
+      font-size: 14px;
       font-weight: 900;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 0 #09090b, inset 0 1px 0 rgba(255, 255, 255, 0.12);
-      cursor: pointer;
+      color: rgba(255, 255, 255, 0.42);
+      pointer-events: none;
+      transition: color 0.12s, transform 0.12s;
     }
 
-    .ctrl-btn.pressed {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #09090b;
-      border-color: #f59e0b;
-      background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
-      color: #fef3c7;
+    .float-joystick.dir-left .joy-arrow.left {
+      color: #fbbf24;
+      transform: scale(1.25);
     }
 
-    .ctrl-arrow {
-      font-size: 22px;
-      line-height: 1;
+    .float-joystick.dir-right .joy-arrow.right {
+      color: #fbbf24;
+      transform: scale(1.25);
     }
 
-    /* ============== 《TOKYO JUNGLE》蒼白迷霧寫實風 18 動物選角大廳 ============== */
+    .joy-knob {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 44px;
+      height: 44px;
+      margin-left: -22px;
+      margin-top: -22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.88), rgba(226, 232, 240, 0.52));
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+      transition: transform 0.08s ease-out, background 0.15s;
+    }
+
+    .float-joystick.active .joy-knob {
+      transition: none;
+      background: radial-gradient(circle at 35% 30%, #fef3c7, #f59e0b);
+      border-color: #ffffff;
+    }
+
+    /* ============== 《TOKYO JUNGLE》18 動物單畫面 6×3 選角大廳 ============== */
     .overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 25%, rgba(248, 250, 252, 0.96) 0%, rgba(212, 220, 232, 0.96) 60%, rgba(168, 179, 194, 0.97) 100%);
+      background: radial-gradient(circle at 50% 20%, rgba(248, 250, 252, 0.98) 0%, rgba(212, 220, 232, 0.98) 65%, rgba(168, 179, 194, 0.98) 100%);
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 7px 10px;
+      justify-content: center;
+      padding: 6px 8px;
       z-index: 20;
-      overflow-y: auto;
+      overflow: hidden;
       color: #18181b;
     }
 
@@ -329,110 +308,107 @@
 
     .card {
       width: 100%;
-      max-width: 416px;
+      min-width: 0;
+      max-width: 420px;
+      height: 100%;
+      max-height: 820px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin: auto 0;
+      justify-content: space-between;
+      gap: 4px;
     }
 
     .header-banner {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       border-bottom: 2px solid #18181b;
-      padding-bottom: 3px;
+      padding-bottom: 2px;
+      flex-shrink: 0;
     }
 
     .title {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 900;
       font-family: Georgia, 'Times New Roman', serif;
       color: #09090b;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
     }
 
     .badge {
-      padding: 2px 7px;
+      padding: 1px 6px;
       background: #18181b;
       color: #f8fafc;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
+      font-size: 11px;
+      font-weight: 800;
     }
 
-    /* 選中角色超大動態展示舞台 (Large Spotlight Showcase) */
+    /* 選中角色展示舞台 (緊湊版以配合單畫面 6×3) */
     .showcase-stage {
       position: relative;
       width: 100%;
-      height: 162px;
+      height: 124px;
+      flex-shrink: 0;
       background: radial-gradient(ellipse at 45% 55%, #ffffff 0%, #e2e8f0 65%, #cbd5e1 100%);
       border: 2px solid #18181b;
-      border-radius: 8px;
-      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.14), 0 6px 16px rgba(0, 0, 0, 0.16);
+      border-radius: 7px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.12);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 10px;
+      padding: 4px 8px;
       cursor: pointer;
     }
 
     .showcase-canvas-wrap {
       position: relative;
-      width: 54%;
+      width: 46%;
+      min-width: 0;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     canvas#previewCanvas {
-      width: 205px;
-      height: 152px;
+      width: 100%;
+      max-width: 165px;
+      height: auto;
+      max-height: 116px;
       display: block;
-    }
-
-    .showcase-rank-num {
-      position: absolute;
-      left: 6px;
-      bottom: -8px;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 64px;
-      font-weight: 900;
-      color: rgba(15, 23, 42, 0.13);
-      line-height: 1;
-      pointer-events: none;
     }
 
     .posture-pill {
       position: absolute;
-      top: 4px;
-      left: 4px;
+      top: 2px;
+      left: 2px;
       background: rgba(9, 9, 11, 0.84);
       color: #fbbf24;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 800;
-      padding: 1px 6px;
+      padding: 1px 5px;
       border-radius: 3px;
       pointer-events: none;
     }
 
     .tw-pill {
       position: absolute;
-      top: 4px;
-      right: 4px;
+      top: 2px;
+      right: 2px;
       background: #15803d;
       color: #ffffff;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 900;
-      padding: 1px 6px;
+      padding: 1px 5px;
       border-radius: 3px;
       pointer-events: none;
     }
 
     .showcase-info {
-      width: 46%;
+      width: 54%;
+      min-width: 0;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -441,20 +417,21 @@
       z-index: 2;
       padding-left: 8px;
       border-left: 1.5px solid rgba(24, 24, 27, 0.15);
+      overflow: hidden;
     }
 
     .showcase-name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: #09090b;
-      line-height: 1.15;
+      line-height: 1.1;
     }
 
     .showcase-en {
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 800;
       color: #52525b;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -463,22 +440,22 @@
     .stat-bars {
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
-      margin-bottom: 5px;
+      gap: 2px;
+      margin-bottom: 3px;
     }
 
     .stat-row {
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 12px;
+      gap: 4px;
+      font-size: 10px;
       font-weight: 800;
       color: #27272a;
     }
 
     .stat-track {
       flex: 1;
-      height: 6px;
+      height: 5px;
       background: #cbd5e1;
       border: 1px solid #475569;
       overflow: hidden;
@@ -491,122 +468,117 @@
     }
 
     .showcase-desc {
-      font-size: 12px;
+      font-size: 10.5px;
       color: #18181b;
       font-weight: 700;
-      line-height: 1.28;
-      background: rgba(255, 255, 255, 0.78);
-      padding: 4px 6px;
-      border-left: 3px solid #b45309;
+      line-height: 1.22;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 3px 5px;
+      border-left: 2.5px solid #b45309;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    /* 兩小排 18 動物橫向滑動/換頁選角列 (2 Rows × 9 Columns，選中時放大凸起！) */
+    /* 6 × 3 單畫面完整選角網格（不須滑動） */
     .roster-section-label {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       color: #27272a;
       padding: 0 2px;
+      flex-shrink: 0;
     }
 
     .animal-grid-scroll-wrap {
       position: relative;
       width: 100%;
-      overflow-x: auto;
-      overflow-y: visible;
-      padding: 9px 6px;
-      margin: -3px 0;
-      scrollbar-width: thin;
-      scrollbar-color: #78350f #cbd5e1;
-      -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
+      overflow: visible;
     }
 
-    .animal-grid-2rows {
+    .animal-grid-6x3 {
       display: grid;
-      grid-template-rows: repeat(2, 60px);
-      grid-auto-flow: column;
-      grid-auto-columns: 64px;
-      gap: 6px;
-      width: max-content;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-rows: repeat(3, 50px);
+      gap: 4px;
+      width: 100%;
     }
 
     .animal-cell {
       position: relative;
       background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 100%);
       border: 1.5px solid #52525b;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 3px;
-      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, border-color 0.15s ease, background 0.15s ease;
+      padding-bottom: 2px;
+      transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, border-color 0.15s ease;
       overflow: visible;
     }
 
     .animal-cell canvas {
-      width: 52px;
-      height: 40px;
+      width: 44px;
+      height: 33px;
       display: block;
       pointer-events: none;
-      transition: transform 0.18s ease;
     }
 
     .animal-cell-tw {
       position: absolute;
       top: 2px;
       right: 2px;
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #15803d;
-      box-shadow: 0 0 3px rgba(21, 128, 61, 0.8);
     }
 
     .animal-cell-name {
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 900;
       color: #18181b;
       line-height: 1;
       white-space: nowrap;
-      transform: scale(0.88);
+      overflow: hidden;
+      max-width: 96%;
+      text-overflow: ellipsis;
     }
 
-    /* 選到時明顯變大凸起！ */
+    /* 選中時放大凸起 */
     .animal-cell.selected {
-      transform: scale(1.24) translateY(-3px);
+      transform: scale(1.16) translateY(-2px);
       z-index: 15;
       background: radial-gradient(circle at 50% 40%, #ffffff 0%, #fef3c7 100%);
-      border: 2.5px solid #b45309;
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45), 0 0 0 2px #f59e0b;
-    }
-
-    .animal-cell.selected canvas {
-      transform: scale(1.16) translateY(-2px);
+      border: 2px solid #b45309;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35), 0 0 0 1.5px #f59e0b;
     }
 
     .animal-cell.selected .animal-cell-name {
       color: #92400e;
-      transform: scale(0.96);
     }
 
-    /* 多人連線設定盒 */
+    /* 多人連線設定盒（支援 8 人房間 + 準備/房主狀態） */
     .mp-box {
-      background: rgba(24, 24, 27, 0.92);
+      background: rgba(24, 24, 27, 0.94);
       border: 1.5px solid #18181b;
-      border-radius: 8px;
-      padding: 7px 10px;
+      border-radius: 7px;
+      padding: 6px 8px;
       color: #f4f4f5;
       text-align: left;
+      flex-shrink: 0;
     }
 
     .mp-row {
       display: flex;
-      gap: 6px;
-      margin-bottom: 5px;
+      gap: 5px;
+      margin-bottom: 4px;
       align-items: center;
     }
 
@@ -616,9 +588,9 @@
       background: #27272a;
       border: 1px solid #52525b;
       color: #fafafa;
-      padding: 5px 8px;
+      padding: 4px 7px;
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       outline: none;
       user-select: text;
@@ -630,12 +602,12 @@
     }
 
     .mp-btn {
-      padding: 5px 9px;
+      padding: 4px 8px;
       border-radius: 4px;
       border: 1px solid #f59e0b;
       background: rgba(245, 158, 11, 0.2);
       color: #fbbf24;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
@@ -648,72 +620,113 @@
     }
 
     .room-roster {
-      font-size: 12px;
+      font-size: 11px;
       color: #d4d4d8;
       padding-top: 4px;
       border-top: 1px dashed #3f3f46;
     }
 
     .roster-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 3px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3px;
+      margin-top: 4px;
     }
 
     .roster-tag {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 1px 6px;
-      border-radius: 3px;
+      justify-content: space-between;
+      gap: 3px;
+      padding: 2px 6px;
+      border-radius: 4px;
       background: #27272a;
       border: 1px solid #52525b;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #f4f4f5;
+      overflow: hidden;
     }
+
+    .roster-tag.ready {
+      border-color: #22c55e;
+      background: rgba(21, 128, 61, 0.22);
+    }
+
+    .roster-tag.host {
+      border-color: #f59e0b;
+      background: rgba(180, 83, 9, 0.25);
+    }
+
+    .roster-badge {
+      font-size: 10px;
+      font-weight: 900;
+      padding: 0 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .roster-badge.host { background: #f59e0b; color: #09090b; }
+    .roster-badge.ready { background: #22c55e; color: #052e16; }
+    .roster-badge.wait { background: #52525b; color: #e4e4e7; }
 
     .btn-group {
       display: grid;
       grid-template-columns: 1.35fr 1fr;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .primary-btn {
       width: 100%;
-      padding: 10px 10px;
+      padding: 9px 8px;
       border-radius: 6px;
       border: 2px solid #09090b;
       background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
       color: #ffffff;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       cursor: pointer;
-      box-shadow: 0 4px 0 #09090b;
+      box-shadow: 0 3px 0 #09090b;
     }
 
-    .primary-btn:active {
-      transform: translateY(3px);
+    .primary-btn:disabled {
+      opacity: 0.5;
+      background: #3f3f46;
+      color: #d4d4d8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .primary-btn.ready-btn {
+      background: linear-gradient(180deg, #16a34a 0%, #15803d 100%);
+    }
+
+    .primary-btn.ready-btn.is-ready {
+      background: linear-gradient(180deg, #475569 0%, #334155 100%);
+    }
+
+    .primary-btn:not(:disabled):active {
+      transform: translateY(2px);
       box-shadow: 0 1px 0 #09090b;
     }
 
     .secondary-btn {
       width: 100%;
-      padding: 10px 10px;
+      padding: 9px 8px;
       border-radius: 6px;
       border: 2px solid #09090b;
       background: #27272a;
       color: #fafafa;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       cursor: pointer;
-      box-shadow: 0 4px 0 #09090b;
+      box-shadow: 0 3px 0 #09090b;
     }
 
     .secondary-btn:active {
-      transform: translateY(3px);
+      transform: translateY(2px);
       box-shadow: 0 1px 0 #09090b;
     }
 
@@ -745,39 +758,24 @@
   <div id="app">
     <div class="toast" id="toast">已複製房間邀請連結！</div>
 
-    <!-- 頂部狀態列 -->
-    <div class="hud">
-      <div class="hud-left">
-        <div class="hp-label">
-          <span id="hudAnimalLabel">台灣黑熊</span>
-          <span id="hpText" style="color:#f59e0b;">12/12</span>
-        </div>
-        <div class="hp-bar" id="hpBar"></div>
-      </div>
-
-      <div class="hud-center">
-        <div class="floor-title" id="zoneLabel">澀谷白霧豎井</div>
-        <div class="floor-num" id="floorText">B0000</div>
-      </div>
-
-      <div class="hud-right">
-        <button class="icon-btn" id="soundBtn" title="音效開關">音</button>
-        <button class="icon-btn" id="pauseBtn" title="18猛獸圖鑑與房間">獸</button>
-      </div>
-    </div>
-
-    <!-- 多人連線狀態條 -->
-    <div class="mp-bar">
-      <div class="mp-status">
-        <span class="dot" id="netDot"></span>
-        <span id="roomLabel">區域: ----</span>
-      </div>
-      <div class="mp-players-strip" id="mpStrip"></div>
-    </div>
-
-    <!-- 遊戲畫布 -->
+    <!-- 遊戲畫布（含極簡懸浮血條 + 懸浮拖曳搖桿） -->
     <div class="canvas-wrap" id="canvasWrap">
       <canvas id="gameCanvas"></canvas>
+
+      <!-- 極簡血條（無動物名、無地點、無音/獸按鈕、無 B24） -->
+      <div class="hud-minimal">
+        <div class="hp-bar" id="hpBar"></div>
+        <span class="hp-num" id="hpText">12/12</span>
+      </div>
+
+      <!-- 多人連線狀態條 -->
+      <div class="mp-bar">
+        <div class="mp-status">
+          <span class="dot" id="netDot"></span>
+          <span id="roomLabel">房: ----</span>
+        </div>
+        <div class="mp-players-strip" id="mpStrip"></div>
+      </div>
 
       <!-- 野性呼喊互動鈕 -->
       <div class="emote-bar">
@@ -787,7 +785,14 @@
         <button class="emote-btn" data-emote="霸主!">王</button>
       </div>
 
-      <!-- 《TOKYO JUNGLE》18 種寫實動物選角大廳 -->
+      <!-- 下方正中央半透明懸浮按鈕（按住往左或右拉，選角時隱藏） -->
+      <div class="float-joystick hidden" id="floatJoystick" aria-label="左右拖曳移動">
+        <span class="joy-arrow left">◀</span>
+        <div class="joy-knob" id="joyKnob"></div>
+        <span class="joy-arrow right">▶</span>
+      </div>
+
+      <!-- 《TOKYO JUNGLE》18 種寫實動物單畫面 6×3 選角大廳 -->
       <div class="overlay" id="overlay">
         <div class="card">
           <div class="header-banner">
@@ -795,80 +800,68 @@
             <div class="badge" id="overlayBadge">體重 · 速度 · 衝撞</div>
           </div>
 
-          <!-- 選中角色超大寫實動態預覽舞台 -->
-          <div class="showcase-stage" id="showcaseStage" title="點擊可觸發猛獸招牌動作">
+          <!-- 選中角色寫實動態預覽舞台 -->
+          <div class="showcase-stage" id="showcaseStage" title="點擊可觸發動物動作">
             <div class="showcase-rank-num" id="showcaseNum" style="display:none"></div>
             <div class="showcase-canvas-wrap">
-              <div class="posture-pill" id="posturePill">雙足直立咆哮站姿</div>
+              <div class="posture-pill" id="posturePill">雙足直立站姿</div>
               <div class="tw-pill" id="twPill">台灣特有</div>
               <canvas id="previewCanvas" width="410" height="304"></canvas>
             </div>
             <div class="showcase-info">
-              <div class="showcase-name" id="detailTitle">台灣黑熊</div>
-              <div class="showcase-en" id="detailEn">FORMOSAN BEAR · 1.85t (1.28x)</div>
+              <div class="showcase-name" id="detailTitle">非洲象</div>
+              <div class="showcase-en" id="detailEn">AFRICAN ELEPHANT</div>
               <div class="stat-bars">
                 <div class="stat-row">
                   <span>⚖ 體重</span>
-                  <div class="stat-track"><div class="stat-fill" id="barWeight" style="width:80%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barWeight" style="width:100%;"></div></div>
                 </div>
                 <div class="stat-row">
                   <span>➤ 速度</span>
-                  <div class="stat-track"><div class="stat-fill" id="barSpeed" style="width:76%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barSpeed" style="width:30%;"></div></div>
                 </div>
                 <div class="stat-row">
                   <span>✸ 衝撞</span>
-                  <div class="stat-track"><div class="stat-fill" id="barPush" style="width:92%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barPush" style="width:100%;"></div></div>
                 </div>
               </div>
-              <div class="showcase-desc" id="detailDesc">【月牙霸體】雙足直立揮掌推力 1.75x；體力低於 4 格時激發狂暴加速與抗撞！</div>
+              <div class="showcase-desc" id="detailDesc">【震地重踏】全場最重！</div>
             </div>
           </div>
 
-          <!-- 兩小排選角列 (2排 × 9格 = 18隻，左右滑動點選，選中時放大凸起！) -->
+          <!-- 6×3 選角列 (一個畫面完整顯示 18 隻，無須滑動) -->
           <div class="roster-section-label">
-            <span>▼ 兩小排共 18 種動物（左右滑動點選放大檢視 · 綠點為台灣特有種）</span>
-            <span id="bestScoreText">最高: B0000</span>
+            <span>▼ 6×3 選角（點選放大檢視 · 最多 8 人同房）</span>
+            <span id="bestScoreText" style="display:none"></span>
           </div>
           <div class="animal-grid-scroll-wrap">
-            <div class="animal-grid-2rows" id="animalGrid"></div>
+            <div class="animal-grid-6x3" id="animalGrid"></div>
           </div>
 
-          <!-- 多人連線房間設定 -->
+          <!-- 多人連線房間設定 (上限 8 人 + 準備就緒機制) -->
           <div class="mp-box">
             <div class="mp-row">
-              <input type="text" id="nameInput" class="mp-input" maxlength="8" placeholder="生存者名稱" style="max-width:110px;" />
-              <input type="text" id="roomInput" class="mp-input" maxlength="8" placeholder="房號" style="text-transform:uppercase;max-width:76px;" />
-              <button class="mp-btn" id="joinRoomBtn">切換區域</button>
-              <button class="mp-btn share" id="shareBtn">邀請連線</button>
+              <input type="text" id="nameInput" class="mp-input" maxlength="8" placeholder="生存者名稱" style="max-width:100px;" />
+              <input type="text" id="roomInput" class="mp-input" maxlength="8" placeholder="房號" style="text-transform:uppercase;max-width:68px;" />
+              <button class="mp-btn" id="joinRoomBtn">換房</button>
+              <button class="mp-btn share" id="shareBtn">邀請</button>
             </div>
 
             <div class="room-roster">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span id="connStatusText">連線準備中...</span>
-                <span id="playerCountLabel" style="color:#fbbf24;font-weight:800;">同場 1 獸</span>
+                <span id="playerCountLabel" style="color:#fbbf24;font-weight:800;">同場 1/8 獸</span>
               </div>
               <div class="roster-list" id="rosterList"></div>
             </div>
           </div>
 
           <div class="btn-group">
-            <button class="primary-btn" id="startMpBtn">全房同步狩獵開局</button>
-            <button class="secondary-btn" id="startSoloBtn">單人立即求生</button>
+            <button class="primary-btn" id="startMpBtn">等待準備 (0/0)</button>
+            <button class="secondary-btn" id="startSoloBtn">單人練習</button>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- 手機雙拇指大按鍵 -->
-    <div class="controls">
-      <button class="ctrl-btn" id="btnLeft" aria-label="向左移動">
-        <span class="ctrl-arrow">◀</span>
-        <span>左奔</span>
-      </button>
-      <button class="ctrl-btn" id="btnRight" aria-label="向右移動">
-        <span>右奔</span>
-        <span class="ctrl-arrow">▶</span>
-      </button>
     </div>
   </div>
 
@@ -1014,19 +1007,14 @@
 
       const hpBarEl = document.getElementById('hpBar');
       const hpTextEl = document.getElementById('hpText');
-      const hudAnimalLabel = document.getElementById('hudAnimalLabel');
-      const zoneLabel = document.getElementById('zoneLabel');
-      const floorTextEl = document.getElementById('floorText');
       const overlay = document.getElementById('overlay');
       const overlayBadge = document.getElementById('overlayBadge');
       const overlayTitle = document.getElementById('overlayTitle');
       const bestScoreText = document.getElementById('bestScoreText');
       const startMpBtn = document.getElementById('startMpBtn');
       const startSoloBtn = document.getElementById('startSoloBtn');
-      const pauseBtn = document.getElementById('pauseBtn');
-      const soundBtn = document.getElementById('soundBtn');
-      const btnLeft = document.getElementById('btnLeft');
-      const btnRight = document.getElementById('btnRight');
+      const floatJoystick = document.getElementById('floatJoystick');
+      const joyKnob = document.getElementById('joyKnob');
 
       const showcaseStage = document.getElementById('showcaseStage');
       const showcaseNum = document.getElementById('showcaseNum');
@@ -1057,39 +1045,75 @@
       let viewScale = 1;
 
       const MAX_HP = 12;
+      const MAX_ROOM_PLAYERS = 8;
       const STORAGE_KEY = 'tokyo_jungle_v4_best';
       const NAME_KEY = 'tokyo_jungle_v4_name';
       const ANIMAL_KEY = 'tokyo_jungle_v4_animal';
 
       const myId = 'p_' + Math.random().toString(36).slice(2, 9);
+      let myJoinTime = Date.now();
+      let myReady = false;
       let myName = localStorage.getItem(NAME_KEY) || ('生存者' + Math.floor(10 + Math.random() * 89));
       let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'bear';
       if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'bear';
       nameInput.value = myName;
 
       let bestFloor = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-      bestScoreText.textContent = `最高: B${String(bestFloor).padStart(4, '0')}`;
 
-      // ================== 5 大真實解剖姿態與體型比例繪製引擎 ==================
+      // ================== 動物動態動作引擎（騰空 / 跳躍 / 刺到 / 電到 / 滾輪驚訝） ==================
       const SPRITES = {};
       ANIMALS.forEach((a) => { const img = new Image(); img.src = `animals/${a.id}.png`; SPRITES[a.id] = img; });
 
-      function drawAuthenticAnimal(targetCtx, animalId, cx, cy, baseScale, facing, phase, leapPitch = 0) {
+      function drawAuthenticAnimal(targetCtx, animalId, cx, cy, baseScale, facing, phase, leapPitch = 0, action = 'idle') {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
         const img = SPRITES[ani.id];
         const s = baseScale * ani.sizeScale;
+        const now = Date.now();
         targetCtx.save();
         targetCtx.translate(cx, cy);
-        targetCtx.scale((facing || 1) * s, s);
-        targetCtx.fillStyle = 'rgba(15, 23, 42, 0.22)';
+
+        // 地面投影（騰空/跳躍時縮小變淡）
+        const shadowScale = (action === 'airborne' || action === 'jumping') ? 0.58 : 1;
+        targetCtx.save();
+        targetCtx.scale((facing || 1) * s * shadowScale, s * shadowScale);
+        targetCtx.fillStyle = (action === 'airborne' || action === 'jumping') ? 'rgba(15, 23, 42, 0.12)' : 'rgba(15, 23, 42, 0.24)';
         targetCtx.beginPath();
         targetCtx.ellipse(0, 15, ani.posture === 'colossal' ? 18 : 13, 3.2, 0, 0, Math.PI * 2);
         targetCtx.fill();
-        targetCtx.rotate(leapPitch);
+        targetCtx.restore();
+
+        // 動作形變與晃動
+        let jx = 0, jy = 0, sx = 1, sy = 1, rot = leapPitch;
+        if (action === 'hurt') {
+          jx = Math.sin(now * 0.08) * 3.5;
+          jy = Math.cos(now * 0.09) * 2;
+          rot -= 0.16;
+          sx = 1.08; sy = 0.92;
+        } else if (action === 'shocked') {
+          jx = (Math.random() - 0.5) * 6;
+          jy = (Math.random() - 0.5) * 4;
+          sx = 1.05; sy = 0.95;
+        } else if (action === 'jumping') {
+          sx = 0.88; sy = 1.18;
+          rot -= 0.12;
+        } else if (action === 'airborne') {
+          sx = 0.94; sy = 1.08;
+        } else if (action === 'slipping') {
+          rot -= 0.24 + Math.sin(now * 0.03) * 0.09;
+          jy = Math.abs(Math.sin(phase * 1.8)) * -2.2;
+        }
+
+        targetCtx.translate(jx, jy);
+        targetCtx.scale((facing || 1) * s, s);
+        targetCtx.rotate(rot);
+
         const isFlyer = ani.posture === 'soaring_bird';
-        const bob = isFlyer ? 3 + Math.sin(phase * 0.6) * 2.2 : Math.abs(Math.sin(phase)) * 1.4;
-        const squash = 1 + Math.sin(phase * 2) * 0.025;
-        targetCtx.scale(ani.face === -1 ? -1 : 1, squash);
+        const bob = isFlyer
+          ? 3 + Math.sin(phase * 0.6) * 2.2
+          : (action === 'jumping' ? 4 : Math.abs(Math.sin(phase)) * (action === 'slipping' ? 2.4 : 1.4));
+        const squash = (1 + Math.sin(phase * 2) * 0.025) * sy;
+        targetCtx.scale((ani.face === -1 ? -1 : 1) * sx, squash);
+
         if (img && img.complete && img.naturalWidth) {
           const ar = img.naturalWidth / img.naturalHeight;
           let dw, dh;
@@ -1102,6 +1126,53 @@
           targetCtx.fill();
         }
         targetCtx.restore();
+
+        // 狀態特效（電到電弧、刺到紅閃/驚嚇、跳躍氣流、滾輪驚訝）
+        if (action === 'shocked') {
+          targetCtx.save();
+          targetCtx.translate(cx, cy);
+          targetCtx.strokeStyle = '#38bdf8';
+          targetCtx.lineWidth = 2;
+          for (let k = 0; k < 3; k++) {
+            const ang = (now * 0.02 + k * 2.1);
+            targetCtx.beginPath();
+            targetCtx.moveTo(Math.cos(ang) * 10, Math.sin(ang) * 10);
+            targetCtx.lineTo(Math.cos(ang + 0.5) * 18, Math.sin(ang + 0.5) * 18);
+            targetCtx.stroke();
+          }
+          targetCtx.fillStyle = '#facc15';
+          targetCtx.font = '900 13px sans-serif';
+          targetCtx.textAlign = 'center';
+          targetCtx.fillText('⚡', cx - cx, -22 * s);
+          targetCtx.restore();
+        } else if (action === 'hurt') {
+          targetCtx.save();
+          targetCtx.translate(cx, cy);
+          targetCtx.fillStyle = '#ef4444';
+          targetCtx.font = '900 14px sans-serif';
+          targetCtx.textAlign = 'center';
+          targetCtx.fillText('💢', 10, -18 * s);
+          targetCtx.restore();
+        } else if (action === 'slipping') {
+          targetCtx.save();
+          targetCtx.translate(cx, cy);
+          targetCtx.fillStyle = '#0284c7';
+          targetCtx.font = '900 13px sans-serif';
+          targetCtx.textAlign = 'center';
+          targetCtx.fillText('💦⁉', 0, -20 * s);
+          targetCtx.restore();
+        } else if (action === 'jumping') {
+          targetCtx.save();
+          targetCtx.translate(cx, cy + 12 * s);
+          targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.78)';
+          targetCtx.lineWidth = 1.8;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-10, 0); targetCtx.lineTo(-12, 8);
+          targetCtx.moveTo(0, 2); targetCtx.lineTo(0, 11);
+          targetCtx.moveTo(10, 0); targetCtx.lineTo(12, 8);
+          targetCtx.stroke();
+          targetCtx.restore();
+        }
       }
 
       // ================== 建立兩小排 (2×9 = 18隻) 選角網格 + 選中放大預覽 ==================
@@ -1165,7 +1236,6 @@
         barSpeed.style.width = `${a.sPct}%`;
         barPush.style.width = `${a.pPct}%`;
         detailDesc.textContent = a.desc;
-        hudAnimalLabel.textContent = a.name;
 
         document.querySelectorAll('.animal-cell').forEach((el) => {
           el.classList.toggle('selected', el.dataset.id === myAnimalId);
@@ -1344,11 +1414,6 @@
         }
       }
 
-      soundBtn.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        soundBtn.textContent = soundEnabled ? '音' : '靜';
-      });
-
       function resizeCanvas() {
         const rect = canvasWrap.getBoundingClientRect();
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1399,7 +1464,11 @@
         canDoubleJump: true,
         stunTimer: 0,
         adrenalineTimer: 0,
-        invulnerable: 0
+        invulnerable: 0,
+        hurtTimer: 0,
+        shockTimer: 0,
+        jumpTimer: 0,
+        actionState: 'idle'
       };
 
       let platforms = [];
@@ -1477,16 +1546,31 @@
         }
         currentRoom = cleanRoom;
         roomInput.value = currentRoom;
-        roomLabel.textContent = `區域: ${currentRoom}`;
+        roomLabel.textContent = `房: ${currentRoom}`;
         currentTopic = getTopic(currentRoom);
         peers.clear();
+        myJoinTime = Date.now();
+        myReady = false;
         renderRoster();
 
         if (mqttClient && mqttClient.connected) {
           mqttClient.subscribe(currentTopic, { qos: 0 });
-          connStatusText.textContent = `已連線 (區域 ${currentRoom})`;
+          connStatusText.textContent = `已連線 (房號 ${currentRoom})`;
           broadcastHeartbeat();
         }
+      }
+
+      function getHostId() {
+        let hostId = myId;
+        let hostJoin = myJoinTime;
+        for (const p of peers.values()) {
+          const pj = p.joinedAt || Number.MAX_SAFE_INTEGER;
+          if (pj < hostJoin || (pj === hostJoin && p.id < hostId)) {
+            hostId = p.id;
+            hostJoin = pj;
+          }
+        }
+        return hostId;
       }
 
       function publishMsg(data) {
@@ -1504,6 +1588,8 @@
           ani: myAnimalId,
           floor,
           hp,
+          ready: myReady,
+          jt: myJoinTime,
           alive: state === 'PLAYING' && hp > 0
         });
       }
@@ -1519,6 +1605,7 @@
           vx: Math.round(player.vx),
           vy: Math.round(player.vy),
           f: player.facing,
+          act: player.actionState || 'idle',
           hp,
           fl: floor,
           alive: hp > 0
@@ -1529,6 +1616,7 @@
         const now = performance.now();
         let p = peers.get(msg.id);
         if (!p) {
+          if (1 + peers.size >= MAX_ROOM_PLAYERS) return; // 同房上限 8 人
           p = {
             id: msg.id,
             name: msg.name || '生存者',
@@ -1538,8 +1626,11 @@
             vx: 0,
             vy: 0,
             facing: 1,
+            actionState: 'idle',
             hp: MAX_HP,
             floor: 1,
+            ready: !!msg.ready,
+            joinedAt: msg.jt || Date.now(),
             alive: false,
             lastSeen: now
           };
@@ -1550,10 +1641,12 @@
         p.lastSeen = now;
         if (msg.name) p.name = msg.name;
         if (msg.ani && ANIMAL_MAP[msg.ani]) p.animalId = msg.ani;
+        if (msg.jt) p.joinedAt = Math.min(p.joinedAt || msg.jt, msg.jt);
 
         if (msg.t === 'hb') {
           p.floor = msg.floor || p.floor;
           p.hp = msg.hp !== undefined ? msg.hp : p.hp;
+          p.ready = !!msg.ready;
           p.alive = !!msg.alive;
           renderRoster();
         } else if (msg.t === 'pos') {
@@ -1562,21 +1655,23 @@
           p.vx = msg.vx || 0;
           p.vy = msg.vy || 0;
           p.facing = msg.f || 1;
+          p.actionState = msg.act || 'idle';
           p.hp = msg.hp;
           p.floor = msg.fl;
           p.alive = !!msg.alive;
         } else if (msg.t === 'start') {
-          showToast(`${p.name} 發起了全房同步狩獵！`);
+          showToast(`房主 ${p.name} 開始了遊戲！`);
           startGame(msg.seed, false);
         } else if (msg.t === 'stomp') {
           const myWorldY = player.y + scrollDistance;
           if (Math.abs(myWorldY - msg.wy) < 30 && Math.abs(player.x - msg.x) < 110) {
             player.onPlatform = null;
             player.vy = -275;
+            player.jumpTimer = 0.28;
             player.pushVx = (player.x >= msg.x ? 1 : -1) * 195;
             shakeTime = 0.25;
             playSound('stomp');
-            addPopup(player.x + 15, player.y, '巨象震波！', '#b45309');
+            addPopup(player.x + 15, player.y, '震波彈飛！', '#b45309');
           }
         } else if (msg.t === 'emote') {
           addPopup(p.x + 15, p.worldY - scrollDistance - 16, msg.emoji, '#18181b');
@@ -1585,7 +1680,7 @@
           p.hp = 0;
           p.floor = msg.fl || p.floor;
           const ani = ANIMAL_MAP[p.animalId] || ANIMALS[0];
-          addPopup(LOGIC_W / 2, 86, `${ani.name} (${p.name}) 於 B${p.floor} 倒下`, '#991b1b');
+          addPopup(LOGIC_W / 2, 86, `${ani.name} (${p.name}) 倒下了`, '#991b1b');
           renderRoster();
         }
       }
@@ -1608,22 +1703,64 @@
         if (state === 'PLAYING') broadcastPos();
       }, 60);
 
-      function renderRoster() {
-        playerCountLabel.textContent = `同場 ${1 + peers.size} 獸`;
-        rosterList.innerHTML = '';
-        const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
-        const meTag = document.createElement('div');
-        meTag.className = 'roster-tag';
-        meTag.innerHTML = `<span style="color:#fbbf24;">[${myAni.name}]</span><span>${escapeHtml(myName)}</span>`;
-        rosterList.appendChild(meTag);
+      function updateLobbyButtons() {
+        const total = 1 + peers.size;
+        const hostId = getHostId();
+        const amHost = hostId === myId;
+        const otherPeers = Array.from(peers.values());
+        const readyCount = otherPeers.filter(p => p.ready).length;
+        const allOthersReady = otherPeers.length > 0 && readyCount === otherPeers.length;
 
-        for (const p of peers.values()) {
-          const ani = ANIMAL_MAP[p.animalId] || ANIMALS[0];
+        if (total > MAX_ROOM_PLAYERS) {
+          startMpBtn.disabled = true;
+          startMpBtn.classList.remove('ready-btn', 'is-ready');
+          startMpBtn.textContent = `房間已滿 (${total}/${MAX_ROOM_PLAYERS})`;
+          return;
+        }
+
+        if (amHost) {
+          startMpBtn.classList.remove('ready-btn', 'is-ready');
+          if (otherPeers.length === 0) {
+            startMpBtn.disabled = true;
+            startMpBtn.textContent = '等待其他玩家加入 (1/8)';
+          } else if (!allOthersReady) {
+            startMpBtn.disabled = true;
+            startMpBtn.textContent = `等全員準備 (${readyCount}/${otherPeers.length})`;
+          } else {
+            startMpBtn.disabled = false;
+            startMpBtn.textContent = `👑 房主開始遊戲 (${total}人)`;
+          }
+        } else {
+          startMpBtn.disabled = false;
+          startMpBtn.classList.add('ready-btn');
+          startMpBtn.classList.toggle('is-ready', myReady);
+          startMpBtn.textContent = myReady ? '✓ 已準備（點此取消）' : '按下準備好';
+        }
+      }
+
+      function renderRoster() {
+        const total = 1 + peers.size;
+        const hostId = getHostId();
+        playerCountLabel.textContent = `同場 ${total}/${MAX_ROOM_PLAYERS} 獸`;
+        rosterList.innerHTML = '';
+
+        const allPlayers = [
+          { id: myId, name: myName, animalId: myAnimalId, ready: myReady, isMe: true },
+          ...Array.from(peers.values()).map(p => ({ id: p.id, name: p.name, animalId: p.animalId, ready: p.ready, isMe: false }))
+        ];
+
+        for (const u of allPlayers) {
+          const ani = ANIMAL_MAP[u.animalId] || ANIMALS[0];
+          const isHost = u.id === hostId;
           const tag = document.createElement('div');
-          tag.className = 'roster-tag';
-          tag.innerHTML = `<span style="color:#a1a1aa;">[${ani.name}]</span><span>${escapeHtml(p.name)}</span>`;
+          tag.className = 'roster-tag' + (isHost ? ' host' : (u.ready ? ' ready' : ''));
+          const badgeHtml = isHost
+            ? '<span class="roster-badge host">👑房主</span>'
+            : (u.ready ? '<span class="roster-badge ready">已準備</span>' : '<span class="roster-badge wait">等待中</span>');
+          tag.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.isMe ? '★' : ''}[${ani.name}] ${escapeHtml(u.name)}</span>${badgeHtml}`;
           rosterList.appendChild(tag);
         }
+        updateLobbyButtons();
         renderMpStrip();
       }
 
@@ -1640,12 +1777,11 @@
         ];
         list.sort((a, b) => b.floor - a.floor);
 
-        mpStrip.innerHTML = list.map(u => {
+        mpStrip.innerHTML = list.slice(0, 4).map(u => {
           const deadClass = (!u.alive && u.floor > 0 && state === 'PLAYING') ? ' dead' : '';
           return `<div class="mp-chip${deadClass}">
             <span style="color:#fbbf24;">${u.aniName.slice(0, 2)}</span>
             <span>${escapeHtml(u.name.slice(0, 4))}</span>
-            <span style="color:#f59e0b;">B${u.floor || 0}</span>
           </div>`;
         }).join('');
       }
@@ -1690,107 +1826,76 @@
         });
       });
 
-      // ============== 操控輸入 ==============
+      // ============== 操控輸入（正下方半透明懸浮拖曳搖桿 + 鍵盤） ==============
       const input = { left: false, right: false };
 
-      function updateBtnVisuals() {
-        btnLeft.classList.toggle('pressed', input.left);
-        btnRight.classList.toggle('pressed', input.right);
+      function updateBtnVisuals(dx = 0) {
+        joyKnob.style.transform = `translateX(${dx}px)`;
+        floatJoystick.classList.toggle('dir-left', input.left);
+        floatJoystick.classList.toggle('dir-right', input.right);
       }
 
-      const activeTouches = new Map();
+      let joyPointerId = null;
+      let joyStartX = 0;
 
-      function recomputeTouchInput() {
-        let l = false;
-        let r = false;
-        for (const dir of activeTouches.values()) {
-          if (dir === 'left') l = true;
-          if (dir === 'right') r = true;
-        }
-        input.left = l;
-        input.right = r;
-        updateBtnVisuals();
+      function applyJoystickOffset(clientX) {
+        const maxRange = 46;
+        const deadZone = 8;
+        const dx = Math.max(-maxRange, Math.min(maxRange, clientX - joyStartX));
+        input.left = dx < -deadZone;
+        input.right = dx > deadZone;
+        updateBtnVisuals(dx);
       }
 
-      function bindTouchArea(el, fixedDir = null) {
-        el.addEventListener('touchstart', (e) => {
-          if (state !== 'PLAYING') return;
-          if (e.target.closest('.emote-btn')) return;
-          e.preventDefault();
-          initAudio();
-          const rect = canvasWrap.getBoundingClientRect();
-          for (const t of e.changedTouches) {
-            const dir = fixedDir || (t.clientX < rect.left + rect.width / 2 ? 'left' : 'right');
-            activeTouches.set(t.identifier, dir);
-          }
-          recomputeTouchInput();
-        }, { passive: false });
+      floatJoystick.addEventListener('pointerdown', (e) => {
+        if (state !== 'PLAYING') return;
+        e.preventDefault();
+        initAudio();
+        joyPointerId = e.pointerId;
+        const rect = floatJoystick.getBoundingClientRect();
+        joyStartX = rect.left + rect.width / 2;
+        floatJoystick.classList.add('active');
+        try { floatJoystick.setPointerCapture(e.pointerId); } catch (_) {}
+        applyJoystickOffset(e.clientX);
+      });
 
-        el.addEventListener('touchmove', (e) => {
-          if (state !== 'PLAYING' || fixedDir) return;
-          e.preventDefault();
-          const rect = canvasWrap.getBoundingClientRect();
-          for (const t of e.changedTouches) {
-            const dir = t.clientX < rect.left + rect.width / 2 ? 'left' : 'right';
-            activeTouches.set(t.identifier, dir);
-          }
-          recomputeTouchInput();
-        }, { passive: false });
+      floatJoystick.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== joyPointerId || state !== 'PLAYING') return;
+        e.preventDefault();
+        applyJoystickOffset(e.clientX);
+      });
 
-        const endHandler = (e) => {
-          for (const t of e.changedTouches) {
-            activeTouches.delete(t.identifier);
-          }
-          recomputeTouchInput();
-        };
-        el.addEventListener('touchend', endHandler);
-        el.addEventListener('touchcancel', endHandler);
-      }
-
-      bindTouchArea(btnLeft, 'left');
-      bindTouchArea(btnRight, 'right');
-      bindTouchArea(canvas);
-
-      function bindMouseBtn(btn, dir) {
-        btn.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          initAudio();
-          input[dir] = true;
-          updateBtnVisuals();
-        });
-        window.addEventListener('mouseup', () => {
-          input.left = false;
-          input.right = false;
-          updateBtnVisuals();
-        });
-      }
-      bindMouseBtn(btnLeft, 'left');
-      bindMouseBtn(btnRight, 'right');
+      const releaseJoystick = (e) => {
+        if (e.pointerId !== joyPointerId) return;
+        joyPointerId = null;
+        input.left = false;
+        input.right = false;
+        floatJoystick.classList.remove('active');
+        updateBtnVisuals(0);
+      };
+      floatJoystick.addEventListener('pointerup', releaseJoystick);
+      floatJoystick.addEventListener('pointercancel', releaseJoystick);
 
       window.addEventListener('keydown', (e) => {
         if (document.activeElement === nameInput || document.activeElement === roomInput) return;
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
           input.left = true;
-          updateBtnVisuals();
+          updateBtnVisuals(-36);
         } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
           input.right = true;
-          updateBtnVisuals();
+          updateBtnVisuals(36);
         }
       });
 
       window.addEventListener('keyup', (e) => {
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
           input.left = false;
-          updateBtnVisuals();
+          updateBtnVisuals(input.right ? 36 : 0);
         } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
           input.right = false;
-          updateBtnVisuals();
+          updateBtnVisuals(input.left ? -36 : 0);
         }
       });
-
-      function formatFloor(n) {
-        return 'B' + String(n).padStart(4, '0');
-      }
 
       function updateHUD() {
         hpTextEl.textContent = `${hp}/${MAX_HP}`;
@@ -1800,14 +1905,6 @@
             unit.classList.add(hp <= 4 ? 'danger' : 'active');
           }
         });
-        floorTextEl.textContent = formatFloor(floor);
-        if (floor < 30) {
-          zoneLabel.textContent = '澀谷白霧豎井';
-        } else if (floor < 60) {
-          zoneLabel.textContent = '廢棄地下鐵道';
-        } else {
-          zoneLabel.textContent = '地底深淵斷層';
-        }
       }
 
       function addPopup(x, y, text, color) {
@@ -1922,10 +2019,11 @@
         particles = [];
         popups = [];
         shockwaves = [];
-        activeTouches.clear();
+        joyPointerId = null;
+        floatJoystick.classList.remove('active');
         input.left = false;
         input.right = false;
-        updateBtnVisuals();
+        updateBtnVisuals(0);
 
         const startPlat = createPlatformAtWorldY(210, true);
         startPlat.x = LOGIC_W / 2 - startPlat.w / 2;
@@ -1949,33 +2047,49 @@
         player.stunTimer = 0;
         player.adrenalineTimer = 0;
         player.invulnerable = 0;
+        player.hurtTimer = 0;
+        player.shockTimer = 0;
+        player.jumpTimer = 0;
+        player.actionState = 'idle';
 
         updateAnimalSelectionUI();
         updateHUD();
         state = 'PLAYING';
         overlay.classList.add('hidden');
+        floatJoystick.classList.remove('hidden');
         broadcastHeartbeat();
         broadcastPos();
       }
 
-      pauseBtn.addEventListener('click', () => {
-        overlay.classList.toggle('hidden');
+      startMpBtn.addEventListener('click', () => {
+        if (1 + peers.size > MAX_ROOM_PLAYERS) return;
+        const amHost = getHostId() === myId;
+        if (amHost) {
+          const otherPeers = Array.from(peers.values());
+          if (otherPeers.length > 0 && otherPeers.every(p => p.ready)) {
+            startGame(Date.now(), true);
+          }
+        } else {
+          myReady = !myReady;
+          playSound('bump');
+          broadcastHeartbeat();
+          renderRoster();
+        }
       });
-
-      startMpBtn.addEventListener('click', () => startGame(Date.now(), true));
       startSoloBtn.addEventListener('click', () => startGame(Date.now(), false));
 
       function hurtPlayer(amount, x, y, label = '') {
         if (player.invulnerable > 0) return;
         hp = Math.max(0, hp - amount);
         player.invulnerable = 0.55;
+        player.hurtTimer = 0.45;
         shakeTime = 0.25;
         playSound('hurt');
         addPopup(x, y, `${label}-${amount} HP`, '#991b1b');
         spawnParticles(x, y, '#991b1b', 14);
         updateHUD();
         if (hp <= 0) {
-          triggerGameOver('在東京地下叢林力竭倒下！');
+          triggerGameOver('力竭倒下！');
         }
       }
 
@@ -1991,6 +2105,7 @@
 
       function triggerGameOver() {
         state = 'GAMEOVER';
+        myReady = false;
         playSound('gameover');
         publishMsg({ t: 'dead', fl: floor });
         broadcastHeartbeat();
@@ -1998,13 +2113,14 @@
         if (floor > bestFloor) {
           bestFloor = floor;
           localStorage.setItem(STORAGE_KEY, String(bestFloor));
-          bestScoreText.textContent = `最高: B${String(bestFloor).padStart(4, '0')}`;
         }
 
         const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
-        overlayBadge.textContent = `RECORD: B${floor}`;
+        overlayBadge.textContent = `生存結束`;
         overlayTitle.textContent = `${ani.name} 生存終止`;
+        floatJoystick.classList.add('hidden');
         overlay.classList.remove('hidden');
+        renderRoster();
         renderMpStrip();
       }
 
@@ -2058,10 +2174,11 @@
           }
           plat.springCompress = 1;
           player.onPlatform = null;
+          player.jumpTimer = 0.35;
           const weightFactor = ani.id === 'deer' ? 0.85 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
           player.vy = -410 * weightFactor;
           playSound('spring');
-          spawnParticles(cx, plat.y, '#b45309', 10);
+          spawnParticles(cx, plat.y, '#ef4444', 12);
         } else {
           if (!plat.touched) {
             plat.touched = true;
@@ -2117,6 +2234,9 @@
         if (player.invulnerable > 0) player.invulnerable = Math.max(0, player.invulnerable - dt);
         if (player.stunTimer > 0) player.stunTimer = Math.max(0, player.stunTimer - dt);
         if (player.adrenalineTimer > 0) player.adrenalineTimer = Math.max(0, player.adrenalineTimer - dt);
+        if (player.hurtTimer > 0) player.hurtTimer = Math.max(0, player.hurtTimer - dt);
+        if (player.shockTimer > 0) player.shockTimer = Math.max(0, player.shockTimer - dt);
+        if (player.jumpTimer > 0) player.jumpTimer = Math.max(0, player.jumpTimer - dt);
 
         while (nextSpawnWorldY < scrollDistance + H + 80) {
           platforms.push(createPlatformAtWorldY(nextSpawnWorldY, false));
@@ -2258,6 +2378,7 @@
           }
 
           if (p.type === 'electric' && electricCycle && player.invulnerable <= 0) {
+            player.shockTimer = 0.48;
             hurtPlayer(3, player.x + 15, player.y, '觸電 ');
             playSound('shock');
             if (ani.id !== 'hippo') {
@@ -2265,6 +2386,21 @@
             }
           }
         }
+
+        // 決定動物目前動作表情狀態
+        const onConveyorOrSlide = player.onPlatform && (
+          player.onPlatform.type === 'conveyor_l' ||
+          player.onPlatform.type === 'conveyor_r' ||
+          onMoss ||
+          Math.abs(player.onPlatform.tilt) > 0.12
+        );
+        if (player.shockTimer > 0) player.actionState = 'shocked';
+        else if (player.hurtTimer > 0) player.actionState = 'hurt';
+        else if (player.jumpTimer > 0 || (!player.onPlatform && player.vy < -60)) player.actionState = 'jumping';
+        else if (!player.onPlatform) player.actionState = 'airborne';
+        else if (onConveyorOrSlide) player.actionState = 'slipping';
+        else if (moveDir !== 0) player.actionState = 'run';
+        else player.actionState = 'idle';
 
         // 多人猛獸碰撞
         const myWorldY = player.y + scrollDistance;
@@ -2351,6 +2487,7 @@
           if (ani.id === 'lemur' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
             player.canDoubleJump = false;
             player.vy = -275;
+            player.jumpTimer = 0.35;
             playSound('spring');
             spawnParticles(player.x + 15, player.y + 26, '#ffffff', 6);
             addPopup(player.x + 15, player.y, '野兔二段躍！', '#18181b');
@@ -2445,14 +2582,6 @@
           ctx.fill();
         }
 
-        ctx.save();
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
-        ctx.font = '900 105px Georgia, "Times New Roman", serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(String(floor), LOGIC_W / 2, H * 0.48);
-        ctx.restore();
-
         for (const mc of mistClouds) {
           const mGrad = ctx.createRadialGradient(mc.x, mc.y, 4, mc.x, mc.y, mc.r);
           mGrad.addColorStop(0, `rgba(255, 255, 255, ${mc.alpha})`);
@@ -2530,114 +2659,196 @@
 
           if (p.type === 'steel') {
             const overloadShake = p.overloadTimer > 0 ? (Math.random() - 0.5) * 4 : 0;
-            ctx.fillStyle = p.overloadTimer > 0 ? '#7c2d12' : '#27272a';
-            ctx.fillRect(-hw + overloadShake, -hh, p.w, p.h);
-            ctx.fillStyle = p.overloadTimer > 0 ? '#ea580c' : '#52525b';
-            ctx.fillRect(-hw + overloadShake, -hh, p.w, 3);
-            ctx.fillRect(-hw + overloadShake, hh - 3, p.w, 3);
-            ctx.fillStyle = '#78350f';
-            for (let rx = -hw + 8; rx < hw - 6; rx += 16) {
-              ctx.fillRect(rx + overloadShake, -2, 6, 4);
+            const sg = ctx.createLinearGradient(0, -hh, 0, hh);
+            sg.addColorStop(0, p.overloadTimer > 0 ? '#c2410c' : '#64748b');
+            sg.addColorStop(0.3, p.overloadTimer > 0 ? '#9a3412' : '#334155');
+            sg.addColorStop(1, '#1e293b');
+            ctx.fillStyle = sg;
+            ctx.beginPath();
+            ctx.roundRect(-hw + overloadShake, -hh, p.w, p.h, 3);
+            ctx.fill();
+            ctx.fillStyle = p.overloadTimer > 0 ? '#fdba74' : '#94a3b8';
+            ctx.fillRect(-hw + 2 + overloadShake, -hh + 1, p.w - 4, 2);
+            ctx.fillStyle = '#0f172a';
+            for (let rx = -hw + 10; rx < hw - 6; rx += 18) {
+              ctx.beginPath();
+              ctx.arc(rx + overloadShake, 0, 2, 0, Math.PI * 2);
+              ctx.fill();
             }
           } else if (p.type === 'seesaw') {
-            ctx.fillStyle = '#18181b';
-            ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.strokeStyle = '#d97706';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-hw, -hh, p.w, p.h);
-            ctx.fillStyle = '#f59e0b';
+            const wGrad = ctx.createLinearGradient(0, -hh, 0, hh);
+            wGrad.addColorStop(0, '#d97706');
+            wGrad.addColorStop(1, '#78350f');
+            ctx.fillStyle = wGrad;
             ctx.beginPath();
-            ctx.arc(0, 0, 4, 0, Math.PI * 2);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 4);
+            ctx.fill();
+            ctx.strokeStyle = '#fbbf24';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            // 中央支點三角與金色軸心
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#18181b';
+            ctx.beginPath();
+            ctx.arc(0, 0, 2, 0, Math.PI * 2);
             ctx.fill();
           } else if (p.type === 'wood') {
             const shakeX = p.touched && !p.broken ? (Math.random() - 0.5) * 4 : 0;
-            ctx.fillStyle = '#5c2808';
-            ctx.fillRect(-hw + shakeX, -hh, p.w, p.h);
-            ctx.fillStyle = '#92400e';
-            ctx.fillRect(-hw + shakeX, -hh, p.w, 3);
+            const wg = ctx.createLinearGradient(0, -hh, 0, hh);
+            wg.addColorStop(0, '#b45309');
+            wg.addColorStop(0.5, '#78350f');
+            wg.addColorStop(1, '#451a03');
+            ctx.fillStyle = wg;
+            ctx.beginPath();
+            ctx.roundRect(-hw + shakeX, -hh, p.w, p.h, 2);
+            ctx.fill();
             ctx.strokeStyle = '#1c0a00';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(-12 + shakeX, -hh);
-            ctx.lineTo(-4 + shakeX, hh);
-            ctx.moveTo(15 + shakeX, -hh);
-            ctx.lineTo(8 + shakeX, hh);
+            ctx.moveTo(-18 + shakeX, -hh); ctx.lineTo(-10 + shakeX, 1); ctx.lineTo(-15 + shakeX, hh);
+            ctx.moveTo(14 + shakeX, -hh); ctx.lineTo(6 + shakeX, 0); ctx.lineTo(12 + shakeX, hh);
             ctx.stroke();
           } else if (p.type === 'taxi') {
-            const comp = p.springCompress * 5;
-            ctx.fillStyle = '#14532d';
+            // 淺顯易懂：紅色彈簧階梯（紅底板 + 中間立體螺旋彈簧 + 紅色上彈板 + ↑↑）
+            const comp = p.springCompress * 6;
+            // 底部紅座
+            ctx.fillStyle = '#991b1b';
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh + comp, p.w, p.h, 5);
+            ctx.roundRect(-hw, hh - 4, p.w, 5, 2);
             ctx.fill();
-            ctx.fillStyle = '#d97706';
-            ctx.fillRect(-hw + 4, -2 + comp, p.w - 8, 4);
-            ctx.fillStyle = '#fef08a';
-            ctx.fillRect(-10, -hh - 5 + comp, 20, 5);
-          } else if (p.type === 'moss') {
-            ctx.fillStyle = '#3f3f46';
-            ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.fillStyle = '#3f6212';
-            ctx.fillRect(-hw, -hh, p.w, 5);
-          } else if (p.type === 'conveyor_l' || p.type === 'conveyor_r') {
-            ctx.fillStyle = '#18181b';
+            // 中間閃亮金屬彈簧線圈
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 2.6;
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
-            ctx.fill();
-            ctx.strokeStyle = '#b45309';
-            ctx.lineWidth = 1.5;
+            for (let sx = -18; sx <= 18; sx += 9) {
+              ctx.moveTo(sx, hh - 4);
+              ctx.lineTo(sx + 4.5, -hh + 3 + comp);
+              ctx.lineTo(sx + 9, hh - 4);
+            }
             ctx.stroke();
-
+            // 紅色亮面上彈跳板
+            const rg = ctx.createLinearGradient(0, -hh + comp, 0, -hh + 8 + comp);
+            rg.addColorStop(0, '#f87171');
+            rg.addColorStop(0.4, '#ef4444');
+            rg.addColorStop(1, '#b91c1c');
+            ctx.fillStyle = rg;
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh - 2 + comp, p.w, 8, 4);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(-hw + 2, -hh + comp, p.w - 4, 4);
+          } else if (p.type === 'moss') {
+            ctx.fillStyle = '#334155';
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.fill();
+            const mg = ctx.createLinearGradient(0, -hh, 0, -hh + 7);
+            mg.addColorStop(0, '#84cc16');
+            mg.addColorStop(1, '#3f6212');
+            ctx.fillStyle = mg;
+            ctx.beginPath();
+            ctx.roundRect(-hw - 1, -hh - 1, p.w + 2, 7, 4);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.65)';
+            ctx.beginPath();
+            ctx.arc(-20, -hh + 2, 1.8, 0, Math.PI * 2);
+            ctx.arc(14, -hh + 2, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (p.type === 'conveyor_l' || p.type === 'conveyor_r') {
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh, p.w, p.h, 7);
+            ctx.fill();
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 2;
+            ctx.stroke();
+            // 兩端滾輪軸承
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.arc(-hw + 7, 0, 4.5, 0, Math.PI * 2);
+            ctx.arc(hw - 7, 0, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+            // 清晰流動亮黃箭頭
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 2.4;
             const dir = p.type === 'conveyor_r' ? 1 : -1;
             const shift = dir * (conveyorAnim - 8);
-            for (let ax = -hw + 12; ax < hw - 10; ax += 16) {
+            for (let ax = -hw + 20; ax <= hw - 20; ax += 14) {
               const drawX = ax + shift * 0.5;
               ctx.beginPath();
-              ctx.moveTo(drawX - 3 * dir, -4);
+              ctx.moveTo(drawX - 4 * dir, -4);
               ctx.lineTo(drawX + 3 * dir, 0);
-              ctx.lineTo(drawX - 3 * dir, 4);
+              ctx.lineTo(drawX - 4 * dir, 4);
               ctx.stroke();
             }
           } else if (p.type === 'barbed') {
-            ctx.fillStyle = '#271206';
-            ctx.fillRect(-hw, -hh + 4, p.w, p.h - 4);
-            ctx.strokeStyle = '#3f3f46';
-            ctx.lineWidth = 1.6;
-            for (let sx = -hw + 4; sx < hw - 6; sx += 10) {
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(-hw, -hh + 5, p.w, p.h - 5);
+            for (let sx = -hw + 2; sx < hw - 6; sx += 10) {
+              const spg = ctx.createLinearGradient(sx, -hh - 8, sx, -hh + 5);
+              spg.addColorStop(0, '#ef4444');
+              spg.addColorStop(0.5, '#e2e8f0');
+              spg.addColorStop(1, '#475569');
+              ctx.fillStyle = spg;
               ctx.beginPath();
-              ctx.moveTo(sx, -hh + 4);
-              ctx.lineTo(sx + 5, -hh - 6);
-              ctx.lineTo(sx + 10, -hh + 4);
-              ctx.stroke();
+              ctx.moveTo(sx, -hh + 5);
+              ctx.lineTo(sx + 5, -hh - 8);
+              ctx.lineTo(sx + 10, -hh + 5);
+              ctx.closePath();
+              ctx.fill();
             }
           } else if (p.type === 'electric') {
-            ctx.fillStyle = electricCycle ? '#0369a1' : '#1e293b';
-            ctx.fillRect(-hw, -hh, p.w, p.h);
+            ctx.fillStyle = electricCycle ? '#0284c7' : '#1e293b';
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.fill();
+            // 黃黑警戒兩端
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(-hw, -hh, 10, p.h);
+            ctx.fillRect(hw - 10, -hh, 10, p.h);
+            ctx.fillStyle = '#09090b';
+            ctx.fillRect(-hw + 3, -hh, 4, p.h);
+            ctx.fillRect(hw - 7, -hh, 4, p.h);
             if (electricCycle) {
-              ctx.strokeStyle = '#38bdf8';
-              ctx.lineWidth = 2;
+              ctx.strokeStyle = '#7dd3fc';
+              ctx.lineWidth = 2.4;
               ctx.beginPath();
-              ctx.moveTo(-hw, -hh - 3);
-              for (let ex = -hw + 12; ex <= hw; ex += 12) {
-                ctx.lineTo(ex, -hh - 2 + (Math.random() - 0.5) * 10);
+              ctx.moveTo(-hw + 10, -hh - 3);
+              for (let ex = -hw + 20; ex <= hw - 10; ex += 10) {
+                ctx.lineTo(ex, -hh - 3 + (Math.random() - 0.5) * 11);
               }
               ctx.stroke();
             }
           } else if (p.type === 'slanted_l' || p.type === 'slanted_r') {
-            ctx.fillStyle = '#27272a';
-            ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.fillStyle = '#b45309';
+            const slg = ctx.createLinearGradient(0, -hh, 0, hh);
+            slg.addColorStop(0, '#475569');
+            slg.addColorStop(1, '#1e293b');
+            ctx.fillStyle = slg;
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.fill();
+            ctx.fillStyle = '#f59e0b';
             ctx.fillRect(-hw, -hh, p.w, 3);
           } else if (p.type === 'supply') {
-            ctx.fillStyle = '#365314';
-            ctx.fillRect(-hw, -hh, p.w, p.h);
+            ctx.fillStyle = '#15803d';
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.fill();
             if (p.crateIntact) {
-              ctx.fillStyle = '#92400e';
-              ctx.fillRect(-13, -hh - 16, 26, 16);
-              ctx.strokeStyle = '#fef3c7';
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              ctx.roundRect(-12, -hh - 17, 24, 17, 3);
+              ctx.fill();
+              ctx.strokeStyle = '#166534';
               ctx.lineWidth = 1.5;
-              ctx.strokeRect(-13, -hh - 16, 26, 16);
+              ctx.stroke();
+              ctx.fillStyle = '#dc2626';
+              ctx.fillRect(-2, -hh - 14, 4, 11);
+              ctx.fillRect(-5.5, -hh - 10.5, 11, 4);
             }
           }
 
@@ -2645,7 +2856,7 @@
         }
       }
 
-      function drawInGameAnimal(x, y, facing, walkFrame, animalId, name, hpVal, alpha = 1, isLocal = false, vy = 0) {
+      function drawInGameAnimal(x, y, facing, walkFrame, animalId, name, hpVal, alpha = 1, isLocal = false, vy = 0, action = 'idle') {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
         ctx.save();
         ctx.globalAlpha = alpha;
@@ -2667,7 +2878,7 @@
         ctx.fillRect(cx - barW / 2, y - labelOffset + 3, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
 
         const pitch = ani.posture === 'bipedal_bear' ? 0 : Math.max(-0.28, Math.min(0.28, vy * 0.0005));
-        drawAuthenticAnimal(ctx, animalId, cx, cy, 0.96, facing, walkFrame, pitch);
+        drawAuthenticAnimal(ctx, animalId, cx, cy, 0.96, facing, walkFrame, pitch, action);
 
         ctx.restore();
       }
@@ -2679,7 +2890,7 @@
           const ani = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
 
           if (screenY > -40 && screenY < H + 40) {
-            drawInGameAnimal(rp.x, screenY, rp.facing, Date.now() * 0.012, rp.animalId, rp.name, rp.hp, 0.88, false, rp.vy);
+            drawInGameAnimal(rp.x, screenY, rp.facing, Date.now() * 0.012, rp.animalId, rp.name, rp.hp, 0.88, false, rp.vy, rp.actionState || 'idle');
           } else {
             ctx.save();
             const clampedY = Math.max(30, Math.min(H - 22, screenY));
@@ -2688,7 +2899,7 @@
             ctx.font = '900 11px system-ui, sans-serif';
             ctx.textAlign = 'center';
             const arrow = screenY < 0 ? '▲' : '▼';
-            ctx.fillText(`${arrow} [${ani.name}] ${rp.name} (B${rp.floor})`, cx, clampedY);
+            ctx.fillText(`${arrow} [${ani.name}] ${rp.name}`, cx, clampedY);
             ctx.restore();
           }
         }
@@ -2750,7 +2961,8 @@
             hp,
             1,
             true,
-            player.vy
+            player.vy,
+            player.actionState
           );
         }
 
