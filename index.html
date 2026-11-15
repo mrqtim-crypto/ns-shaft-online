@@ -233,22 +233,19 @@
       height: 100%;
     }
 
-    /* 下方正中央半透明懸浮拖曳搖桿 */
+    /* 下方正中央圓形多向半透明懸浮拖曳搖桿 */
     .float-joystick {
       position: absolute;
       left: 50%;
-      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
       transform: translateX(-50%);
-      width: 152px;
-      height: 54px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.34);
-      border: 1.5px solid rgba(255, 255, 255, 0.32);
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.32);
+      border: 1.5px solid rgba(255, 255, 255, 0.34);
       backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 14px;
+      display: block;
       z-index: 15;
       touch-action: none;
       user-select: none;
@@ -266,22 +263,23 @@
     }
 
     .joy-arrow {
-      font-size: 14px;
+      position: absolute;
+      font-size: 12px;
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.42);
+      color: rgba(255, 255, 255, 0.4);
       pointer-events: none;
       transition: color 0.12s, transform 0.12s;
     }
 
-    .float-joystick.dir-left .joy-arrow.left {
-      color: #fbbf24;
-      transform: scale(1.25);
-    }
+    .joy-arrow.left { left: 9px; top: 50%; transform: translateY(-50%); }
+    .joy-arrow.right { right: 9px; top: 50%; transform: translateY(-50%); }
+    .joy-arrow.up { top: 7px; left: 50%; transform: translateX(-50%); }
+    .joy-arrow.down { bottom: 7px; left: 50%; transform: translateX(-50%); }
 
-    .float-joystick.dir-right .joy-arrow.right {
-      color: #fbbf24;
-      transform: scale(1.25);
-    }
+    .float-joystick.dir-left .joy-arrow.left { color: #fbbf24; transform: translateY(-50%) scale(1.25); }
+    .float-joystick.dir-right .joy-arrow.right { color: #fbbf24; transform: translateY(-50%) scale(1.25); }
+    .float-joystick.dir-up .joy-arrow.up { color: #fbbf24; transform: translateX(-50%) scale(1.25); }
+    .float-joystick.dir-down .joy-arrow.down { color: #fbbf24; transform: translateX(-50%) scale(1.25); }
 
     .joy-knob {
       position: absolute;
@@ -802,11 +800,13 @@
         <div class="mp-players-strip" id="mpStrip"></div>
       </div>
 
-      <!-- 下方正中央半透明懸浮按鈕（按住往左或右拉，選角時隱藏） -->
-      <div class="float-joystick hidden" id="floatJoystick" aria-label="左右拖曳移動">
+      <!-- 下方正中央圓形多向半透明懸浮搖桿（選角時隱藏） -->
+      <div class="float-joystick hidden" id="floatJoystick" aria-label="多向拖曳移動">
+        <span class="joy-arrow up">▲</span>
         <span class="joy-arrow left">◀</span>
         <div class="joy-knob" id="joyKnob"></div>
         <span class="joy-arrow right">▶</span>
+        <span class="joy-arrow down">▼</span>
       </div>
 
       <!-- 繪本風 24 種動物單畫面 6×4 選角大廳 -->
@@ -884,175 +884,70 @@
 
   <script>
     (() => {
-      // ================== 18 種真實姿態動物定義（含 9 種台灣原生特有種） ==================
+      // ================== 30 種高差異化可愛繪本角色定義 ==================
       const ANIMALS = [
         {
-          id: 'elephant', name: '非洲象', en: "AFRICAN ELEPHANT", isTW: false,
-          posture: 'colossal', postureName: '巨型重裝壓迫姿', face: -1,
-          weight: 2.5, sizeScale: 1.55, speedMul: 0.95, pushMul: 2.0,
-          wStat: 10, sStat: 3, cStat: 10, wPct: 100, sPct: 30, pPct: 100,
-          desc: '【震地重踏】全場最重！高處落地釋放重壓震波震飛同階梯對手，單側可壓垮翹翹板。'
-        },
-        {
-          id: 'hippo', name: '河馬', en: "HIPPOPOTAMUS", isTW: false,
-          posture: 'colossal', postureName: '巨口咆哮姿', face: -1,
-          weight: 2.29, sizeScale: 1.35, speedMul: 0.95, pushMul: 1.84,
-          wStat: 9, sStat: 3, cStat: 9, wPct: 90, sPct: 30, pPct: 90,
-          desc: '【厚皮絕緣】完全免疫青苔打滑、輸送帶推力與漏電麻痺，噸位壓制全場。'
-        },
-        {
-          id: 'bison', name: '歐亞野牛', en: "EUROPEAN BISON", isTW: false,
-          posture: 'colossal', postureName: '低頭彎角衝刺姿', face: -1,
-          weight: 2.07, sizeScale: 1.3, speedMul: 1.07, pushMul: 1.84,
-          wStat: 8, sStat: 5, cStat: 9, wPct: 80, sPct: 50, pPct: 90,
-          desc: '【蠻牛衝撞】同方向奔跑 0.3 秒後進入猛衝，速度 +32% 並撞飛路徑上的對手。'
-        },
-        {
-          id: 'crocodile', name: '鱷魚', en: "CROCODILE", isTW: false,
-          posture: 'colossal', postureName: '匍匐巨顎姿', face: -1,
-          weight: 2.07, sizeScale: 1.25, speedMul: 1.01, pushMul: 1.69,
-          wStat: 8, sStat: 4, cStat: 8, wPct: 80, sPct: 40, pPct: 80,
-          desc: '【鱗甲護體】厚重鱗甲讓尖刺與鐵絲網傷害減半，青苔與斜坡都不打滑。'
-        },
-        {
-          id: 'bear', name: '台灣黑熊', en: "FORMOSAN BLACK BEAR", isTW: true,
-          posture: 'bipedal_bear', postureName: '雙足直立站姿', face: 0,
-          weight: 1.64, sizeScale: 1.2, speedMul: 1.07, pushMul: 1.53,
-          wStat: 6, sStat: 5, cStat: 7, wPct: 60, sPct: 50, pPct: 70,
-          desc: '【月牙狂暴】體力低於 4 格時激發野性，移速與抗撞力大幅提升！'
-        },
-        {
-          id: 'lion', name: '非洲獅', en: "AFRICAN LION", isTW: false,
-          posture: 'leaping_predator', postureName: '鬃毛王者站姿', face: 1,
-          weight: 1.42, sizeScale: 1.2, speedMul: 1.19, pushMul: 1.53,
-          wStat: 5, sStat: 7, cStat: 7, wPct: 50, sPct: 70, pPct: 70,
-          desc: '【百獸之王】濃密鬃毛抵禦尖刺傷害（少扣 2 HP）。'
-        },
-        {
-          id: 'jaguar', name: '美洲豹', en: "JAGUAR", isTW: false,
-          posture: 'leaping_predator', postureName: '低伏潛行姿', face: -1,
-          weight: 1.21, sizeScale: 1.1, speedMul: 1.24, pushMul: 1.38,
-          wStat: 4, sStat: 8, cStat: 6, wPct: 40, sPct: 80, pPct: 60,
-          desc: '【暗影飛撲】助跑跳出階梯觸發遠距飛撲；踩中其他動物頭頂可借力二段跳。'
-        },
-        {
-          id: 'horse', name: '蒙古野馬', en: "PRZEWALSKI'S HORSE", isTW: false,
-          posture: 'leaping_predator', postureName: '荒原奔馳姿', face: 1,
-          weight: 1.64, sizeScale: 1.25, speedMul: 1.24, pushMul: 1.38,
-          wStat: 6, sStat: 8, cStat: 6, wPct: 60, sPct: 80, pPct: 60,
-          desc: '【荒原鐵蹄】強健蹄足讓牠在傾斜階梯上也不會滑落，可高速逆坡衝刺。'
-        },
-        {
-          id: 'deer', name: '紅鹿', en: "RED DEER", isTW: false,
-          posture: 'bounding_ungulate', postureName: '高昂鹿角姿', face: -1,
-          weight: 1.21, sizeScale: 1.2, speedMul: 1.24, pushMul: 1.23,
-          wStat: 4, sStat: 8, cStat: 5, wPct: 40, sPct: 80, pPct: 50,
-          desc: '【林間跳躍】踩上彈跳車頂時高度受控不撞頂刺，每次彈跳回復 +2 HP。'
-        },
-        {
-          id: 'springbok', name: '跳羚', en: "SPRINGBOK", isTW: false,
-          posture: 'bounding_ungulate', postureName: '拱背彈跳姿', face: -1,
-          weight: 0.78, sizeScale: 1.0, speedMul: 1.3, pushMul: 0.92,
-          wStat: 2, sStat: 9, cStat: 3, wPct: 20, sPct: 90, pPct: 30,
-          desc: '【極限彈跳】斜坡不滑落，貼近左右岩壁時可觸發蹬牆跳！'
-        },
-        {
-          id: 'condor', name: '安第斯神鷹', en: "ANDEAN CONDOR", isTW: false,
-          posture: 'soaring_bird', postureName: '巨翼翱翔姿', face: 0,
-          weight: 0.99, sizeScale: 1.15, speedMul: 1.13, pushMul: 0.92,
-          wStat: 3, sStat: 6, cStat: 3, wPct: 30, sPct: 60, pPct: 30,
-          desc: '【巨翼滑翔】下墜減緩且斜坡不滑落；跑離階梯瞬間展翅獲得遠距水平滑翔推進！'
-        },
-        {
-          id: 'owl', name: '大角鴞', en: "GREAT HORNED OWL", isTW: false,
-          posture: 'soaring_bird', postureName: '展翅俯衝姿', face: 0,
-          weight: 0.78, sizeScale: 0.95, speedMul: 1.19, pushMul: 0.92,
-          wStat: 2, sStat: 7, cStat: 3, wPct: 20, sPct: 70, pPct: 30,
-          desc: '【無聲滯空】全場最強滑翔緩降；跑離階梯時振翅獲得滯空浮力＋水平推進！'
-        },
-        {
-          id: 'glider', name: '蜜袋鼯', en: "SUGAR GLIDER", isTW: false,
-          posture: 'soaring_bird', postureName: '翼膜滑翔姿', face: -1,
-          weight: 0.56, sizeScale: 0.75, speedMul: 1.19, pushMul: 0.6,
-          wStat: 1, sStat: 7, cStat: 1, wPct: 10, sPct: 70, pPct: 10,
-          desc: '【翼膜飄移】緩降之外，跳離階梯瞬間獲得水平滑翔推進，可跨越很遠的間隙。'
-        },
-        {
-          id: 'octopus', name: '藍環章魚', en: "BLUE-RINGED OCTOPUS", isTW: false,
-          posture: 'leaping_predator', postureName: '八腕吸附姿', face: 0,
-          weight: 0.56, sizeScale: 0.8, speedMul: 1.01, pushMul: 0.76,
-          wStat: 1, sStat: 4, cStat: 2, wPct: 10, sPct: 40, pPct: 20,
-          desc: '【真空吸盤】吸附階梯不打滑；體重極輕，腐朽木板不易斷裂，落地有機率 +1 HP。'
-        },
-        {
-          id: 'beaver', name: '北美河狸', en: "NORTH AMERICAN BEAVER", isTW: false,
-          posture: 'leaping_predator', postureName: '槳尾坐姿', face: -1,
-          weight: 0.99, sizeScale: 0.9, speedMul: 1.01, pushMul: 1.07,
-          wStat: 3, sStat: 4, cStat: 4, wPct: 30, sPct: 40, pPct: 40,
-          desc: '【築壩工匠】每下 12 層自動補 +2 HP，被撞時以反作用力把對手彈開。'
-        },
-        {
-          id: 'lemur', name: '環尾狐猴', en: "RING-TAILED LEMUR", isTW: false,
-          posture: 'bounding_ungulate', postureName: '環尾高舉姿', face: -1,
-          weight: 0.78, sizeScale: 0.85, speedMul: 1.19, pushMul: 0.76,
+          id: 'woodpecker', name: '啄木鳥', en: "WOODPECKER", isTW: false,
+          posture: 'soaring_bird', postureName: '展翼啄木姿', face: -1,
+          weight: 0.65, sizeScale: 0.85, speedMul: 1.18, pushMul: 0.75,
           wStat: 2, sStat: 7, cStat: 2, wPct: 20, sPct: 70, pPct: 20,
-          desc: '【空中翻身】掉出階梯時按住方向鍵，可觸發一次救命的空中二段跳！'
+          desc: '【啄木陷阱】空中可向下俯衝，踩過的普通階梯變脆化陷阱！離階急飛、觸牆釘牆 0.8s。'
         },
         {
-          id: 'fox', name: '北極狐', en: "ARCTIC FOX", isTW: false,
-          posture: 'leaping_predator', postureName: '雪地輕步姿', face: -1,
-          weight: 0.78, sizeScale: 0.9, speedMul: 1.24, pushMul: 0.76,
-          wStat: 2, sStat: 8, cStat: 2, wPct: 20, sPct: 80, pPct: 20,
-          desc: '【嗅覺本能】對補給敏銳，每次踩上新階梯有機率額外 +1 HP。'
+          id: 'spider', name: '蜘蛛', en: "JUMPING SPIDER", isTW: false,
+          posture: 'leaping_predator', postureName: '八腳吐絲姿', face: -1,
+          weight: 0.56, sizeScale: 0.8, speedMul: 1.16, pushMul: 0.65,
+          wStat: 1, sStat: 7, cStat: 2, wPct: 10, sPct: 70, pPct: 20,
+          desc: '【蛛絲陷阱】踩過的普通階梯留 2.5s 蛛網使對手緩速 50%；空中貼牆可吸附緩降！'
         },
         {
-          id: 'sandcat', name: '沙漠貓', en: "SAND CAT", isTW: false,
-          posture: 'leaping_predator', postureName: '低伏貼地姿', face: -1,
-          weight: 0.56, sizeScale: 0.78, speedMul: 1.36, pushMul: 0.6,
-          wStat: 1, sStat: 10, cStat: 1, wPct: 10, sPct: 100, pPct: 10,
-          desc: '【沙漠神速】全場最快，空中轉向靈敏；踩腐朽木板斷裂速度減緩 50%。'
+          id: 'mole', name: '鼴鼠', en: "MOLE", isTW: false,
+          posture: 'leaping_predator', postureName: '挖掘潛行姿', face: -1,
+          weight: 0.85, sizeScale: 0.88, speedMul: 1.06, pushMul: 0.9,
+          wStat: 3, sStat: 5, cStat: 3, wPct: 30, sPct: 50, pPct: 30,
+          desc: '【鑽地穿板】每下 10 層獲 1 次充能（不疊加），站階梯往下拉可直接穿過腳下階梯！'
         },
         {
-          id: 'pangolin', name: '台灣穿山甲', en: "FORMOSAN PANGOLIN", isTW: true,
-          posture: 'colossal', postureName: '鱗甲護體姿', face: -1,
-          weight: 1.42, sizeScale: 1.0, speedMul: 1.01, pushMul: 1.23,
-          wStat: 5, sStat: 4, cStat: 5, wPct: 50, sPct: 40, pPct: 50,
-          desc: '【縮球滾動】踩中尖刺傷害減半並高彈跳脫離，碰撞對手反彈力強。'
-        },
-        {
-          id: 'leopardcat', name: '台灣石虎', en: "FORMOSAN LEOPARD CAT", isTW: true,
-          posture: 'leaping_predator', postureName: '山林潛行姿', face: -1,
-          weight: 0.99, sizeScale: 0.95, speedMul: 1.24, pushMul: 1.07,
-          wStat: 3, sStat: 8, cStat: 4, wPct: 30, sPct: 80, pPct: 40,
-          desc: '【山林突襲】連續安全降落 3 層進入專注，移速 +20% 並突襲推開同梯對手。'
+          id: 'skunk', name: '臭鼬', en: "SKUNK", isTW: false,
+          posture: 'leaping_predator', postureName: '蓬尾警戒姿', face: -1,
+          weight: 0.9, sizeScale: 0.92, speedMul: 1.12, pushMul: 0.85,
+          wStat: 3, sStat: 6, cStat: 3, wPct: 30, sPct: 60, pPct: 30,
+          desc: '【臭氣領域】被撞時原地留下 2 秒臭氣雲，踩進去的對手移動緩速！'
         },
         {
           id: 'capybara', name: '水豚', en: "CAPYBARA", isTW: false,
           posture: 'colossal', postureName: '頂橘靜坐姿', face: -1,
           weight: 1.42, sizeScale: 1.1, speedMul: 0.95, pushMul: 1.38,
           wStat: 5, sStat: 3, cStat: 6, wPct: 50, sPct: 30, pPct: 60,
-          desc: '【佛系溫泉】靜止站立 0.8 秒進入放鬆回血，同梯讓對手短暫緩速。'
-        },
-        {
-          id: 'penguin', name: '國王企鵝', en: "KING PENGUIN", isTW: false,
-          posture: 'bipedal_bear', postureName: '搖擺企鵝姿', face: 0,
-          weight: 1.1, sizeScale: 1.0, speedMul: 1.07, pushMul: 1.23,
-          wStat: 4, sStat: 5, cStat: 5, wPct: 40, sPct: 50, pPct: 50,
-          desc: '【肚皮滑行】青苔與斜坡不打滑，反而觸發高速肚皮衝刺並撞開對手！'
-        },
-        {
-          id: 'sloth', name: '樹懶', en: "THREE-TOED SLOTH", isTW: false,
-          posture: 'bipedal_bear', postureName: '微笑抓地姿', face: 0,
-          weight: 1.64, sizeScale: 1.05, speedMul: 0.88, pushMul: 1.53,
-          wStat: 6, sStat: 2, cStat: 7, wPct: 60, sPct: 20, pPct: 70,
-          desc: '【不動如山】強韌長爪死抓階梯，完全免疫狂風與他人推擠擊退！'
+          desc: '【佛系溫泉】淹水可游泳，靜止 0.8s 回血，火牆減半，同梯讓對手短暫緩速。'
         },
         {
           id: 'chameleon', name: '變色龍', en: "VEILED CHAMELEON", isTW: false,
           posture: 'leaping_predator', postureName: '捲尾擬態姿', face: -1,
           weight: 0.56, sizeScale: 0.82, speedMul: 1.13, pushMul: 0.6,
           wStat: 1, sStat: 6, cStat: 1, wPct: 10, sPct: 60, pPct: 10,
-          desc: '【擬態保護色】每下潛 10 層獲得 1.8 秒隱身穿透，免疫對手推擠與方向反轉！'
+          desc: '【擬態穿牆】碰牆瞬間從另一邊穿出！每下 10 層獲 1.8s 隱身，免疫推擠、反轉與敲暈。'
+        },
+        {
+          id: 'bat', name: '蝙蝠', en: "FRUIT BAT", isTW: false,
+          posture: 'soaring_bird', postureName: '展翼夜行姿', face: -1,
+          weight: 0.56, sizeScale: 0.82, speedMul: 1.18, pushMul: 0.65,
+          wStat: 1, sStat: 7, cStat: 1, wPct: 10, sPct: 70, pPct: 10,
+          desc: '【倒掛鋼筋】空中可向下俯衝；每下 20 層獲 1 次充能（不疊加），碰頂部鋼筋免傷彈下！'
+        },
+        {
+          id: 'treefrog', name: '樹蛙', en: "GREEN TREE FROG", isTW: false,
+          posture: 'bounding_ungulate', postureName: '黏盤攀牆姿', face: -1,
+          weight: 0.56, sizeScale: 0.8, speedMul: 1.16, pushMul: 0.7,
+          wStat: 1, sStat: 7, cStat: 2, wPct: 10, sPct: 70, pPct: 20,
+          desc: '【黏盤爬牆】青苔與斜坡不打滑；空中觸牆可沿牆向上爬躍脫困（每次落地限 1 次）！'
+        },
+        {
+          id: 'lemur', name: '環尾狐猴', en: "RING-TAILED LEMUR", isTW: false,
+          posture: 'bounding_ungulate', postureName: '環尾高舉姿', face: -1,
+          weight: 0.78, sizeScale: 0.85, speedMul: 1.19, pushMul: 0.76,
+          wStat: 2, sStat: 7, cStat: 2, wPct: 20, sPct: 70, pPct: 20,
+          desc: '【空中翻身】掉出階梯時按住方向鍵，可觸發全場唯一的空中救命二段跳！'
         },
         {
           id: 'kangaroo', name: '紅袋鼠', en: "RED KANGAROO", isTW: false,
@@ -1062,11 +957,53 @@
           desc: '【袋鼠飛踢】彈跳墊躍起更高，碰撞對手強力踢飛，空中觸牆可斜上長躍！'
         },
         {
-          id: 'mastiff', name: '藏獒', en: "TIBETAN MASTIFF", isTW: false,
-          posture: 'colossal', postureName: '高原雄獅護衛姿', face: -1,
-          weight: 1.85, sizeScale: 1.25, speedMul: 1.05, pushMul: 1.75,
-          wStat: 7, sStat: 5, cStat: 8, wPct: 70, sPct: 50, pPct: 80,
-          desc: '【高原威懾】使鄰近對手緩速，尖刺少扣 1 HP，撞牆產生小範圍震懾波！'
+          id: 'condor', name: '安第斯神鷹', en: "ANDEAN CONDOR", isTW: false,
+          posture: 'soaring_bird', postureName: '巨翼翱翔姿', face: 0,
+          weight: 0.99, sizeScale: 1.15, speedMul: 1.13, pushMul: 0.92,
+          wStat: 3, sStat: 6, cStat: 3, wPct: 30, sPct: 60, pPct: 30,
+          desc: '【巨翼滑翔】空中可向下俯衝，斜坡不滑落；跑離階梯獲遠距水平滑翔推進！'
+        },
+        {
+          id: 'owl', name: '大角鴞', en: "GREAT HORNED OWL", isTW: false,
+          posture: 'soaring_bird', postureName: '展翅俯衝姿', face: 0,
+          weight: 0.78, sizeScale: 0.95, speedMul: 1.19, pushMul: 0.92,
+          wStat: 2, sStat: 7, cStat: 3, wPct: 20, sPct: 70, pPct: 30,
+          desc: '【無聲滯空】最強滑翔滯空，可向下俯衝，且完全免疫全場方向反轉！'
+        },
+        {
+          id: 'glider', name: '蜜袋鼯', en: "SUGAR GLIDER", isTW: false,
+          posture: 'soaring_bird', postureName: '翼膜滑翔姿', face: -1,
+          weight: 0.56, sizeScale: 0.75, speedMul: 1.19, pushMul: 0.6,
+          wStat: 1, sStat: 7, cStat: 1, wPct: 10, sPct: 70, pPct: 10,
+          desc: '【翼膜飄移】空中可向下俯衝；跑離階梯獲水平滑翔推進，觸牆反向滑翔！'
+        },
+        {
+          id: 'sandcat', name: '沙漠貓', en: "SAND CAT", isTW: false,
+          posture: 'leaping_predator', postureName: '低伏貼地姿', face: -1,
+          weight: 0.56, sizeScale: 0.78, speedMul: 1.36, pushMul: 0.6,
+          wStat: 1, sStat: 10, cStat: 1, wPct: 10, sPct: 100, pPct: 10,
+          desc: '【沙漠神速】全場最快，免疫全場反轉，貓科最遠蹬牆反彈，腐朽木板不易斷！'
+        },
+        {
+          id: 'springbok', name: '跳羚', en: "SPRINGBOK", isTW: false,
+          posture: 'bounding_ungulate', postureName: '拱背彈跳姿', face: -1,
+          weight: 0.78, sizeScale: 1.0, speedMul: 1.3, pushMul: 0.92,
+          wStat: 2, sStat: 9, cStat: 3, wPct: 20, sPct: 90, pPct: 30,
+          desc: '【極限彈跳】斜坡不滑落，貼近左右岩壁時可觸發高垂直蹬牆跳！'
+        },
+        {
+          id: 'jellyfish', name: '水母', en: "ELECTRIC JELLYFISH", isTW: false,
+          posture: 'leaping_predator', postureName: '電氣浮游姿', face: -1,
+          weight: 0.56, sizeScale: 0.85, speedMul: 1.04, pushMul: 0.55,
+          wStat: 1, sStat: 4, cStat: 1, wPct: 10, sPct: 40, pPct: 10,
+          desc: '【觸電麻痺】任何時候碰觸對手皆使對方原地麻痺 0.5 秒！淹水可漂浮且免疫電擊！'
+        },
+        {
+          id: 'hedgehog', name: '刺蝟', en: "HEDGEHOG", isTW: false,
+          posture: 'leaping_predator', postureName: '圓刺縮球姿', face: -1,
+          weight: 0.56, sizeScale: 0.78, speedMul: 1.13, pushMul: 0.75,
+          wStat: 1, sStat: 6, cStat: 2, wPct: 10, sPct: 60, pPct: 20,
+          desc: '【針刺護體】鐵絲網減半，免疫骨棒敲暈，對手碰撞自己會被強力彈開，觸牆微反彈！'
         },
         {
           id: 'platypus', name: '鴨嘴獸', en: "PLATYPUS", isTW: false,
@@ -1076,32 +1013,95 @@
           desc: '【雙棲毒刺】淹水時可游泳漂浮水面，被對手碰撞時使對方中毒緩速 1.2 秒！'
         },
         {
-          id: 'hedgehog', name: '刺蝟', en: "HEDGEHOG", isTW: false,
-          posture: 'leaping_predator', postureName: '圓刺縮球姿', face: -1,
-          weight: 0.56, sizeScale: 0.78, speedMul: 1.13, pushMul: 0.75,
-          wStat: 1, sStat: 6, cStat: 2, wPct: 10, sPct: 60, pPct: 20,
-          desc: '【針刺護體】尖刺傷害減半，對手碰撞自己會被針刺強力彈開，觸牆微反彈！'
+          id: 'pangolin', name: '台灣穿山甲', en: "FORMOSAN PANGOLIN", isTW: true,
+          posture: 'colossal', postureName: '鱗甲護體姿', face: -1,
+          weight: 1.42, sizeScale: 1.0, speedMul: 1.01, pushMul: 1.23,
+          wStat: 5, sStat: 4, cStat: 5, wPct: 50, sPct: 40, pPct: 50,
+          desc: '【彈珠鱗甲】鐵絲網減半並彈跳，免疫骨棒敲暈，撞牆如彈珠高速彈射撞飛對手！'
         },
         {
-          id: 'woodpecker', name: '啄木鳥', en: "WOODPECKER", isTW: false,
-          posture: 'soaring_bird', postureName: '展翼啄木姿', face: -1,
-          weight: 0.65, sizeScale: 0.85, speedMul: 1.18, pushMul: 0.75,
-          wStat: 2, sStat: 7, cStat: 2, wPct: 20, sPct: 70, pPct: 20,
-          desc: '【啄木抓樹】跑離階梯獲高速水平衝刺；空中滑翔撞一般牆壁可釘牆停駐 0.8 秒！'
+          id: 'tortoise', name: '象龜', en: "GIANT TORTOISE", isTW: false,
+          posture: 'colossal', postureName: '硬殼守禦姿', face: -1,
+          weight: 1.85, sizeScale: 1.15, speedMul: 0.85, pushMul: 1.4,
+          wStat: 7, sStat: 2, cStat: 6, wPct: 70, sPct: 20, pPct: 60,
+          desc: '【縮殼無敵】往下拉或靜止 0.5s 縮進龜殼，期間完全免疫尖刺、落石、敲暈與推擠！'
+        },
+        {
+          id: 'elephant', name: '非洲象', en: "AFRICAN ELEPHANT", isTW: false,
+          posture: 'colossal', postureName: '巨型重裝壓迫姿', face: -1,
+          weight: 2.5, sizeScale: 1.55, speedMul: 0.95, pushMul: 2.0,
+          wStat: 10, sStat: 3, cStat: 10, wPct: 100, sPct: 30, pPct: 100,
+          desc: '【震地重踏】全場最重！高處落地震波震飛對手，單側壓垮翹翹板，撞牆震暈 0.4s。'
         },
         {
           id: 'panda', name: '大熊貓', en: "GIANT PANDA", isTW: false,
           posture: 'colossal', postureName: '圓滾食竹姿', face: -1,
           weight: 1.85, sizeScale: 1.28, speedMul: 0.96, pushMul: 1.55,
           wStat: 7, sStat: 3, cStat: 7, wPct: 70, sPct: 30, pPct: 70,
-          desc: '【滾滾緩衝】被撞擊退力道減半，站在階梯靜止 1.2 秒啃竹回復 +1 HP！'
+          desc: '【滾滾緩衝】被撞擊退力減半且免疫敲暈，站在階梯靜止 1.2s 啃竹回復 +1 HP！'
+        },
+        {
+          id: 'bison', name: '歐亞野牛', en: "EUROPEAN BISON", isTW: false,
+          posture: 'colossal', postureName: '低頭彎角衝刺姿', face: -1,
+          weight: 2.07, sizeScale: 1.3, speedMul: 1.07, pushMul: 1.84,
+          wStat: 8, sStat: 5, cStat: 9, wPct: 80, sPct: 50, pPct: 90,
+          desc: '【蠻牛衝撞】同向奔跑 0.3s 猛衝（+32%），免疫敲暈，撞牆震暈同高對手 0.4s！'
+        },
+        {
+          id: 'mastiff', name: '藏獒', en: "TIBETAN MASTIFF", isTW: false,
+          posture: 'colossal', postureName: '高原雄獅護衛姿', face: -1,
+          weight: 1.85, sizeScale: 1.25, speedMul: 1.05, pushMul: 1.75,
+          wStat: 7, sStat: 5, cStat: 8, wPct: 70, sPct: 50, pPct: 80,
+          desc: '【高原威懾】使鄰近對手緩速，鐵絲網少扣 1 HP，免疫敲暈，撞牆產生小震懾波！'
+        },
+        {
+          id: 'sloth', name: '樹懶', en: "THREE-TOED SLOTH", isTW: false,
+          posture: 'bipedal_bear', postureName: '微笑抓地姿', face: 0,
+          weight: 1.64, sizeScale: 1.05, speedMul: 0.88, pushMul: 1.53,
+          wStat: 6, sStat: 2, cStat: 7, wPct: 60, sPct: 20, pPct: 70,
+          desc: '【不動如山】強爪死抓階梯免疫狂風、敲暈與推擠，貼牆可吸附緩降！'
+        },
+        {
+          id: 'hippo', name: '河馬', en: "HIPPOPOTAMUS", isTW: false,
+          posture: 'colossal', postureName: '巨口咆哮姿', face: -1,
+          weight: 2.29, sizeScale: 1.35, speedMul: 0.95, pushMul: 1.84,
+          wStat: 9, sStat: 3, cStat: 9, wPct: 90, sPct: 30, pPct: 90,
+          desc: '【厚皮絕緣】淹水游泳，免疫青苔、輸送帶、反轉與敲暈，漏電只扣 1 HP，撞牆震暈！'
+        },
+        {
+          id: 'penguin', name: '國王企鵝', en: "KING PENGUIN", isTW: false,
+          posture: 'bipedal_bear', postureName: '搖擺企鵝姿', face: 0,
+          weight: 1.1, sizeScale: 1.0, speedMul: 1.07, pushMul: 1.23,
+          wStat: 4, sStat: 5, cStat: 5, wPct: 40, sPct: 50, pPct: 50,
+          desc: '【肚皮滑行】淹水游泳、免疫冷凍、火牆減半；青苔與斜坡觸發高速肚皮衝刺！'
+        },
+        {
+          id: 'polarbear', name: '北極熊', en: "POLAR BEAR", isTW: false,
+          posture: 'colossal', postureName: '極地雪原霸主姿', face: -1,
+          weight: 2.0, sizeScale: 1.3, speedMul: 1.06, pushMul: 1.7,
+          wStat: 8, sStat: 5, cStat: 8, wPct: 80, sPct: 50, pPct: 80,
+          desc: '【極地主場】淹水游泳、免疫敲暈；全場冷凍期間不僅免疫，移速還會 +30%！'
+        },
+        {
+          id: 'octopus', name: '藍環章魚', en: "BLUE-RINGED OCTOPUS", isTW: false,
+          posture: 'leaping_predator', postureName: '八腕吸附姿', face: 0,
+          weight: 0.56, sizeScale: 0.8, speedMul: 1.01, pushMul: 0.76,
+          wStat: 1, sStat: 4, cStat: 2, wPct: 10, sPct: 40, pPct: 20,
+          desc: '【真空吸盤】淹水游泳、貼牆緩降、腐朽木板不易斷，落地有機率 +1 HP！'
+        },
+        {
+          id: 'caveman', name: '原始人', en: "PREHISTORIC CAVEMAN", isTW: false,
+          posture: 'bipedal_bear', postureName: '骨棒求生姿', face: -1,
+          weight: 1.25, sizeScale: 1.08, speedMul: 1.14, pushMul: 1.35,
+          wStat: 5, sStat: 6, cStat: 6, wPct: 50, sPct: 60, pPct: 60,
+          desc: '【骨棒敲暈】撞擊中輕型無甲對手使其暈眩 0.3s；天災事件期間移速 +18% 且落石火牆減半！'
         }
       ];
 
       const ANIMAL_MAP = Object.fromEntries(ANIMALS.map(a => [a.id, a]));
 
-      const AQUATIC_IDS = new Set(['hippo', 'crocodile', 'octopus', 'beaver', 'capybara', 'penguin', 'platypus']);
-      const ARCTIC_IDS = new Set(['fox', 'penguin']);
+      const AQUATIC_IDS = new Set(['hippo', 'octopus', 'capybara', 'penguin', 'platypus', 'jellyfish', 'polarbear']);
+      const ARCTIC_IDS = new Set(['polarbear', 'penguin']);
 
       function getBodyTier(ani) {
         if (player.giantTimer > 0 || ani.weight >= 1.6) return 'heavy';
@@ -1120,23 +1120,25 @@
         }
         if (source === 'flame') {
           let dmg = tier === 'light' ? 1 : (tier === 'heavy' ? 3 : 2);
-          if (ani.id === 'capybara' || ani.id === 'fox' || ani.id === 'penguin') {
+          if (ani.id === 'capybara' || ani.id === 'polarbear' || ani.id === 'penguin' || ani.id === 'caveman') {
             dmg = Math.max(1, Math.floor(dmg * 0.5));
           }
           return dmg;
         }
         if (source === 'electric') {
+          if (ani.id === 'jellyfish') return 0; // 水母免疫電擊
           if (ani.id === 'hippo') return 1;
           return tier === 'heavy' ? 2 : 3;
         }
         if (source === 'ceiling') {
-          if (ani.id === 'crocodile' || ani.id === 'lion' || player.giantTimer > 0 || ani.weight >= 2.1) return 3;
+          if (player.giantTimer > 0 || ani.weight >= 2.1) return 3;
           if (tier === 'light') return 4;
           return baseDmg;
         }
         if (source === 'rockslide') {
+          if (ani.id === 'tortoise' && player.tortoiseShell) return 0;
           if (tier === 'light' && Math.random() < 0.35) return 0; // 小型體型 35% 機率閃避落石
-          if (ani.id === 'pangolin' || ani.id === 'crocodile') return 1;
+          if (ani.id === 'pangolin' || ani.id === 'caveman') return 1;
           return tier === 'light' ? 2 : baseDmg;
         }
         return baseDmg;
@@ -1200,8 +1202,8 @@
       let myJoinTime = Date.now();
       let myReady = false;
       let myName = localStorage.getItem(NAME_KEY) || ('生存者' + Math.floor(10 + Math.random() * 89));
-      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'bear';
-      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'bear';
+      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'caveman';
+      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'caveman';
       nameInput.value = myName;
 
       let bestFloor = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
@@ -1619,6 +1621,12 @@
         wallWaveCd: 0,
         wallStickTimer: 0,
         pangolinRollTimer: 0,
+        moleCharges: 1,
+        batCharges: 1,
+        lastMoleFloor: 0,
+        lastBatFloor: 0,
+        moleDropCd: 0,
+        tortoiseShell: false,
         actionState: 'idle'
       };
 
@@ -1655,6 +1663,8 @@
       let pendingFieldEvents = [];
       let rockslideRocks = [];
       let rockSpawnCd = 0;
+      let skunkClouds = [];
+      let spiderWebs = [];
 
       function resetFieldEvents() {
         fieldEvents.freezeTimer = 0;
@@ -1672,6 +1682,8 @@
         pendingFieldEvents = [];
         rockslideRocks = [];
         rockSpawnCd = 0;
+        skunkClouds = [];
+        spiderWebs = [];
       }
 
       function activatePickupEvent(kind, isMine, extraDir = 1) {
@@ -1701,7 +1713,7 @@
           if (isMine) { player.featherTimer = 5.0; playSound('spring'); }
         } else if (kind === 'reverse') {
           const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
-          if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'bear' && myAnimalId !== 'sandcat' && myAnimalId !== 'chameleon') {
+          if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'owl' && myAnimalId !== 'sandcat' && myAnimalId !== 'chameleon' && !(myAnimalId === 'tortoise' && player.tortoiseShell)) {
             player.reverseTimer = myAni.weight < 0.95 ? 3.2 : 5.0;
             playSound('shock');
           }
@@ -1917,7 +1929,7 @@
           p = {
             id: msg.id,
             name: msg.name || '生存者',
-            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'bear',
+            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'caveman',
             x: LOGIC_W / 2,
             worldY: 200,
             vx: 0,
@@ -1978,31 +1990,31 @@
             if (myAnimalId === 'sandcat' && player.phaseTimer <= 0) player.phaseTimer = 1.6;
             return;
           }
+          const aniSelf = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
           const isUnstoppable = myAnimalId === 'elephant' || myAnimalId === 'bison';
-          const isThickHide = myAnimalId === 'hippo' || myAnimalId === 'bear';
+          const isThickHide = myAnimalId === 'hippo' || myAnimalId === 'polarbear' || (myAnimalId === 'tortoise' && player.tortoiseShell);
           const isVacuum = myAnimalId === 'octopus';
           const k = msg.ani;
           if (k === 'octopus') {
-            if (isThickHide) return;
+            if (isThickHide || myAnimalId === 'owl') return;
             player.reverseTimer = 2.6;
             playSound('shock');
           } else if (k === 'lemur') {
             if (isThickHide) return;
             player.slowTimer = 2.2;
-          } else if (k === 'bear') {
-            if (isThickHide) return;
-            player.stunTimer = 0.9;
-            player.hurtTimer = 0.4;
+          } else if (k === 'jellyfish') {
+            if (myAnimalId === 'tortoise' && player.tortoiseShell) return;
+            player.stunTimer = Math.max(player.stunTimer, 0.5);
+            playSound('shock');
+          } else if (k === 'caveman') {
+            const immuneCaveman = aniSelf.weight >= 1.6 || player.giantTimer > 0 || (myAnimalId === 'tortoise' && player.tortoiseShell) || myAnimalId === 'pangolin' || myAnimalId === 'hedgehog' || myAnimalId === 'jellyfish' || myAnimalId === 'polarbear';
+            if (immuneCaveman) return;
+            player.stunTimer = Math.max(player.stunTimer, 0.3);
+            player.hurtTimer = 0.25;
             playSound('stomp');
-          } else if (k === 'beaver') {
-            if (player.onPlatform && player.onPlatform.type !== 'supply') {
-              player.onPlatform.broken = true;
-              player.onPlatform = null;
-              playSound('stomp');
-            }
           } else {
-            if (isUnstoppable || isVacuum) return;
-            if (k === 'elephant' || k === 'deer' || k === 'springbok') {
+            if (isUnstoppable || isVacuum || (myAnimalId === 'tortoise' && player.tortoiseShell)) return;
+            if (k === 'elephant' || k === 'springbok') {
               player.onPlatform = null;
               player.vy = -265;
               player.jumpTimer = 0.3;
@@ -2020,6 +2032,12 @@
             }
           }
           triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
+        } else if (msg.t === 'hazard') {
+          if (msg.kind === 'skunk') {
+            skunkClouds.push({ x: msg.x, worldY: msg.wy, life: 2.0 });
+          } else if (msg.kind === 'web') {
+            spiderWebs.push({ x: msg.x, worldY: msg.wy, w: msg.w || 68, life: 2.5 });
+          }
         } else if (msg.t === 'wall_stun') {
           const myWorldY = player.y + scrollDistance;
           if (Math.abs(myWorldY - msg.wy) <= 44 && Math.abs((player.x + 15) - msg.x) <= (msg.r || 145)) {
@@ -2170,25 +2188,36 @@
         }
       });
 
-      // ============== 操控輸入（正下方半透明懸浮拖曳搖桿 + 鍵盤） ==============
-      const input = { left: false, right: false };
+      // ============== 操控輸入（圓形多向懸浮搖桿 + 鍵盤） ==============
+      const input = { left: false, right: false, up: false, down: false };
 
-      function updateBtnVisuals(dx = 0) {
-        joyKnob.style.transform = `translateX(${dx}px)`;
+      function updateBtnVisuals(dx = 0, dy = 0) {
+        joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
         floatJoystick.classList.toggle('dir-left', input.left);
         floatJoystick.classList.toggle('dir-right', input.right);
+        floatJoystick.classList.toggle('dir-up', input.up);
+        floatJoystick.classList.toggle('dir-down', input.down);
       }
 
       let joyPointerId = null;
       let joyStartX = 0;
+      let joyStartY = 0;
 
-      function applyJoystickOffset(clientX) {
-        const maxRange = 46;
+      function applyJoystickOffset(clientX, clientY) {
+        const maxRange = 36;
         const deadZone = 8;
-        const dx = Math.max(-maxRange, Math.min(maxRange, clientX - joyStartX));
+        let dx = clientX - joyStartX;
+        let dy = clientY - joyStartY;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxRange) {
+          dx = (dx / dist) * maxRange;
+          dy = (dy / dist) * maxRange;
+        }
         input.left = dx < -deadZone;
         input.right = dx > deadZone;
-        updateBtnVisuals(dx);
+        input.up = dy < -deadZone;
+        input.down = dy > deadZone;
+        updateBtnVisuals(dx, dy);
       }
 
       floatJoystick.addEventListener('pointerdown', (e) => {
@@ -2198,15 +2227,16 @@
         joyPointerId = e.pointerId;
         const rect = floatJoystick.getBoundingClientRect();
         joyStartX = rect.left + rect.width / 2;
+        joyStartY = rect.top + rect.height / 2;
         floatJoystick.classList.add('active');
         try { floatJoystick.setPointerCapture(e.pointerId); } catch (_) {}
-        applyJoystickOffset(e.clientX);
+        applyJoystickOffset(e.clientX, e.clientY);
       });
 
       floatJoystick.addEventListener('pointermove', (e) => {
         if (e.pointerId !== joyPointerId || state !== 'PLAYING') return;
         e.preventDefault();
-        applyJoystickOffset(e.clientX);
+        applyJoystickOffset(e.clientX, e.clientY);
       });
 
       const releaseJoystick = (e) => {
@@ -2214,8 +2244,10 @@
         joyPointerId = null;
         input.left = false;
         input.right = false;
+        input.up = false;
+        input.down = false;
         floatJoystick.classList.remove('active');
-        updateBtnVisuals(0);
+        updateBtnVisuals(0, 0);
       };
       floatJoystick.addEventListener('pointerup', releaseJoystick);
       floatJoystick.addEventListener('pointercancel', releaseJoystick);
@@ -2255,25 +2287,25 @@
       canvasWrap.addEventListener('pointerup', releaseCornerPointer);
       canvasWrap.addEventListener('pointercancel', releaseCornerPointer);
 
+      function syncKeyboardVisuals() {
+        const dx = input.left && !input.right ? -30 : (input.right && !input.left ? 30 : 0);
+        const dy = input.up && !input.down ? -30 : (input.down && !input.up ? 30 : 0);
+        updateBtnVisuals(dx, dy);
+      }
+
       window.addEventListener('keydown', (e) => {
         if (document.activeElement === nameInput || document.activeElement === roomInput) return;
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-          input.left = true;
-          updateBtnVisuals(-36);
-        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-          input.right = true;
-          updateBtnVisuals(36);
-        }
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { input.left = true; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { input.right = true; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { input.up = true; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { input.down = true; syncKeyboardVisuals(); }
       });
 
       window.addEventListener('keyup', (e) => {
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-          input.left = false;
-          updateBtnVisuals(input.right ? 36 : 0);
-        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-          input.right = false;
-          updateBtnVisuals(input.left ? -36 : 0);
-        }
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { input.left = false; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { input.right = false; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { input.up = false; syncKeyboardVisuals(); }
+        else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { input.down = false; syncKeyboardVisuals(); }
       });
 
       function updateHUD() {
@@ -2424,7 +2456,9 @@
         floatJoystick.classList.remove('active');
         input.left = false;
         input.right = false;
-        updateBtnVisuals(0);
+        input.up = false;
+        input.down = false;
+        updateBtnVisuals(0, 0);
 
         const startPlat = createPlatformAtWorldY(210, true);
         startPlat.x = LOGIC_W / 2 - startPlat.w / 2;
@@ -2465,6 +2499,12 @@
         player.wallWaveCd = 0;
         player.wallStickTimer = 0;
         player.pangolinRollTimer = 0;
+        player.moleCharges = 1;
+        player.batCharges = 1;
+        player.lastMoleFloor = 0;
+        player.lastBatFloor = 0;
+        player.moleDropCd = 0;
+        player.tortoiseShell = false;
         player.actionState = 'idle';
         resetFieldEvents();
 
@@ -2575,27 +2615,29 @@
           if (!plat.touched) {
             plat.touched = true;
             player.streakCount = 0;
-            let dmg = 5;
-            if (ani.id === 'crocodile' || ani.id === 'pangolin' || ani.id === 'hedgehog') dmg = 2; // 鱗甲/針刺護體減半
-            else if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
-            else if (ani.id === 'mastiff' || ani.weight >= 2.1) dmg = 4;
-            hurtPlayer(dmg, cx, cy, '鐵絲網 ');
-            if (ani.id === 'pangolin') {
-              player.onPlatform = null;
-              player.vy = -255;
-              player.jumpTimer = 0.3;
+            if (ani.id === 'tortoise' && player.tortoiseShell) {
+              addPopup(cx, cy, '縮殼免疫!', '#16a34a');
+            } else {
+              let dmg = 5;
+              if (ani.id === 'pangolin' || ani.id === 'hedgehog') dmg = 2; // 鱗甲/針刺護體減半
+              else if (ani.id === 'mastiff' || ani.weight >= 2.1) dmg = 4;
+              hurtPlayer(dmg, cx, cy, '鐵絲網 ');
+              if (ani.id === 'pangolin') {
+                player.onPlatform = null;
+                player.vy = -255;
+                player.jumpTimer = 0.3;
+              }
             }
           }
         } else if (plat.type === 'taxi') {
           if (!plat.touched) {
             plat.touched = true;
-            const healAmt = ani.id === 'deer' ? 2 : 1;
-            healPlayer(healAmt, cx, cy, `+${healAmt} HP`);
+            healPlayer(1, cx, cy, '+1 HP');
           }
           plat.springCompress = 1;
           player.onPlatform = null;
           player.jumpTimer = 0.35;
-          const weightFactor = ani.id === 'deer' ? 0.85 : (ani.id === 'kangaroo' ? 1.18 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight))));
+          const weightFactor = ani.id === 'kangaroo' ? 1.18 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
           player.vy = -410 * weightFactor;
           playSound('spring');
           spawnParticles(cx, plat.y, '#ef4444', 12);
@@ -2605,13 +2647,20 @@
             player.streakCount = (player.streakCount || 0) + 1;
             let bonus = 1;
             let label = '+1 HP';
-            if ((ani.id === 'fox' || ani.id === 'octopus') && Math.random() < 0.28) {
+            if (ani.id === 'octopus' && Math.random() < 0.28) {
               bonus = 2;
               label = `${ani.name} +2 HP`;
             }
             healPlayer(bonus, cx, cy, label);
             playSound('land', ani.weight);
             spawnParticles(cx, plat.y, '#52525b', 5);
+            if (ani.id === 'woodpecker' && plat.type === 'steel') {
+              plat.brittle = true;
+            }
+            if (ani.id === 'spider' && plat.type === 'steel') {
+              spiderWebs.push({ x: plat.x, worldY: plat.worldY, w: plat.w, life: 2.5 });
+              publishMsg({ t: 'hazard', kind: 'web', x: Math.round(plat.x), wy: Math.round(plat.worldY), w: Math.round(plat.w) });
+            }
           }
         }
       }
@@ -2774,13 +2823,42 @@
             fieldBanner.timer = 3.0;
             addPopup(LOGIC_W / 2, 92, `⚡ 第 ${floor} 層！速度 +10%`, '#ea580c');
           }
-          if (ani.id === 'beaver' && floor % 12 === 0) {
-            healPlayer(2, player.x + 15, player.y);
+          if (ani.id === 'mole' && floor % 10 === 0 && floor > player.lastMoleFloor) {
+            player.lastMoleFloor = floor;
+            player.moleCharges = 1;
+            addPopup(player.x + 15, player.y, '鼴鼠鑽地充能!', '#92400e');
+          }
+          if (ani.id === 'bat' && floor % 20 === 0 && floor > player.lastBatFloor) {
+            player.lastBatFloor = floor;
+            player.batCharges = 1;
+            addPopup(player.x + 15, player.y, '蝙蝠吊掛充能!', '#7e22ce');
           }
           if (ani.id === 'chameleon' && floor % 10 === 0) {
             player.phaseTimer = Math.max(player.phaseTimer, 1.8);
           }
           updateHUD();
+        }
+
+        if (player.moleDropCd > 0) player.moleDropCd = Math.max(0, player.moleDropCd - dt);
+
+        // 更新臭氣雲與蜘蛛絲網並檢查緩速
+        for (let i = skunkClouds.length - 1; i >= 0; i--) {
+          const sc = skunkClouds[i];
+          sc.life -= dt;
+          if (ani.id !== 'skunk' && Math.hypot((player.x + 15) - sc.x, (player.y + scrollDistance) - sc.worldY) < 42) {
+            player.slowTimer = Math.max(player.slowTimer, 0.6);
+          }
+          if (sc.life <= 0) skunkClouds.splice(i, 1);
+        }
+        for (let i = spiderWebs.length - 1; i >= 0; i--) {
+          const wb = spiderWebs[i];
+          wb.life -= dt;
+          const sy = wb.worldY - scrollDistance;
+          if (ani.id !== 'spider' && player.onPlatform && Math.abs((player.y + player.h) - sy) < 16 &&
+              player.x + player.w > wb.x && player.x < wb.x + wb.w) {
+            player.slowTimer = Math.max(player.slowTimer, 0.5);
+          }
+          if (wb.life <= 0) spiderWebs.splice(i, 1);
         }
 
         if (shakeTime > 0) shakeTime = Math.max(0, shakeTime - dt);
@@ -2924,6 +3002,24 @@
           spawnParticles(player.x + 15, player.y, '#22c55e', 5);
         }
 
+        // 象龜縮殼（站定往下拉或靜止 0.5s）與鼴鼠往下拉鑽地穿板
+        if (ani.id === 'tortoise') {
+          player.tortoiseShell = (moveDir === 0 && (input.down || player.stillTimer >= 0.5));
+        } else {
+          player.tortoiseShell = false;
+        }
+        if (ani.id === 'mole' && player.onPlatform && !player.onPlatform.broken &&
+            input.down && player.moleCharges > 0 && player.moleDropCd <= 0) {
+          player.moleCharges = 0;
+          player.moleDropCd = 0.5;
+          player.onPlatform = null;
+          player.y += 16;
+          player.vy = 220;
+          playSound('stomp');
+          spawnParticles(player.x + 15, player.y, '#78350f', 10);
+          addPopup(player.x + 15, player.y - 8, '鼴鼠穿板!', '#92400e');
+        }
+
         let speedMultiplier = ani.speedMul;
         if (player.slowTimer > 0) speedMultiplier *= 0.55;
         let boarCharging = false;
@@ -2934,13 +3030,15 @@
             spawnParticles(player.x + 15, player.y + 24, '#78350f', 1);
           }
         }
-        // 台灣石虎連續安全降落 3 層專注加速
-        if (ani.id === 'leopardcat' && player.streakCount >= 3) {
-          speedMultiplier *= 1.20;
+        // 北極熊冷凍期間主場加速 +30%
+        if (ani.id === 'polarbear' && fieldEvents.freezeTimer > 0) {
+          speedMultiplier *= 1.30;
         }
-        // 台灣黑熊殘血狂暴
-        if (ani.id === 'bear' && hp <= 4) {
-          speedMultiplier *= 1.25;
+        // 原始人天災求生本能加速 +18%
+        const hasDisaster = fieldEvents.windTimer > 0 || fieldEvents.floodTimer > 0 ||
+          fieldEvents.rockslideTimer > 0 || fieldEvents.rushTimer > 0 || fieldEvents.wallTimer > 0;
+        if (ani.id === 'caveman' && hasDisaster) {
+          speedMultiplier *= 1.18;
         }
         // 國王企鵝在青苔或斜坡上觸發肚皮滑行加速
         const penguinSliding = ani.id === 'penguin' && player.onPlatform && (
@@ -2960,7 +3058,7 @@
         }
 
         const targetVx = moveDir * player.baseSpeed * speedMultiplier;
-        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo' && ani.id !== 'crocodile' && ani.id !== 'penguin';
+        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo' && ani.id !== 'treefrog' && ani.id !== 'penguin';
         const accel = onMoss ? 4.2 : 18.0;
         player.vx += (targetVx - player.vx) * Math.min(1, accel * dt);
 
@@ -2987,7 +3085,7 @@
           if (p.type === 'conveyor_l') totalVx -= 125 * convFactor;
           if (p.type === 'conveyor_r') totalVx += 125 * convFactor;
 
-          const noSlide = ani.id === 'condor' || ani.id === 'springbok' || ani.id === 'crocodile' || ani.id === 'hippo' || ani.id === 'horse' || ani.id === 'octopus' || ani.id === 'penguin';
+          const noSlide = ani.id === 'condor' || ani.id === 'springbok' || ani.id === 'treefrog' || ani.id === 'hippo' || ani.id === 'octopus' || ani.id === 'penguin';
           if (!noSlide) {
             const slideMul = onMoss ? 410 : 275;
             totalVx += Math.sin(p.tilt) * slideMul;
@@ -3034,13 +3132,8 @@
             player.skillCooldown = 3.6;
             const cx = player.x + 15;
             publishMsg({ t: 'skill', ani: ani.id, wy: Math.round(curP.worldY), x: Math.round(cx) });
-            if (ani.id === 'sandcat' || ani.id === 'fox') {
+            if (ani.id === 'sandcat') {
               player.phaseTimer = 2.0;
-            } else if (ani.id === 'beaver' && curP.type !== 'supply') {
-              curP.broken = true;
-              player.onPlatform = null;
-              player.vy = -215;
-              player.jumpTimer = 0.25;
             }
             playSound('bump');
           }
@@ -3056,19 +3149,46 @@
 
           const hitW = Math.max(36, 18 * (ani.sizeScale + rpAni.sizeScale));
           if (Math.abs(dx) < hitW && Math.abs(dyWorld) < 34) {
-            if (ani.id === 'jaguar' && dyWorld < -8 && player.vy > 0) {
-              player.onPlatform = null;
-              player.vy = -315;
-              playSound('spring');
+            // 臭鼬被撞或擦碰時噴出 2 秒臭氣雲（僅緩速不擊飛）
+            if (ani.id === 'skunk' && player.skillCooldown <= 0) {
+              player.skillCooldown = 2.5;
+              const sx = Math.round(player.x + 15);
+              const swy = Math.round(myWorldY + 14);
+              skunkClouds.push({ x: sx, worldY: swy, life: 2.0 });
+              publishMsg({ t: 'hazard', kind: 'skunk_cloud', x: sx, wy: swy });
+              addPopup(sx, player.y - 10, '臭氣噴霧!', '#84cc16');
+            }
+
+            // 龜殼防禦或樹懶：完全免疫對手推開與控場
+            if (ani.id === 'sloth' || (ani.id === 'tortoise' && player.tortoiseShell)) {
               continue;
             }
 
-            const pushSign = dx >= 0 ? 1 : -1;
-            if (ani.id === 'sloth') {
-              continue;
+            // 燈塔水母：任何時候觸碰對手皆讓對手原地麻痺 0.5 秒（水母本身因較輕會稍微被彈開）
+            if (rpAni.id === 'jellyfish' && player.stunTimer <= 0.1) {
+              player.stunTimer = Math.max(player.stunTimer, 0.5);
+              playSound('shock');
+              addPopup(player.x + 15, player.y - 12, '麻痺 0.5s!', '#38bdf8');
+              spawnParticles(player.x + 15, player.y + 15, '#38bdf8', 8);
             }
+
+            // 原始人木棒敲暈：重型 (>=1.6)、巨大化、龜殼防禦、穿山甲、刺蝟、水母、北極熊免疫
+            if (rpAni.id === 'caveman' && player.stunTimer <= 0.1) {
+              const immuneCaveman = ani.weight >= 1.6 || player.giantTimer > 0 || ani.id === 'pangolin' || ani.id === 'hedgehog' || ani.id === 'jellyfish' || ani.id === 'polarbear';
+              if (!immuneCaveman) {
+                player.stunTimer = Math.max(player.stunTimer, 0.3);
+                player.hurtTimer = 0.25;
+                playSound('stomp');
+                addPopup(player.x + 15, player.y - 12, '敲暈 0.3s!', '#f59e0b');
+              }
+            }
+
+            const pushSign = dx >= 0 ? 1 : -1;
             let incomingForce = 215 * (rpAni.pushMul / Math.pow(ani.weight, 0.65));
-            if (rpAni.id === 'beaver' || rpAni.id === 'pangolin' || rpAni.id === 'penguin') {
+            if (ani.id === 'jellyfish') {
+              incomingForce *= 0.45;
+            }
+            if (rpAni.id === 'pangolin' || rpAni.id === 'penguin') {
               incomingForce *= 1.55;
             }
             if (rpAni.id === 'kangaroo') {
@@ -3086,13 +3206,10 @@
             if (rpAni.id === 'mastiff') {
               player.slowTimer = Math.max(player.slowTimer, 0.8);
             }
-            if (rpAni.id === 'leopardcat') {
-              incomingForce *= 1.35;
-            }
             if (ani.id === 'panda') {
               incomingForce *= 0.5;
             }
-            if (boarCharging || (ani.id === 'bear' && hp <= 4)) incomingForce *= 0.4;
+            if (boarCharging) incomingForce *= 0.4;
             player.pushVx = pushSign * incomingForce;
             playSound('bump');
             spawnParticles(player.x + 15, player.y + 15, '#78350f', 5);
@@ -3180,8 +3297,20 @@
             return;
           }
 
+          // 樹蛙：空中觸牆蹬牆向上小躍（每次落地限一次）
+          if (ani.id === 'treefrog' && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
+            player.pushVx = pushDir * 190;
+            player.vy = -310;
+            player.facing = pushDir;
+            player.wallEffectCd = 0.38;
+            playSound('spring');
+            spawnParticles(wallEdgeX, player.y + 15, '#22c55e', 7);
+            return;
+          }
+
           // 貓科蹬牆反彈跳（依體型/種類區分反彈遠近，每次落地限一次）
-          const felineBounce = { sandcat: [420, -265], leopardcat: [350, -245], jaguar: [330, -240], lion: [240, -205] };
+          const felineBounce = { sandcat: [420, -265] };
           if (felineBounce[ani.id] && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
             const [bx, by] = felineBounce[ani.id];
             player.canWallTrigger = false;
@@ -3252,11 +3381,11 @@
           if (!overlap || p.broken) {
             player.onPlatform = null;
             const ledgeBoosts = {
-              jaguar: [145, -125],
               glider: [145, -125],
               condor: [165, -95],
               owl: [140, -135],
-              woodpecker: [185, -90]
+              woodpecker: [185, -90],
+              bat: [155, -110]
             };
             if (ledgeBoosts[ani.id] && moveDir !== 0 && !p.broken) {
               const [lx, ly] = ledgeBoosts[ani.id];
@@ -3278,9 +3407,16 @@
             player.wallStickTimer = 0;
           }
           const isGlider = ani.posture === 'soaring_bird' || player.featherTimer > 0;
-          const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth') && (nearLeftWall || nearRightWall);
+          const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'spider') && (nearLeftWall || nearRightWall);
           let gravity = (isGlider && player.vy > 0) ? 500 : 980;
           let maxFall = isGlider ? 290 : 580;
+          if (isGlider && input.down && player.wallStickTimer <= 0) {
+            gravity = 1650;
+            maxFall = 760;
+            if (Math.random() < 0.35) {
+              spawnParticles(player.x + 15, player.y + 8, '#fef3c7', 1);
+            }
+          }
           if (player.wallStickTimer > 0) {
             gravity = 0;
             maxFall = 0;
@@ -3341,11 +3477,22 @@
 
         const ceilingSpikeH = getCeilingSpikeH();
         if (player.y <= ceilingSpikeH) {
-          const dmg = getBodyDamage('ceiling', 5, ani);
-          hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
-          player.onPlatform = null;
-          player.y = ceilingSpikeH + 5;
-          player.vy = 190;
+          if (ani.id === 'bat' && player.batCharges > 0) {
+            player.batCharges = 0;
+            player.invulnerable = 0.55;
+            player.onPlatform = null;
+            player.y = ceilingSpikeH + 6;
+            player.vy = 210;
+            playSound('spring');
+            addPopup(player.x + player.w / 2, ceilingSpikeH + 18, '蝙蝠吊掛免傷!', '#a855f7');
+            spawnParticles(player.x + player.w / 2, ceilingSpikeH + 8, '#a855f7', 10);
+          } else {
+            const dmg = getBodyDamage('ceiling', 5, ani);
+            hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
+            player.onPlatform = null;
+            player.y = ceilingSpikeH + 5;
+            player.vy = 190;
+          }
         }
 
         if (player.y > H + 35) {
@@ -3833,6 +3980,29 @@
         const pitch = ani.posture === 'bipedal_bear' ? 0 : Math.max(-0.28, Math.min(0.28, vy * 0.0005));
         drawAuthenticAnimal(ctx, animalId, cx, cy, inGameBaseScale, facing, walkFrame, pitch, action);
 
+        if (isLocal && animalId === 'tortoise' && player.tortoiseShell) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.9)';
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.22)';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.arc(cx, cy + 2, 16 * s, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+        if (isLocal && ((animalId === 'mole' && player.moleCharges > 0) || (animalId === 'bat' && player.batCharges > 0))) {
+          ctx.save();
+          ctx.fillStyle = animalId === 'mole' ? '#f59e0b' : '#a855f7';
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(cx + 15 * s, cy - 12 * s, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
         ctx.restore();
       }
 
@@ -3973,6 +4143,40 @@
             ctx.arc(-rk.r * 0.3, -rk.r * 0.3, rk.r * 0.35, 0, Math.PI * 2);
             ctx.fill();
           }
+          ctx.restore();
+        }
+
+        // 蜘蛛網陷阱與臭鼬臭氣雲
+        for (const wb of spiderWebs) {
+          const wy = wb.worldY - scrollDistance;
+          if (wy < -30 || wy > H + 30) continue;
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, wb.life * 0.9);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+          ctx.lineWidth = 1.5;
+          for (let a = 0; a < 4; a++) {
+            const ang = (a * Math.PI) / 4;
+            ctx.beginPath();
+            ctx.moveTo(wb.x - Math.cos(ang) * 24, wy - Math.sin(ang) * 10);
+            ctx.lineTo(wb.x + Math.cos(ang) * 24, wy + Math.sin(ang) * 10);
+            ctx.stroke();
+          }
+          ctx.beginPath();
+          ctx.ellipse(wb.x, wy, 20, 8, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        for (const cl of skunkClouds) {
+          const cy = cl.worldY - scrollDistance;
+          if (cy < -50 || cy > H + 50) continue;
+          ctx.save();
+          ctx.globalAlpha = Math.min(0.65, cl.life * 0.45);
+          ctx.fillStyle = '#84cc16';
+          ctx.beginPath();
+          ctx.arc(cl.x - 12, cy, 18, 0, Math.PI * 2);
+          ctx.arc(cl.x + 12, cy - 4, 20, 0, Math.PI * 2);
+          ctx.arc(cl.x, cy + 6, 17, 0, Math.PI * 2);
+          ctx.fill();
           ctx.restore();
         }
 
