@@ -64,6 +64,34 @@
       pointer-events: none;
     }
 
+    .hud-stats {
+      position: absolute;
+      top: 38px;
+      left: 10px;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 18, 23, 0.8);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      color: #fef08a;
+      font-size: 13px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+    }
+
+    .hud-stats .hud-sep {
+      color: rgba(255, 255, 255, 0.35);
+      font-weight: 700;
+    }
+
     .hp-bar {
       display: flex;
       gap: 2px;
@@ -734,6 +762,11 @@
         <div class="hp-bar" id="hpBar"></div>
         <span class="hp-num" id="hpText">12/12</span>
       </div>
+      <div class="hud-stats" id="hudStats">
+        <span id="distText">📏 0 m</span>
+        <span class="hud-sep">|</span>
+        <span id="timeText">⏱️ 00:00.0</span>
+      </div>
 
       <!-- 多人連線狀態條 -->
       <div class="mp-bar">
@@ -1092,6 +1125,8 @@
 
       const hpBarEl = document.getElementById('hpBar');
       const hpTextEl = document.getElementById('hpText');
+      const distTextEl = document.getElementById('distText');
+      const timeTextEl = document.getElementById('timeText');
       const overlay = document.getElementById('overlay');
       const overlayBadge = document.getElementById('overlayBadge');
       const overlayTitle = document.getElementById('overlayTitle');
@@ -1514,6 +1549,7 @@
       let hp = MAX_HP;
       let floor = 0;
       let scrollDistance = 0;
+      let survivalTime = 0;
       let scrollSpeed = 112;
       let nextSpawnWorldY = 0;
       let shakeTime = 0;
@@ -2220,6 +2256,13 @@
             unit.classList.add(hp <= 4 ? 'danger' : 'active');
           }
         });
+        const distM = Math.floor(scrollDistance / 35);
+        const mins = Math.floor(survivalTime / 60);
+        const secs = survivalTime % 60;
+        const padMin = String(mins).padStart(2, '0');
+        const padSec = secs.toFixed(1).padStart(4, '0');
+        distTextEl.textContent = `📏 ${distM} m`;
+        timeTextEl.textContent = `⏱️ ${padMin}:${padSec}`;
       }
 
       function addPopup(x, y, text, color) {
@@ -2336,6 +2379,7 @@
         hp = MAX_HP;
         floor = 1;
         scrollDistance = 0;
+        survivalTime = 0;
         scrollSpeed = 112;
         shakeTime = 0;
         platforms = [];
@@ -2663,6 +2707,12 @@
         const dy = scrollSpeed * dt;
 
         scrollDistance += dy;
+        survivalTime += dt;
+        const distM = Math.floor(scrollDistance / 35);
+        const mins = Math.floor(survivalTime / 60);
+        const secs = survivalTime % 60;
+        distTextEl.textContent = `📏 ${distM} m`;
+        timeTextEl.textContent = `⏱️ ${String(mins).padStart(2, '0')}:${secs.toFixed(1).padStart(4, '0')}`;
         wallOffset = (wallOffset + dy) % 36;
         conveyorAnim = (conveyorAnim + dt * 45) % 16;
 
