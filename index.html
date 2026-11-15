@@ -482,17 +482,17 @@
       border-radius: 8px;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: flex-end;
-      padding-bottom: 2px;
+      justify-content: center;
+      padding: 1px;
       transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease, border-color 0.15s ease;
-      overflow: visible;
+      overflow: hidden;
     }
 
     .animal-cell canvas {
-      width: 38px;
-      height: 28px;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       display: block;
       pointer-events: none;
     }
@@ -1263,15 +1263,10 @@
 
           const miniCv = document.createElement('canvas');
           miniCv.width = 104;
-          miniCv.height = 80;
+          miniCv.height = 68;
           miniCanvases.set(a.id, miniCv);
 
-          const label = document.createElement('div');
-          label.className = 'animal-cell-name';
-          label.textContent = a.name;
-
           cell.appendChild(miniCv);
-          cell.appendChild(label);
 
           cell.addEventListener('click', () => {
             myAnimalId = a.id;
@@ -1318,7 +1313,7 @@
           mCtx.clearRect(0, 0, miniCv.width, miniCv.height);
           const isSel = id === myAnimalId;
           const phase = isSel ? now * 0.01 : 0.75;
-          drawAuthenticAnimal(mCtx, id, 52, 46, isSel ? 1.25 : 1.05, 1, phase, 0);
+          drawAuthenticAnimal(mCtx, id, 52, 36, isSel ? 1.65 : 1.45, 1, phase, 0);
         }
 
         previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
