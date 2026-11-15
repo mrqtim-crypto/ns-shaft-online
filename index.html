@@ -1432,8 +1432,97 @@
         phaseTimer: 0,
         reverseTimer: 0,
         slowTimer: 0,
+        featherTimer: 0,
+        giantTimer: 0,
         actionState: 'idle'
       };
+
+      const PICKUPS = [
+        { id: 'heal',    icon: '❤️', color: '#ef4444', label: '急救補血' },
+        { id: 'freeze',  icon: '❄️', color: '#38bdf8', label: '全場冷凍 1 秒！' },
+        { id: 'ceiling', icon: '🔻', color: '#dc2626', label: '頂刺下壓 5 秒！' },
+        { id: 'walls',   icon: '🧱', color: '#f59e0b', label: '牆壁推擠縮窄！' },
+        { id: 'feather', icon: '⚡', color: '#eab308', label: '疾風緩降加速！' },
+        { id: 'reverse', icon: '🌀', color: '#8b5cf6', label: '全場方向反轉！' },
+        { id: 'wind',    icon: '💨', color: '#06b6d4', label: '橫向狂風吹襲！' },
+        { id: 'giant',   icon: '🍄', color: '#f97316', label: '巨無霸推土機！' },
+        { id: 'rush',    icon: '⬆️', color: '#e11d48', label: '地下加速崩塌！' },
+        { id: 'magnet',  icon: '🧲', color: '#ec4899', label: '中央磁場吸聚！' },
+        { id: 'brittle', icon: '💥', color: '#b45309', label: '全場階梯脆化！' }
+      ];
+      const PICKUP_MAP = Object.fromEntries(PICKUPS.map(p => [p.id, p]));
+
+      const fieldEvents = {
+        freezeTimer: 0,
+        freezeByMe: false,
+        ceilingTimer: 0,
+        wallTimer: 0,
+        windTimer: 0,
+        windDir: 1,
+        rushTimer: 0,
+        magnetTimer: 0,
+        brittleTimer: 0
+      };
+
+      function resetFieldEvents() {
+        fieldEvents.freezeTimer = 0;
+        fieldEvents.freezeByMe = false;
+        fieldEvents.ceilingTimer = 0;
+        fieldEvents.wallTimer = 0;
+        fieldEvents.windTimer = 0;
+        fieldEvents.windDir = 1;
+        fieldEvents.rushTimer = 0;
+        fieldEvents.magnetTimer = 0;
+        fieldEvents.brittleTimer = 0;
+      }
+
+      function triggerPickupEvent(kind, isMine, extraDir = 1) {
+        const pk = PICKUP_MAP[kind];
+        if (!pk) return;
+        addPopup(LOGIC_W / 2, 72, pk.label, pk.color);
+        if (kind === 'heal') {
+          if (isMine) {
+            if (hp < MAX_HP) healPlayer(3, player.x + 15, player.y, '急救 +3 HP!');
+            else { player.invulnerable = 2.0; addPopup(player.x + 15, player.y, '滿血無敵護盾！', '#ef4444'); }
+            playSound('supply');
+          }
+        } else if (kind === 'freeze') {
+          fieldEvents.freezeTimer = 1.0;
+          fieldEvents.freezeByMe = isMine;
+          playSound('shock');
+        } else if (kind === 'ceiling') {
+          fieldEvents.ceilingTimer = 5.8; // 0.8s預警 + 5s下壓與退回
+          playSound('stomp');
+        } else if (kind === 'walls') {
+          fieldEvents.wallTimer = 5.5;
+          playSound('stomp');
+        } else if (kind === 'feather') {
+          if (isMine) { player.featherTimer = 4.0; playSound('spring'); }
+        } else if (kind === 'reverse') {
+          if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'bear' && myAnimalId !== 'sandcat') {
+            player.reverseTimer = 2.5;
+            playSound('shock');
+          }
+        } else if (kind === 'wind') {
+          fieldEvents.windTimer = 4.0;
+          fieldEvents.windDir = extraDir || 1;
+          playSound('bump');
+        } else if (kind === 'giant') {
+          if (isMine) { player.giantTimer = 5.0; playSound('stomp'); }
+        } else if (kind === 'rush') {
+          fieldEvents.rushTimer = 2.5;
+          playSound('stomp');
+        } else if (kind === 'magnet') {
+          fieldEvents.magnetTimer = 3.0;
+          playSound('bump');
+        } else if (kind === 'brittle') {
+          fieldEvents.brittleTimer = 4.0;
+          for (const plat of platforms) {
+            if (plat.type === 'steel' && !plat.broken) plat.brittle = true;
+          }
+          playSound('stomp');
+        }
+      }
 
       let platforms = [];
       let particles = [];
@@ -1691,6 +1780,13 @@
               addPopup(myCx, player.y - 10, '同階梯突襲推撞！', '#dc2626');
             }
           }
+        } else if (msg.t === 'pickup') {
+          for (const plat of platforms) {
+            if (plat.pickup && !plat.pickup.taken && Math.abs(plat.worldY - msg.wy) < 16) {
+              plat.pickup.taken = true;
+            }
+          }
+          triggerPickupEvent(msg.kind, false, msg.dir || 1);
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -1976,6 +2072,12 @@
         if (type === 'slanted_l') baseTilt = -0.18;
         if (type === 'slanted_r') baseTilt = 0.18;
 
+        let pickup = null;
+        if (!forceSteel && type !== 'supply' && type !== 'barbed' && type !== 'taxi' && nextRandom() < 0.24) {
+          const pk = PICKUPS[Math.floor(nextRandom() * PICKUPS.length)];
+          pickup = { type: pk.id, icon: pk.icon, color: pk.color, xOff: (nextRandom() - 0.5) * 44, taken: false };
+        }
+
         return {
           x,
           worldY,
@@ -1985,6 +2087,7 @@
           type,
           touched: false,
           broken: false,
+          brittle: fieldEvents.brittleTimer > 0 && type === 'steel',
           breakTimer: 0,
           overloadTimer: 0,
           totalLoad: 0,
@@ -1993,7 +2096,8 @@
           sagVy: 0,
           tilt: baseTilt,
           baseTilt,
-          crateIntact: type === 'supply'
+          crateIntact: type === 'supply',
+          pickup
         };
       }
 
@@ -2061,7 +2165,10 @@
         player.phaseTimer = 0;
         player.reverseTimer = 0;
         player.slowTimer = 0;
+        player.featherTimer = 0;
+        player.giantTimer = 0;
         player.actionState = 'idle';
+        resetFieldEvents();
 
         updateAnimalSelectionUI();
         updateHUD();
@@ -2206,6 +2313,25 @@
         }
       }
 
+      function getWallWidth() {
+        if (fieldEvents.wallTimer <= 0) return 13;
+        const t = fieldEvents.wallTimer; // 5.5 -> 0
+        // 0.8s 內推，3.5s 維持，1.2s 退回
+        let p = 1;
+        if (t > 4.7) p = (5.5 - t) / 0.8;
+        else if (t < 1.2) p = t / 1.2;
+        return 13 + Math.round(48 * Math.max(0, Math.min(1, p)));
+      }
+
+      function getCeilingSpikeH() {
+        if (fieldEvents.ceilingTimer <= 0) return 22;
+        const t = fieldEvents.ceilingTimer; // 5.8 -> 0 (前 0.8s 預警不動，5s 往下壓到 H*0.42 再退回)
+        if (t > 5.0) return 22;
+        const progress = 1 - (t / 5.0); // 0 -> 1
+        const depth = Math.sin(progress * Math.PI); // 0 -> 1 -> 0 平滑下壓再退回
+        return 22 + depth * (H * 0.42);
+      }
+
       function update(dt) {
         if (previewLeapImpulse > 0) {
           previewLeapImpulse = Math.max(0, previewLeapImpulse - dt * 2.2);
@@ -2223,8 +2349,20 @@
 
         const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
 
+        if (fieldEvents.freezeTimer > 0) fieldEvents.freezeTimer = Math.max(0, fieldEvents.freezeTimer - dt);
+        if (fieldEvents.ceilingTimer > 0) fieldEvents.ceilingTimer = Math.max(0, fieldEvents.ceilingTimer - dt);
+        if (fieldEvents.wallTimer > 0) fieldEvents.wallTimer = Math.max(0, fieldEvents.wallTimer - dt);
+        if (fieldEvents.windTimer > 0) fieldEvents.windTimer = Math.max(0, fieldEvents.windTimer - dt);
+        if (fieldEvents.rushTimer > 0) fieldEvents.rushTimer = Math.max(0, fieldEvents.rushTimer - dt);
+        if (fieldEvents.magnetTimer > 0) fieldEvents.magnetTimer = Math.max(0, fieldEvents.magnetTimer - dt);
+        if (fieldEvents.brittleTimer > 0) fieldEvents.brittleTimer = Math.max(0, fieldEvents.brittleTimer - dt);
+
+        const isFrozenTarget = fieldEvents.freezeTimer > 0 && !fieldEvents.freezeByMe;
+        const scrollFrozen = fieldEvents.freezeTimer > 0;
+
         scrollSpeed = Math.min(242, 112 + floor * 1.32);
-        const dy = scrollSpeed * dt;
+        if (fieldEvents.rushTimer > 0) scrollSpeed *= 1.6;
+        const dy = scrollFrozen ? 0 : scrollSpeed * dt;
 
         scrollDistance += dy;
         wallOffset = (wallOffset + dy) % 36;
@@ -2235,8 +2373,6 @@
           floor = newFloor;
           if (ani.id === 'beaver' && floor % 12 === 0) {
             healPlayer(2, player.x + 15, player.y, '竹葉回復 +2 HP');
-          } else if (floor % 10 === 0) {
-            addPopup(LOGIC_W / 2, 65, `深入地下 ${floor} 階`, '#18181b');
           }
           updateHUD();
         }
@@ -2252,6 +2388,17 @@
         if (player.phaseTimer > 0) player.phaseTimer = Math.max(0, player.phaseTimer - dt);
         if (player.reverseTimer > 0) player.reverseTimer = Math.max(0, player.reverseTimer - dt);
         if (player.slowTimer > 0) player.slowTimer = Math.max(0, player.slowTimer - dt);
+        if (player.featherTimer > 0) player.featherTimer = Math.max(0, player.featherTimer - dt);
+        if (player.giantTimer > 0) player.giantTimer = Math.max(0, player.giantTimer - dt);
+
+        if (isFrozenTarget) {
+          for (let i = popups.length - 1; i >= 0; i--) {
+            popups[i].y -= 36 * dt;
+            popups[i].life -= dt;
+            if (popups[i].life <= 0) popups.splice(i, 1);
+          }
+          return;
+        }
 
         while (nextSpawnWorldY < scrollDistance + H + 80) {
           platforms.push(createPlatformAtWorldY(nextSpawnWorldY, false));
@@ -2298,9 +2445,9 @@
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽神社木板：石虎與博美減緩斷裂
-          if (p.type === 'wood' && p.touched && !p.broken) {
-            const weightRate = (ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight));
+          // 腐朽神社木板或脆化鋼鐵階梯
+          if ((p.type === 'wood' || p.brittle) && p.touched && !p.broken) {
+            const weightRate = p.brittle ? 0.72 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
             p.breakTimer += dt * weightRate;
             if (p.breakTimer >= 0.42) {
               p.broken = true;
@@ -2361,8 +2508,11 @@
         if (ani.id === 'bear' && hp <= 4) {
           speedMultiplier *= 1.25;
         }
-        if (player.adrenalineTimer > 0) {
+        if (player.adrenalineTimer > 0 || player.featherTimer > 0) {
           speedMultiplier *= 1.25;
+        }
+        if (player.giantTimer > 0) {
+          speedMultiplier *= 1.1;
         }
 
         const targetVx = moveDir * player.baseSpeed * speedMultiplier;
@@ -2380,6 +2530,14 @@
         }
 
         let totalVx = player.vx + player.pushVx;
+        const isFieldImmune = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'bison' || ani.id === 'octopus';
+        if (fieldEvents.windTimer > 0 && !isFieldImmune) {
+          totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135);
+        }
+        if (fieldEvents.magnetTimer > 0) {
+          const toCenter = (LOGIC_W / 2) - (player.x + player.w / 2);
+          totalVx += Math.sign(toCenter) * Math.min(95, Math.abs(toCenter) * 0.8);
+        }
 
         if (player.onPlatform) {
           const p = player.onPlatform;
@@ -2482,8 +2640,21 @@
 
         player.x += totalVx * dt;
 
-        // 左右岩壁邊界（台灣長鬃山羊貼壁蹬牆跳）
-        const wallWidth = 13;
+        // 撿取階梯上的隨機觸發道具
+        if (player.onPlatform && player.onPlatform.pickup && !player.onPlatform.pickup.taken) {
+          const pk = player.onPlatform.pickup;
+          const pkX = player.onPlatform.x + player.onPlatform.w / 2 + pk.xOff;
+          if (Math.abs((player.x + player.w / 2) - pkX) < 28) {
+            pk.taken = true;
+            const wDir = Math.random() < 0.5 ? -1 : 1;
+            triggerPickupEvent(pk.type, true, wDir);
+            publishMsg({ t: 'pickup', wy: Math.round(player.onPlatform.worldY), kind: pk.type, dir: wDir });
+            spawnParticles(pkX, player.onPlatform.y - 10, pk.color, 12);
+          }
+        }
+
+        // 左右岩壁邊界（支援牆壁推擠內縮 + 跳羚蹬牆跳）
+        const wallWidth = getWallWidth();
         if (player.x <= wallWidth) {
           player.x = wallWidth;
           if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
@@ -2526,9 +2697,9 @@
         }
 
         if (!player.onPlatform) {
-          const isGlider = ani.posture === 'soaring_bird';
-          const gravity = (isGlider && player.vy > 0) ? 550 : 980;
-          const maxFall = isGlider ? 320 : 580;
+          const isGlider = ani.posture === 'soaring_bird' || player.featherTimer > 0;
+          const gravity = (isGlider && player.vy > 0) ? 500 : 980;
+          const maxFall = isGlider ? 290 : 580;
           player.vy = Math.min(maxFall, player.vy + gravity * dt);
 
           // 台灣野兔失足空中二段跳
@@ -2558,9 +2729,9 @@
           }
         }
 
-        const ceilingSpikeH = 22;
+        const ceilingSpikeH = getCeilingSpikeH();
         if (player.y <= ceilingSpikeH) {
-          const dmg = (ani.id === 'crocodile' || ani.id === 'lion' || ani.weight >= 2.1) ? 3 : 5;
+          const dmg = (ani.id === 'crocodile' || ani.id === 'lion' || ani.weight >= 2.1 || player.giantTimer > 0) ? 3 : 5;
           hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
           player.onPlatform = null;
           player.y = ceilingSpikeH + 5;
@@ -2640,10 +2811,16 @@
           ctx.fill();
         }
 
-        const wallW = 13;
-        ctx.fillStyle = '#27272a';
+        const wallW = getWallWidth();
+        ctx.fillStyle = fieldEvents.wallTimer > 0 ? '#78350f' : '#27272a';
         ctx.fillRect(0, 0, wallW, H);
         ctx.fillRect(LOGIC_W - wallW, 0, wallW, H);
+
+        if (fieldEvents.wallTimer > 0) {
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(wallW - 4, 0, 4, H);
+          ctx.fillRect(LOGIC_W - wallW, 0, 4, H);
+        }
 
         for (let y = -wallOffset; y < H; y += 20) {
           ctx.strokeStyle = '#18181b';
@@ -2654,22 +2831,38 @@
       }
 
       function drawCeilingSpikes() {
+        const spikeH = getCeilingSpikeH();
+        const baseTop = spikeH - 22;
+
+        // 0.8s 下壓前紅色警示線
+        if (fieldEvents.ceilingTimer > 5.0) {
+          ctx.save();
+          ctx.fillStyle = `rgba(220, 38, 38, ${0.22 + Math.sin(Date.now() * 0.03) * 0.16})`;
+          ctx.fillRect(0, 0, LOGIC_W, 40);
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([8, 6]);
+          ctx.beginPath();
+          ctx.moveTo(0, 40); ctx.lineTo(LOGIC_W, 40);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         ctx.fillStyle = '#18181b';
-        ctx.fillRect(0, 0, LOGIC_W, 7);
+        ctx.fillRect(0, 0, LOGIC_W, Math.max(7, baseTop + 7));
 
         const spikeW = 18;
-        const spikeH = 22;
         for (let x = 12; x < LOGIC_W - 12; x += spikeW) {
-          const grad = ctx.createLinearGradient(x, 6, x + spikeW, spikeH);
+          const grad = ctx.createLinearGradient(x, baseTop + 6, x + spikeW, spikeH);
           grad.addColorStop(0, '#27272a');
           grad.addColorStop(0.6, '#52525b');
-          grad.addColorStop(1, '#7f1d1d');
+          grad.addColorStop(1, '#dc2626');
           ctx.fillStyle = grad;
 
           ctx.beginPath();
-          ctx.moveTo(x, 6);
+          ctx.moveTo(x, baseTop + 6);
           ctx.lineTo(x + spikeW / 2, spikeH);
-          ctx.lineTo(x + spikeW, 6);
+          ctx.lineTo(x + spikeW, baseTop + 6);
           ctx.closePath();
           ctx.fill();
         }
@@ -2900,6 +3093,41 @@
             }
           }
 
+          // 脆化警示紅裂紋
+          if (p.brittle && !p.broken) {
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(-24, -hh); ctx.lineTo(-16, 0); ctx.lineTo(-22, hh);
+            ctx.moveTo(16, -hh); ctx.lineTo(10, 0); ctx.lineTo(18, hh);
+            ctx.stroke();
+          }
+
+          // 階梯上發光懸浮隨機觸發道具球
+          if (p.pickup && !p.pickup.taken && !p.broken) {
+            const pk = p.pickup;
+            const bobY = -hh - 17 + Math.sin(Date.now() * 0.006 + p.x) * 3;
+            ctx.save();
+            ctx.fillStyle = pk.color;
+            ctx.globalAlpha = 0.28;
+            ctx.beginPath();
+            ctx.arc(pk.xOff, bobY, 13, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(pk.xOff, bobY, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = pk.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pk.icon, pk.xOff, bobY + 1);
+            ctx.restore();
+          }
+
           ctx.restore();
         }
       }
@@ -2909,7 +3137,8 @@
         ctx.save();
         ctx.globalAlpha = alpha;
 
-        const inGameBaseScale = 1.7;
+        const giantBoost = (isLocal && player.giantTimer > 0) ? 1.4 : 1.0;
+        const inGameBaseScale = 1.7 * giantBoost;
         const s = inGameBaseScale * ani.sizeScale;
         const cx = x + 15;
         // 腳底精準對齊 y + 28（階梯表面）
@@ -2956,6 +3185,41 @@
       }
 
       function drawEffects() {
+        // 全場事件視覺層（冷凍冰霜、狂風氣流、中央磁場）
+        if (fieldEvents.freezeTimer > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.18)';
+          ctx.fillRect(0, 0, LOGIC_W, H);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 6;
+          ctx.strokeRect(3, 3, LOGIC_W - 6, H - 6);
+          ctx.restore();
+        }
+        if (fieldEvents.windTimer > 0) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+          ctx.lineWidth = 2;
+          const tShift = (Date.now() * 0.45 * fieldEvents.windDir) % LOGIC_W;
+          for (let wy = 60; wy < H - 40; wy += 75) {
+            const wx = ((wy * 3 + tShift) % LOGIC_W + LOGIC_W) % LOGIC_W;
+            ctx.beginPath();
+            ctx.moveTo(wx, wy);
+            ctx.lineTo(wx + 36 * fieldEvents.windDir, wy);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+        if (fieldEvents.magnetTimer > 0) {
+          ctx.save();
+          const r = 24 + Math.sin(Date.now() * 0.015) * 8;
+          ctx.strokeStyle = 'rgba(236, 72, 153, 0.55)';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(LOGIC_W / 2, H * 0.45, r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         for (const sw of shockwaves) {
           ctx.save();
           ctx.strokeStyle = `rgba(180, 83, 9, ${sw.life * 2.5})`;
