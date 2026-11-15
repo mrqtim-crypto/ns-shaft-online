@@ -470,7 +470,7 @@
     .animal-grid-6x3 {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      grid-template-rows: repeat(4, 41px);
+      grid-template-rows: repeat(5, 36px);
       gap: 2.5px;
       width: 100%;
     }
@@ -995,12 +995,54 @@
           weight: 0.56, sizeScale: 0.82, speedMul: 1.13, pushMul: 0.6,
           wStat: 1, sStat: 6, cStat: 1, wPct: 10, sPct: 60, pPct: 10,
           desc: '【擬態保護色】每下潛 10 層獲得 1.8 秒隱身穿透，免疫對手推擠與方向反轉！'
+        },
+        {
+          id: 'kangaroo', name: '紅袋鼠', en: "RED KANGAROO", isTW: false,
+          posture: 'bounding_ungulate', postureName: '強健後腿跳躍姿', face: -1,
+          weight: 1.35, sizeScale: 1.15, speedMul: 1.22, pushMul: 1.45,
+          wStat: 5, sStat: 8, cStat: 6, wPct: 50, sPct: 80, pPct: 60,
+          desc: '【袋鼠飛踢】彈跳墊躍起更高，碰撞對手強力踢飛，空中觸牆可斜上長躍！'
+        },
+        {
+          id: 'mastiff', name: '藏獒', en: "TIBETAN MASTIFF", isTW: false,
+          posture: 'colossal', postureName: '高原雄獅護衛姿', face: -1,
+          weight: 1.85, sizeScale: 1.25, speedMul: 1.05, pushMul: 1.75,
+          wStat: 7, sStat: 5, cStat: 8, wPct: 70, sPct: 50, pPct: 80,
+          desc: '【高原威懾】使鄰近對手緩速，尖刺少扣 1 HP，撞牆產生小範圍震懾波！'
+        },
+        {
+          id: 'platypus', name: '鴨嘴獸', en: "PLATYPUS", isTW: false,
+          posture: 'leaping_predator', postureName: '水陸潛行姿', face: -1,
+          weight: 0.78, sizeScale: 0.88, speedMul: 1.08, pushMul: 0.85,
+          wStat: 2, sStat: 5, cStat: 3, wPct: 20, sPct: 50, pPct: 30,
+          desc: '【雙棲毒刺】淹水時可游泳漂浮水面，被對手碰撞時使對方中毒緩速 1.2 秒！'
+        },
+        {
+          id: 'hedgehog', name: '刺蝟', en: "HEDGEHOG", isTW: false,
+          posture: 'leaping_predator', postureName: '圓刺縮球姿', face: -1,
+          weight: 0.56, sizeScale: 0.78, speedMul: 1.13, pushMul: 0.75,
+          wStat: 1, sStat: 6, cStat: 2, wPct: 10, sPct: 60, pPct: 20,
+          desc: '【針刺護體】尖刺傷害減半，對手碰撞自己會被針刺強力彈開，觸牆微反彈！'
+        },
+        {
+          id: 'woodpecker', name: '啄木鳥', en: "WOODPECKER", isTW: false,
+          posture: 'soaring_bird', postureName: '展翼啄木姿', face: -1,
+          weight: 0.65, sizeScale: 0.85, speedMul: 1.18, pushMul: 0.75,
+          wStat: 2, sStat: 7, cStat: 2, wPct: 20, sPct: 70, pPct: 20,
+          desc: '【啄木抓樹】空中滑翔緩降，撞到一般牆壁可短暫釘在牆上停駐 0.8 秒！'
+        },
+        {
+          id: 'panda', name: '大熊貓', en: "GIANT PANDA", isTW: false,
+          posture: 'colossal', postureName: '圓滾食竹姿', face: -1,
+          weight: 1.85, sizeScale: 1.28, speedMul: 0.96, pushMul: 1.55,
+          wStat: 7, sStat: 3, cStat: 7, wPct: 70, sPct: 30, pPct: 70,
+          desc: '【滾滾緩衝】被撞擊退力道減半，站在階梯靜止 1.2 秒啃竹回復 +1 HP！'
         }
       ];
 
       const ANIMAL_MAP = Object.fromEntries(ANIMALS.map(a => [a.id, a]));
 
-      const AQUATIC_IDS = new Set(['hippo', 'crocodile', 'octopus', 'beaver', 'capybara', 'penguin']);
+      const AQUATIC_IDS = new Set(['hippo', 'crocodile', 'octopus', 'beaver', 'capybara', 'penguin', 'platypus']);
       const ARCTIC_IDS = new Set(['fox', 'penguin']);
 
       function getBodyTier(ani) {
@@ -1516,6 +1558,7 @@
         capyHealCd: 0,
         wallEffectCd: 0,
         wallWaveCd: 0,
+        wallStickTimer: 0,
         pangolinRollTimer: 0,
         actionState: 'idle'
       };
@@ -1530,7 +1573,7 @@
         { id: 'wind',      icon: '💨', color: '#0891b2', label: '強風吹襲 5 秒！' },
         { id: 'giant',     icon: '🍄', color: '#ea580c', label: '巨無霸 5 秒！' },
         { id: 'rush',      icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
-        { id: 'brittle',   icon: '💥', color: '#b45309', label: '階梯脆化 0.4 秒！' },
+        { id: 'brittle',   icon: '💥', color: '#b45309', label: '階梯脆化 0.2 秒！' },
         { id: 'rockslide', icon: '🪨', color: '#78350f', label: '土石流落石 5 秒！' },
         { id: 'flood',     icon: '🌊', color: '#0284c7', label: '底部淹水 5 秒！' }
       ];
@@ -2347,6 +2390,7 @@
         player.capyHealCd = 0;
         player.wallEffectCd = 0;
         player.wallWaveCd = 0;
+        player.wallStickTimer = 0;
         player.pangolinRollTimer = 0;
         player.actionState = 'idle';
         resetFieldEvents();
@@ -2459,9 +2503,9 @@
             plat.touched = true;
             player.streakCount = 0;
             let dmg = 5;
-            if (ani.id === 'crocodile' || ani.id === 'pangolin') dmg = 2; // 鱗甲護體減半
+            if (ani.id === 'crocodile' || ani.id === 'pangolin' || ani.id === 'hedgehog') dmg = 2; // 鱗甲/針刺護體減半
             else if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
-            else if (ani.weight >= 2.1) dmg = 4;
+            else if (ani.id === 'mastiff' || ani.weight >= 2.1) dmg = 4;
             hurtPlayer(dmg, cx, cy, '鐵絲網 ');
             if (ani.id === 'pangolin') {
               player.onPlatform = null;
@@ -2478,7 +2522,7 @@
           plat.springCompress = 1;
           player.onPlatform = null;
           player.jumpTimer = 0.35;
-          const weightFactor = ani.id === 'deer' ? 0.85 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
+          const weightFactor = ani.id === 'deer' ? 0.85 : (ani.id === 'kangaroo' ? 1.18 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight))));
           player.vy = -410 * weightFactor;
           playSound('spring');
           spawnParticles(cx, plat.y, '#ef4444', 12);
@@ -2655,6 +2699,7 @@
         if (player.skillCooldown > 0) player.skillCooldown = Math.max(0, player.skillCooldown - dt);
         if (player.wallEffectCd > 0) player.wallEffectCd = Math.max(0, player.wallEffectCd - dt);
         if (player.wallWaveCd > 0) player.wallWaveCd = Math.max(0, player.wallWaveCd - dt);
+        if (player.wallStickTimer > 0) player.wallStickTimer = Math.max(0, player.wallStickTimer - dt);
         if (player.pangolinRollTimer > 0) player.pangolinRollTimer = Math.max(0, player.pangolinRollTimer - dt);
         if (player.phaseTimer > 0) player.phaseTimer = Math.max(0, player.phaseTimer - dt);
         if (player.reverseTimer > 0) player.reverseTimer = Math.max(0, player.reverseTimer - dt);
@@ -2716,13 +2761,13 @@
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽木板或脆化階梯（依體型差異：重型 0.25s、中型 0.40s、輕型 0.58s 斷裂）
+          // 腐朽木板或脆化階梯（依體型差異：重型 0.125s、中型 0.20s、輕型 0.29s 斷裂）
           if ((p.type === 'wood' || p.brittle) && p.touched && !p.broken) {
             const tier = getBodyTier(ani);
-            const brittleLimit = tier === 'heavy' ? 0.25 : (tier === 'light' ? 0.58 : 0.40);
+            const brittleLimit = tier === 'heavy' ? 0.125 : (tier === 'light' ? 0.29 : 0.20);
             const weightRate = p.brittle ? 1.0 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
             p.breakTimer += dt * weightRate;
-            if (p.breakTimer >= (p.brittle ? brittleLimit : 0.42)) {
+            if (p.breakTimer >= (p.brittle ? brittleLimit : 0.21)) {
               p.broken = true;
               spawnParticles(p.x + p.w / 2, p.y, '#78350f', 12);
               if (player.onPlatform === p) player.onPlatform = null;
@@ -2778,6 +2823,11 @@
           player.capyHealCd = 1.8;
           healPlayer(1, player.x + 15, player.y - 8, '+1 HP');
           spawnParticles(player.x + 15, player.y, '#fb923c', 5);
+        }
+        if (ani.id === 'panda' && player.onPlatform && player.stillTimer >= 1.2 && player.capyHealCd <= 0) {
+          player.capyHealCd = 2.2;
+          healPlayer(1, player.x + 15, player.y - 8, '+1 HP');
+          spawnParticles(player.x + 15, player.y, '#22c55e', 5);
         }
 
         let speedMultiplier = ani.speedMul;
@@ -2927,14 +2977,26 @@
             if (rpAni.id === 'beaver' || rpAni.id === 'pangolin' || rpAni.id === 'penguin') {
               incomingForce *= 1.55;
             }
+            if (rpAni.id === 'kangaroo') {
+              incomingForce *= 1.65;
+            }
+            if (rpAni.id === 'hedgehog') {
+              incomingForce *= 1.8;
+            }
             if (rp.rolling) {
               incomingForce *= 2.2;
             }
-            if (rpAni.id === 'capybara') {
+            if (rpAni.id === 'capybara' || rpAni.id === 'platypus') {
               player.slowTimer = Math.max(player.slowTimer, 1.2);
+            }
+            if (rpAni.id === 'mastiff') {
+              player.slowTimer = Math.max(player.slowTimer, 0.8);
             }
             if (rpAni.id === 'leopardcat') {
               incomingForce *= 1.35;
+            }
+            if (ani.id === 'panda') {
+              incomingForce *= 0.5;
             }
             if (boarCharging || (ani.id === 'bear' && hp <= 4)) incomingForce *= 0.4;
             player.pushVx = pushSign * incomingForce;
@@ -2988,14 +3050,39 @@
             return;
           }
 
-          // 跳羚：空中貼牆蹬牆跳（每次落地限一次）
-          if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump && player.canWallTrigger) {
+          // 跳羚／紅袋鼠：空中貼牆蹬牆躍（每次落地限一次）
+          if ((ani.id === 'springbok' || ani.id === 'kangaroo') && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
             player.canDoubleJump = false;
             player.canWallTrigger = false;
-            player.vy = -295;
-            player.pushVx = pushDir * 165;
+            player.vy = ani.id === 'kangaroo' ? -275 : -295;
+            player.pushVx = pushDir * (ani.id === 'kangaroo' ? 310 : 165);
             player.facing = pushDir;
+            player.wallEffectCd = 0.38;
             playSound('spring');
+            return;
+          }
+
+          // 刺蝟：觸牆縮刺微反彈（每次落地限一次）
+          if (ani.id === 'hedgehog' && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
+            player.pushVx = pushDir * 220;
+            player.vy = -170;
+            player.facing = pushDir;
+            player.wallEffectCd = 0.38;
+            playSound('spring');
+            spawnParticles(wallEdgeX, player.y + 15, '#a16207', 6);
+            return;
+          }
+
+          // 啄木鳥：空中觸牆短暫釘牆停駐 0.8 秒（每次落地限一次）
+          if (ani.id === 'woodpecker' && !player.onPlatform && player.canWallTrigger && player.wallEffectCd <= 0 && towardWall) {
+            player.canWallTrigger = false;
+            player.wallStickTimer = 0.8;
+            player.vy = 0;
+            player.vx = 0;
+            player.wallEffectCd = 0.45;
+            playSound('bump');
+            spawnParticles(wallEdgeX, player.y + 12, '#ef4444', 6);
             return;
           }
 
@@ -3039,14 +3126,15 @@
             return;
           }
 
-          // 重型（歐亞野牛／非洲象／河馬）：不反彈，撞牆產生震波震暈附近同高度對手 0.4 秒
-          if ((ani.id === 'bison' || ani.id === 'elephant' || ani.id === 'hippo') && player.wallWaveCd <= 0 && towardWall) {
+          // 重型（歐亞野牛／非洲象／河馬／藏獒）：不反彈，撞牆產生震波震暈附近同高度對手
+          if ((ani.id === 'bison' || ani.id === 'elephant' || ani.id === 'hippo' || ani.id === 'mastiff') && player.wallWaveCd <= 0 && towardWall) {
+            const isMastiff = ani.id === 'mastiff';
             player.wallWaveCd = 1.25;
-            shakeTime = Math.max(shakeTime, 0.25);
+            shakeTime = Math.max(shakeTime, isMastiff ? 0.18 : 0.25);
             playSound('stomp');
-            shockwaves.push({ x: wallEdgeX, y: player.y + 15, r: 10, maxR: 135, life: 0.42, color: '#f59e0b' });
+            shockwaves.push({ x: wallEdgeX, y: player.y + 15, r: 10, maxR: isMastiff ? 105 : 135, life: 0.42, color: '#f59e0b' });
             spawnParticles(wallEdgeX, player.y + 15, '#f59e0b', 12);
-            publishMsg({ t: 'wall_stun', wy: Math.round(player.y + scrollDistance), x: Math.round(wallEdgeX), r: 145, stun: 0.4 });
+            publishMsg({ t: 'wall_stun', wy: Math.round(player.y + scrollDistance), x: Math.round(wallEdgeX), r: isMastiff ? 110 : 145, stun: isMastiff ? 0.35 : 0.4 });
           }
         };
 
@@ -3079,12 +3167,20 @@
         }
 
         if (!player.onPlatform) {
+          const nearLeftWall = player.x <= leftWallW + 3 && !lPushedWall;
+          const nearRightWall = player.x + player.w >= LOGIC_W - rightWallW - 3 && !rPushedWall;
+          if (player.wallStickTimer > 0 && ((!nearLeftWall && !nearRightWall) || (nearLeftWall && moveDir > 0) || (nearRightWall && moveDir < 0))) {
+            player.wallStickTimer = 0;
+          }
           const isGlider = ani.posture === 'soaring_bird' || player.featherTimer > 0;
-          const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth') &&
-            ((player.x <= leftWallW + 3 && !lPushedWall) || (player.x + player.w >= LOGIC_W - rightWallW - 3 && !rPushedWall));
+          const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth') && (nearLeftWall || nearRightWall);
           let gravity = (isGlider && player.vy > 0) ? 500 : 980;
           let maxFall = isGlider ? 290 : 580;
-          if (isWallClinger && player.vy > 0) {
+          if (player.wallStickTimer > 0) {
+            gravity = 0;
+            maxFall = 0;
+            player.vy = 0;
+          } else if (isWallClinger && player.vy > 0) {
             gravity = 320;
             maxFall = 120;
           }
