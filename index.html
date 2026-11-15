@@ -765,7 +765,7 @@
             <div class="showcase-rank-num" id="showcaseNum" style="display:none"></div>
             <div class="showcase-canvas-wrap">
               <div class="posture-pill" id="posturePill">雙足直立站姿</div>
-              <div class="tw-pill" id="twPill">台灣特有</div>
+              <div class="tw-pill" id="twPill" style="display:none"></div>
               <canvas id="previewCanvas" width="410" height="304"></canvas>
             </div>
             <div class="showcase-info">
@@ -1178,13 +1178,6 @@
           cell.className = 'animal-cell' + (a.id === myAnimalId ? ' selected' : '');
           cell.dataset.id = a.id;
 
-          if (a.isTW) {
-            const twDot = document.createElement('div');
-            twDot.className = 'animal-cell-tw';
-            twDot.title = '台灣原生特有種';
-            cell.appendChild(twDot);
-          }
-
           const miniCv = document.createElement('canvas');
           miniCv.width = 104;
           miniCv.height = 80;
@@ -1221,7 +1214,7 @@
         const a = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         
         posturePill.textContent = a.postureName;
-        twPill.style.display = a.isTW ? 'block' : 'none';
+        twPill.style.display = 'none';
         detailTitle.textContent = a.name;
         detailEn.textContent = `${a.en} · 體重 ${a.wStat} · 速度 ${a.sStat} · 衝撞 ${a.cStat}`;
         barWeight.style.width = `${a.wPct}%`;
@@ -1351,14 +1344,36 @@
           osc.stop(now + 0.22);
           if (navigator.vibrate) navigator.vibrate(45);
         } else if (type === 'spring') {
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(300, now);
-          osc.frequency.setValueAtTime(420, now + 0.05);
-          osc.frequency.exponentialRampToValueAtTime(640, now + 0.15);
-          gain.gain.setValueAtTime(0.13, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          // 可愛Q彈「啵～咻！」泡泡彈簧音
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.06);
+          osc.frequency.exponentialRampToValueAtTime(840, now + 0.16);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
           osc.start(now);
-          osc.stop(now + 0.15);
+          osc.stop(now + 0.18);
+        } else if (type === 'event') {
+          // 觸發全場事件特殊奇幻音樂旋律
+          osc.type = 'triangle';
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((f, idx) => osc.frequency.setValueAtTime(f, now + idx * 0.065));
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+          osc.start(now);
+          osc.stop(now + 0.34);
+        } else if (type === 'dino') {
+          // 暴龍 Boss 登場低吼警告雙音
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.linearRampToValueAtTime(75, now + 0.18);
+          osc.frequency.setValueAtTime(155, now + 0.22);
+          osc.frequency.linearRampToValueAtTime(65, now + 0.45);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
+          osc.start(now);
+          osc.stop(now + 0.46);
+          if (navigator.vibrate) navigator.vibrate([70, 40, 90]);
         } else if (type === 'bump') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(160, now);
@@ -1484,7 +1499,8 @@
         { id: 'rush',      icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
         { id: 'magnet',    icon: '🧲', color: '#db2777', label: '中央磁場 5 秒！' },
         { id: 'brittle',   icon: '💥', color: '#b45309', label: '階梯脆化 0.4 秒！' },
-        { id: 'rockslide', icon: '🪨', color: '#78350f', label: '土石流落石 5 秒！' }
+        { id: 'rockslide', icon: '🪨', color: '#78350f', label: '土石流落石 5 秒！' },
+        { id: 'swap',      icon: '🔀', color: '#9333ea', label: '位置大交換！' }
       ];
       const PICKUP_MAP = Object.fromEntries(PICKUPS.map(p => [p.id, p]));
 
@@ -1505,6 +1521,65 @@
       let rockslideRocks = [];
       let rockSpawnCd = 0;
 
+      const dinoBoss = {
+        active: false,
+        leaving: false,
+        x: 190,
+        y: -40,
+        vx: 0,
+        vy: 0,
+        facing: 1,
+        timer: 0,
+        targetFloor: 0
+      };
+      let lastDinoFloor = 0;
+
+      function spawnDinoBoss(fl) {
+        if (dinoBoss.active && dinoBoss.targetFloor === fl) return;
+        dinoBoss.active = true;
+        dinoBoss.leaving = false;
+        dinoBoss.x = LOGIC_W / 2;
+        dinoBoss.y = 26;
+        dinoBoss.vx = 0;
+        dinoBoss.vy = 60;
+        dinoBoss.facing = 1;
+        dinoBoss.timer = 12.0;
+        dinoBoss.targetFloor = fl;
+        lastDinoFloor = Math.max(lastDinoFloor, fl);
+        playSound('dino');
+        fieldBanner.text = `🦖 第 ${fl} 層 Boss【暴龍從天而降追擊中！】`;
+        fieldBanner.color = '#15803d';
+        fieldBanner.timer = 3.8;
+        addPopup(LOGIC_W / 2, 72, '🦖 暴龍Boss來襲！快逃！', '#15803d');
+      }
+
+      function teleportToWorldPos(wx, wy) {
+        const lw = getLeftWallWidth();
+        const rw = getRightWallWidth();
+        player.x = Math.max(lw + 4, Math.min(LOGIC_W - rw - player.w - 4, wx));
+        const screenY = wy - scrollDistance;
+        if (screenY < 60 || screenY > H - 90) {
+          scrollDistance = Math.max(0, wy - H * 0.42);
+          player.y = wy - scrollDistance;
+          // 補齊新視窗附近的階梯確保不會踩空
+          platforms = platforms.filter(p => p.worldY >= scrollDistance - 60 && p.worldY <= scrollDistance + H + 120);
+          if (platforms.length < 4) {
+            const safeX = Math.max(lw + 6, Math.min(LOGIC_W - rw - 96, player.x - 32));
+            platforms.push(createPlatform(wy + 34, true, safeX));
+            for (let k = 1; k <= 5; k++) {
+              platforms.push(createPlatform(wy + 34 + k * 74, k === 1));
+            }
+            nextSpawnWorldY = wy + 34 + 6 * 74;
+          }
+        } else {
+          player.y = screenY;
+        }
+        player.onPlatform = null;
+        player.vy = -120;
+        player.invulnerable = Math.max(player.invulnerable, 0.85);
+        spawnParticles(player.x + 15, player.y + 14, '#9333ea', 16);
+      }
+
       function resetFieldEvents() {
         fieldEvents.freezeTimer = 0;
         fieldEvents.freezeByMe = false;
@@ -1520,20 +1595,22 @@
         fieldBanner.timer = 0;
         rockslideRocks = [];
         rockSpawnCd = 0;
+        dinoBoss.active = false;
       }
 
-      function triggerPickupEvent(kind, isMine, extraDir = 1, actorName = '') {
+      function triggerPickupEvent(kind, isMine, extraDir = 1, actorName = '', extraLabel = '') {
         const pk = PICKUP_MAP[kind];
         if (!pk) return;
+        playSound('event');
         const who = actorName ? `${actorName} ` : '';
-        let bannerLabel = pk.label;
+        let bannerLabel = extraLabel || pk.label;
         if (kind === 'wind') {
           bannerLabel = extraDir > 0 ? '強風向右吹 5 秒！➡️' : '⬅️ 強風向左吹 5 秒！';
         } else if (kind === 'walls') {
           bannerLabel = extraDir < 0 ? '左側牆壁推擠 5 秒！' : '右側牆壁推擠 5 秒！';
         }
         if (kind !== 'heal' && kind !== 'feather' && kind !== 'giant') {
-          fieldBanner.text = `${pk.icon} ${who}觸發【${bannerLabel}】`;
+          fieldBanner.text = extraLabel ? `${pk.icon} ${extraLabel}` : `${pk.icon} ${who}觸發【${bannerLabel}】`;
           fieldBanner.color = pk.color;
           fieldBanner.timer = fieldBanner.maxTimer;
         } else if (isMine) {
@@ -1853,7 +1930,28 @@
               plat.pickup.taken = true;
             }
           }
-          triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
+          if (msg.kind === 'swap') {
+            if (msg.targetId === myId && state === 'PLAYING') {
+              teleportToWorldPos(msg.ax, msg.ay);
+              addPopup(player.x + 15, player.y - 12, '被位置交換了！', '#9333ea');
+            }
+            const label = msg.targetName ? `${p.name} 與 ${msg.targetName} 交換了位置！` : `${p.name} 發動閃現下潛！`;
+            triggerPickupEvent('swap', false, 1, p.name || '', label);
+          } else {
+            triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
+          }
+        } else if (msg.t === 'dino') {
+          if (state === 'PLAYING' && msg.fl > lastDinoFloor) {
+            spawnDinoBoss(msg.fl);
+          }
+        } else if (msg.t === 'dino_eat') {
+          if (dinoBoss.active && (!msg.fl || dinoBoss.targetFloor === msg.fl)) {
+            dinoBoss.leaving = true;
+            dinoBoss.vy = -420;
+            fieldBanner.text = `🦖 暴龍咬飛了 ${msg.name || '對手'} 後滿足離開了！`;
+            fieldBanner.color = '#15803d';
+            fieldBanner.timer = 3.2;
+          }
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -2238,6 +2336,7 @@
         player.stillTimer = 0;
         player.capyHealCd = 0;
         player.actionState = 'idle';
+        lastDinoFloor = 0;
         resetFieldEvents();
 
         updateAnimalSelectionUI();
@@ -2510,7 +2609,70 @@
             player.phaseTimer = Math.max(player.phaseTimer, 1.8);
             addPopup(player.x + 15, player.y - 10, '擬態保護色！', '#059669');
           }
+          if (floor >= 25 && floor % 25 === 0 && floor > lastDinoFloor) {
+            spawnDinoBoss(floor);
+            publishMsg({ t: 'dino', fl: floor });
+          }
           updateHUD();
+        }
+
+        // 每 25 層暴龍 Boss 追擊邏輯
+        if (dinoBoss.active) {
+          dinoBoss.timer -= dt;
+          if (dinoBoss.leaving) {
+            dinoBoss.vy = -440;
+            dinoBoss.y += dinoBoss.vy * dt;
+            if (dinoBoss.y < -80) dinoBoss.active = false;
+          } else {
+            const targetX = player.x + 15;
+            const dxDino = targetX - dinoBoss.x;
+            if (Math.abs(dxDino) > 6) {
+              dinoBoss.facing = dxDino > 0 ? 1 : -1;
+              dinoBoss.x += dinoBoss.facing * Math.min(142 * dt, Math.abs(dxDino));
+            }
+            dinoBoss.vy = Math.min(420, dinoBoss.vy + 760 * dt);
+            const prevDinoY = dinoBoss.y;
+            dinoBoss.y += dinoBoss.vy * dt - dy;
+
+            let dinoPlat = null;
+            if (dinoBoss.vy >= 0) {
+              for (const p of platforms) {
+                if (p.broken) continue;
+                if (dinoBoss.x >= p.x - 10 && dinoBoss.x <= p.x + p.w + 10 &&
+                    prevDinoY + 26 <= p.y + 8 && dinoBoss.y + 26 >= p.y - 4) {
+                  // 若玩家在更下面一層，暴龍短暫停留後會繼續往下跳追
+                  if (player.y > dinoBoss.y + 42 && Math.random() < 0.08) continue;
+                  dinoBoss.y = p.y - 26;
+                  dinoBoss.vy = 0;
+                  dinoPlat = p;
+                  break;
+                }
+              }
+            }
+
+            // 只要暴龍與玩家在同一階梯（或極近高度貼身），咬住甩到牆壁並扣 40% 血量後離開
+            const onSamePlat = dinoPlat && player.onPlatform === dinoPlat;
+            const closeBite = Math.abs((player.x + 15) - dinoBoss.x) < 42 && Math.abs((player.y + 14) - dinoBoss.y) < 34;
+            if (onSamePlat || closeBite) {
+              const throwDir = (player.x + 15) < LOGIC_W / 2 ? -1 : 1;
+              player.onPlatform = null;
+              player.pushVx = throwDir * 720;
+              player.vy = -170;
+              player.stunTimer = 0.32;
+              shakeTime = 0.35;
+              const dinoDmg = Math.max(1, Math.round(MAX_HP * 0.4));
+              hurtPlayer(dinoDmg, player.x + 15, player.y, '暴龍咬甩 ');
+              spawnParticles(player.x + 15, player.y + 14, '#15803d', 16);
+              dinoBoss.leaving = true;
+              dinoBoss.vy = -420;
+              publishMsg({ t: 'dino_eat', name: myName, fl: dinoBoss.targetFloor });
+              fieldBanner.text = `🦖 暴龍咬飛了 ${myName} 後滿足離開了！`;
+              fieldBanner.color = '#15803d';
+              fieldBanner.timer = 3.2;
+            } else if (dinoBoss.timer <= 0 || dinoBoss.y > H + 40) {
+              dinoBoss.leaving = true;
+            }
+          }
         }
 
         if (shakeTime > 0) shakeTime = Math.max(0, shakeTime - dt);
@@ -2822,10 +2984,38 @@
           const pkX = player.onPlatform.x + player.onPlatform.w / 2 + pk.xOff;
           if (Math.abs((player.x + player.w / 2) - pkX) < 28) {
             pk.taken = true;
-            const wDir = Math.random() < 0.5 ? -1 : 1;
-            triggerPickupEvent(pk.type, true, wDir, myName);
-            publishMsg({ t: 'pickup', wy: Math.round(player.onPlatform.worldY), kind: pk.type, dir: wDir });
-            spawnParticles(pkX, player.onPlatform.y - 10, pk.color, 12);
+            const platWy = Math.round(player.onPlatform.worldY);
+            const platY = player.onPlatform.y;
+            if (pk.type === 'swap') {
+              let leader = null;
+              for (const rp of peers.values()) {
+                if (!rp.alive) continue;
+                if (!leader || rp.worldY > leader.worldY) leader = rp;
+              }
+              const myWy = player.y + scrollDistance;
+              if (leader) {
+                const ax = Math.round(player.x);
+                const ay = Math.round(myWy);
+                const tx = Math.round(leader.x);
+                const ty = Math.round(leader.worldY);
+                teleportToWorldPos(tx, ty);
+                const msgLabel = `${myName} 與 ${leader.name} 交換了位置！`;
+                triggerPickupEvent('swap', true, 1, myName, msgLabel);
+                publishMsg({ t: 'pickup', wy: platWy, kind: 'swap', actorId: myId, targetId: leader.id, targetName: leader.name, ax, ay, tx, ty });
+              } else {
+                const lw = getLeftWallWidth();
+                const rw = getRightWallWidth();
+                const rx = lw + 20 + Math.random() * Math.max(40, LOGIC_W - lw - rw - 70);
+                teleportToWorldPos(rx, myWy + 90);
+                triggerPickupEvent('swap', true, 1, myName, `${myName} 發動閃現下潛！`);
+                publishMsg({ t: 'pickup', wy: platWy, kind: 'swap', actorId: myId, targetId: '', targetName: '' });
+              }
+            } else {
+              const wDir = Math.random() < 0.5 ? -1 : 1;
+              triggerPickupEvent(pk.type, true, wDir, myName);
+              publishMsg({ t: 'pickup', wy: platWy, kind: pk.type, dir: wDir });
+            }
+            spawnParticles(pkX, platY - 10, pk.color, 12);
           }
         }
 
@@ -3417,34 +3607,38 @@
           const dir = fieldEvents.windDir >= 0 ? 1 : -1;
           const now = Date.now();
           const tShift = (now * 0.52 * dir) % LOGIC_W;
-          // 明確流動風向線條與尾端箭頭
-          for (let wy = 58; wy < H - 36; wy += 44) {
+          // 高對比黑色波浪線條與大方向箭頭
+          for (let wy = 56; wy < H - 36; wy += 44) {
             const wx = ((wy * 4 + tShift) % LOGIC_W + LOGIC_W) % LOGIC_W;
-            const len = 54;
+            const len = 62;
             const endX = wx + len * dir;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-            ctx.lineWidth = 2.8;
+            ctx.strokeStyle = 'rgba(24, 24, 27, 0.82)';
+            ctx.lineWidth = 3.2;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(wx, wy);
-            ctx.quadraticCurveTo(wx + len * 0.5 * dir, wy - 5, endX, wy);
+            for (let step = 1; step <= 6; step++) {
+              const sx = wx + (len * (step / 6)) * dir;
+              const sy = wy + Math.sin(step * 1.4 + now * 0.014) * 5.5;
+              ctx.lineTo(sx, sy);
+            }
             ctx.stroke();
-            // 箭頭尖端
+            const tipY = wy + Math.sin(6 * 1.4 + now * 0.014) * 5.5;
             ctx.beginPath();
-            ctx.moveTo(endX - 7 * dir, wy - 5);
-            ctx.lineTo(endX, wy);
-            ctx.lineTo(endX - 7 * dir, wy + 5);
+            ctx.moveTo(endX - 8 * dir, tipY - 6);
+            ctx.lineTo(endX, tipY);
+            ctx.lineTo(endX - 8 * dir, tipY + 6);
             ctx.stroke();
           }
           // 醒目風向提示牌
-          ctx.fillStyle = 'rgba(8, 145, 178, 0.88)';
+          ctx.fillStyle = 'rgba(24, 24, 27, 0.86)';
           ctx.beginPath();
-          ctx.roundRect(LOGIC_W / 2 - 96, H - 96, 192, 26, 13);
+          ctx.roundRect(LOGIC_W / 2 - 98, H - 96, 196, 26, 13);
           ctx.fill();
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = '#fde047';
           ctx.lineWidth = 2;
           ctx.stroke();
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = '#fef9c3';
           ctx.font = '900 12px system-ui, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -3459,6 +3653,74 @@
           ctx.beginPath();
           ctx.arc(LOGIC_W / 2, H * 0.45, r, 0, Math.PI * 2);
           ctx.stroke();
+          ctx.restore();
+        }
+
+        // 繪製每 25 層 Q 版繪本暴龍 Boss
+        if (dinoBoss.active) {
+          ctx.save();
+          ctx.translate(dinoBoss.x, dinoBoss.y);
+          ctx.scale(dinoBoss.facing, 1);
+          const chomp = Math.abs(Math.sin(Date.now() * 0.018)) * 5;
+          // 尾巴
+          ctx.fillStyle = '#15803d';
+          ctx.strokeStyle = '#14532d';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-14, 4);
+          ctx.quadraticCurveTo(-36, -4, -40, -14);
+          ctx.quadraticCurveTo(-24, -10, -12, -8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          // 身體
+          ctx.fillStyle = '#22c55e';
+          ctx.beginPath();
+          ctx.ellipse(-2, 4, 18, 22, -0.15, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          // 奶油肚皮
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.ellipse(4, 7, 10, 14, -0.1, 0, Math.PI * 2);
+          ctx.fill();
+          // 橘紅背刺
+          ctx.fillStyle = '#ef4444';
+          for (let sy = -14; sy <= 6; sy += 9) {
+            ctx.beginPath();
+            ctx.moveTo(-16, sy);
+            ctx.lineTo(-24, sy - 3);
+            ctx.lineTo(-14, sy - 6);
+            ctx.closePath();
+            ctx.fill();
+          }
+          // 頭與張合大嘴
+          ctx.fillStyle = '#22c55e';
+          ctx.beginPath();
+          ctx.roundRect(-4, -28, 30, 20, 8);
+          ctx.fill();
+          ctx.stroke();
+          // 下顎
+          ctx.beginPath();
+          ctx.roundRect(2, -10 + chomp, 22, 8, 4);
+          ctx.fill();
+          ctx.stroke();
+          // 尖牙
+          ctx.fillStyle = '#ffffff';
+          for (let tx = 8; tx <= 20; tx += 5) {
+            ctx.beginPath();
+            ctx.moveTo(tx, -10); ctx.lineTo(tx + 2.5, -4); ctx.lineTo(tx + 5, -10);
+            ctx.fill();
+          }
+          // 眼睛
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(10, -20, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#18181b';
+          ctx.beginPath();
+          ctx.arc(11.5, -20, 2.2, 0, Math.PI * 2);
+          ctx.fill();
           ctx.restore();
         }
 
