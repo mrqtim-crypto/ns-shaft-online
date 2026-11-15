@@ -3610,9 +3610,10 @@
             totalVx += Math.sign(p.tilt) * 95;
           }
 
-          // 漏電地板隨時漏電：麻痺 1 秒、扣 1 HP（水母完全免疫）
-          if (p.type === 'electric' && player.invulnerable <= 0 && ani.id !== 'jellyfish') {
-            player.shockTimer = 0.6;
+          // 漏電地板隨時漏電：每塊僅觸發一次 1 秒麻痺、扣 1 HP（水母完全免疫）
+          if (p.type === 'electric' && !p.shockedUsed && player.invulnerable <= 0 && ani.id !== 'jellyfish') {
+            p.shockedUsed = true;
+            player.shockTimer = 1.0;
             hurtPlayer(getBodyDamage('electric', 1, ani), player.x + 15, player.y, '觸電 ');
             playSound('shock');
             if (ani.id !== 'hippo') {
