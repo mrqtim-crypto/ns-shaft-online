@@ -903,14 +903,14 @@
           posture: 'soaring_bird', postureName: '巨翼翱翔姿', face: 0,
           weight: 0.99, sizeScale: 1.15, speedMul: 1.13, pushMul: 0.92,
           wStat: 3, sStat: 6, cStat: 3, wPct: 30, sPct: 60, pPct: 30,
-          desc: '【巨翼滑翔】下墜速度減緩 40%，在傾斜階梯上完全不滑落。'
+          desc: '【巨翼滑翔】下墜減緩且斜坡不滑落；跑離階梯瞬間展翅獲得遠距水平滑翔推進！'
         },
         {
           id: 'owl', name: '大角鴞', en: "GREAT HORNED OWL", isTW: false,
           posture: 'soaring_bird', postureName: '展翅俯衝姿', face: 0,
           weight: 0.78, sizeScale: 0.95, speedMul: 1.19, pushMul: 0.92,
           wStat: 2, sStat: 7, cStat: 3, wPct: 20, sPct: 70, pPct: 30,
-          desc: '【無聲滯空】全場最強滑翔，下墜速度減緩 45%，空中找路時間最充裕。'
+          desc: '【無聲滯空】全場最強滑翔緩降；跑離階梯時振翅獲得滯空浮力＋水平推進！'
         },
         {
           id: 'glider', name: '蜜袋鼯', en: "SUGAR GLIDER", isTW: false,
@@ -1029,7 +1029,7 @@
           posture: 'soaring_bird', postureName: '展翼啄木姿', face: -1,
           weight: 0.65, sizeScale: 0.85, speedMul: 1.18, pushMul: 0.75,
           wStat: 2, sStat: 7, cStat: 2, wPct: 20, sPct: 70, pPct: 20,
-          desc: '【啄木抓樹】空中滑翔緩降，撞到一般牆壁可短暫釘在牆上停駐 0.8 秒！'
+          desc: '【啄木抓樹】跑離階梯獲高速水平衝刺；空中滑翔撞一般牆壁可釘牆停駐 0.8 秒！'
         },
         {
           id: 'panda', name: '大熊貓', en: "GIANT PANDA", isTW: false,
@@ -3157,9 +3157,20 @@
           const overlap = (player.x + player.w - 4 > p.x) && (player.x + 4 < p.x + p.w);
           if (!overlap || p.broken) {
             player.onPlatform = null;
-            if ((ani.id === 'jaguar' || ani.id === 'glider') && moveDir !== 0 && !p.broken) {
-              player.pushVx = moveDir * 145;
-              player.vy = -125;
+            const ledgeBoosts = {
+              jaguar: [145, -125],
+              glider: [145, -125],
+              condor: [165, -95],
+              owl: [140, -135],
+              woodpecker: [185, -90]
+            };
+            if (ledgeBoosts[ani.id] && moveDir !== 0 && !p.broken) {
+              const [lx, ly] = ledgeBoosts[ani.id];
+              player.pushVx = moveDir * lx;
+              player.vy = ly;
+              if (ani.posture === 'soaring_bird') {
+                spawnParticles(player.x + 15, player.y + 20, '#fef3c7', 4);
+              }
             } else {
               player.vy = 0;
             }
