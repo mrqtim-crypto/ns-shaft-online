@@ -92,6 +92,30 @@
       font-weight: 700;
     }
 
+    .hud-skill {
+      position: absolute;
+      top: 68px;
+      left: 10px;
+      z-index: 12;
+      max-width: 235px;
+      background: rgba(15, 18, 23, 0.72);
+      backdrop-filter: blur(4px);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f1f5f9;
+      font-size: 11px;
+      line-height: 1.32;
+      font-weight: 700;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+    }
+
+    .hud-skill strong {
+      color: #fbbf24;
+      margin-right: 4px;
+    }
+
     .hp-bar {
       display: flex;
       gap: 2px;
@@ -767,6 +791,7 @@
         <span class="hud-sep">|</span>
         <span id="timeText">⏱️ 00:00.0</span>
       </div>
+      <div class="hud-skill" id="hudSkill"></div>
 
       <!-- 多人連線狀態條 -->
       <div class="mp-bar">
@@ -1127,6 +1152,7 @@
       const hpTextEl = document.getElementById('hpText');
       const distTextEl = document.getElementById('distText');
       const timeTextEl = document.getElementById('timeText');
+      const hudSkillEl = document.getElementById('hudSkill');
       const overlay = document.getElementById('overlay');
       const overlayBadge = document.getElementById('overlayBadge');
       const overlayTitle = document.getElementById('overlayTitle');
@@ -2265,6 +2291,10 @@
         const padSec = secs.toFixed(1).padStart(4, '0');
         distTextEl.textContent = `📏 ${distM} m`;
         timeTextEl.textContent = `⏱️ ${padMin}:${padSec}`;
+        const curAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
+        if (hudSkillEl) {
+          hudSkillEl.innerHTML = `<strong>${curAni.name}</strong>${curAni.desc}`;
+        }
       }
 
       function addPopup(x, y, text, color) {
