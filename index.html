@@ -1000,6 +1000,46 @@
 
       const ANIMAL_MAP = Object.fromEntries(ANIMALS.map(a => [a.id, a]));
 
+      const AQUATIC_IDS = new Set(['hippo', 'crocodile', 'octopus', 'beaver', 'capybara', 'penguin']);
+      const ARCTIC_IDS = new Set(['fox', 'penguin']);
+
+      function getBodyTier(ani) {
+        if (player.giantTimer > 0 || ani.weight >= 1.6) return 'heavy';
+        if (ani.weight < 0.95) return 'light';
+        return 'medium';
+      }
+
+      function getBodyDamage(source, baseDmg, ani) {
+        const tier = getBodyTier(ani);
+        const isBird = ani.posture === 'soaring_bird';
+        const isAquatic = AQUATIC_IDS.has(ani.id);
+        if (source === 'flood') {
+          if (isAquatic) return 0; // 親水動物免疫溺水
+          if (isBird || ani.id === 'sloth') return 1;
+          return tier === 'heavy' ? 3 : 2;
+        }
+        if (source === 'flame') {
+          if (tier === 'light') return 1;
+          if (tier === 'heavy') return 3;
+          return 2;
+        }
+        if (source === 'electric') {
+          if (ani.id === 'hippo') return 1;
+          return tier === 'heavy' ? 2 : 3;
+        }
+        if (source === 'ceiling') {
+          if (ani.id === 'crocodile' || ani.id === 'lion' || player.giantTimer > 0 || ani.weight >= 2.1) return 3;
+          if (tier === 'light') return 4;
+          return baseDmg;
+        }
+        if (source === 'rockslide') {
+          if (tier === 'light' && Math.random() < 0.35) return 0; // 小型體型 35% 機率閃避落石
+          if (ani.id === 'pangolin' || ani.id === 'crocodile') return 1;
+          return tier === 'light' ? 2 : baseDmg;
+        }
+        return baseDmg;
+      }
+
       const canvas = document.getElementById('gameCanvas');
       const ctx = canvas.getContext('2d');
       const canvasWrap = document.getElementById('canvasWrap');
@@ -1603,7 +1643,13 @@
             playSound('supply');
           }
         } else if (kind === 'freeze') {
-          fieldEvents.freezeTimer = 2.0;
+          // 北極狐與國王企鵝免疫冷凍；巨型動物冷凍減半
+          const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
+          if (!isMine && ARCTIC_IDS.has(myAnimalId)) {
+            fieldEvents.freezeTimer = 0;
+          } else {
+            fieldEvents.freezeTimer = (!isMine && myAni.weight >= 2.0) ? 1.0 : 2.0;
+          }
           fieldEvents.freezeByMe = isMine;
           playSound('shock');
         } else if (kind === 'ceiling') {
@@ -1616,8 +1662,9 @@
         } else if (kind === 'feather') {
           if (isMine) { player.featherTimer = 5.0; playSound('spring'); }
         } else if (kind === 'reverse') {
+          const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
           if (!isMine && myAnimalId !== 'hippo' && myAnimalId !== 'bear' && myAnimalId !== 'sandcat' && myAnimalId !== 'chameleon') {
-            player.reverseTimer = 5.0;
+            player.reverseTimer = myAni.weight < 0.95 ? 3.2 : 5.0;
             playSound('shock');
           }
         } else if (kind === 'wind') {
@@ -2504,7 +2551,11 @@
         if (fieldEvents.floodTimer > 0) {
           fieldEvents.floodTimer = Math.max(0, fieldEvents.floodTimer - dt);
           if (player.y + player.h > getFloodTopY() + 6 && player.invulnerable <= 0) {
-            hurtPlayer(2, player.x + 15, player.y, '溺水扣血 ');
+            const floodDmg = getBodyDamage('flood', 2, ani);
+            if (floodDmg > 0) {
+              hurtPlayer(floodDmg, player.x + 15, player.y, '溺水扣血 ');
+              if (ani.posture === 'soaring_bird') player.vy = -140;
+            }
           }
         }
         if (fieldBanner.timer > 0) fieldBanner.timer = Math.max(0, fieldBanner.timer - dt);
@@ -2539,15 +2590,15 @@
             rockslideRocks.splice(ri, 1);
             spawnParticles(rk.x, rk.y, '#78350f', 10);
             if (player.invulnerable <= 0) {
-              hurtPlayer(3, pcx, pcy, '落石砸中 ');
-              const immuneDrop = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'hippo' || ani.id === 'bison' || ani.id === 'sloth' || ani.id === 'pangolin';
-              if (!immuneDrop) {
-                player.onPlatform = null;
-                player.vy = 180;
-                player.stunTimer = 0.25;
-                addPopup(pcx, player.y - 12, '被砸落！', '#dc2626');
-              } else {
-                addPopup(pcx, player.y - 12, '穩住不掉落！', '#15803d');
+              const rockDmg = getBodyDamage('rockslide', 3, ani);
+              if (rockDmg > 0) {
+                hurtPlayer(rockDmg, pcx, pcy, '落石砸中 ');
+                const immuneDrop = player.giantTimer > 0 || ani.weight >= 1.6 || ani.id === 'pangolin';
+                if (!immuneDrop) {
+                  player.onPlatform = null;
+                  player.vy = 180;
+                  player.stunTimer = 0.25;
+                }
               }
             }
             continue;
@@ -2732,11 +2783,13 @@
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽木板或脆化階梯（脆化固定 0.40 秒斷裂）
+          // 腐朽木板或脆化階梯（依體型差異：重型 0.25s、中型 0.40s、輕型 0.58s 斷裂）
           if ((p.type === 'wood' || p.brittle) && p.touched && !p.broken) {
+            const tier = getBodyTier(ani);
+            const brittleLimit = tier === 'heavy' ? 0.25 : (tier === 'light' ? 0.58 : 0.40);
             const weightRate = p.brittle ? 1.0 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
             p.breakTimer += dt * weightRate;
-            if (p.breakTimer >= (p.brittle ? 0.40 : 0.42)) {
+            if (p.breakTimer >= (p.brittle ? brittleLimit : 0.42)) {
               p.broken = true;
               spawnParticles(p.x + p.w / 2, p.y, '#78350f', 12);
               if (player.onPlatform === p) player.onPlatform = null;
@@ -2822,7 +2875,8 @@
           speedMultiplier *= 1.35;
         }
         if (player.adrenalineTimer > 0 || player.featherTimer > 0) {
-          speedMultiplier *= 1.25;
+          const featherBoost = (player.featherTimer > 0 && ani.posture === 'soaring_bird') ? 1.4 : 1.25;
+          speedMultiplier *= featherBoost;
         }
         if (player.giantTimer > 0) {
           speedMultiplier *= 1.1;
@@ -2843,9 +2897,11 @@
         }
 
         let totalVx = player.vx + player.pushVx;
-        const isFieldImmune = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'bison' || ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'chameleon';
-        if (fieldEvents.windTimer > 0 && !isFieldImmune) {
-          totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135);
+        const bodyTier = getBodyTier(ani);
+        const isWindImmune = player.giantTimer > 0 || (bodyTier === 'heavy' && ani.posture !== 'soaring_bird') || ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'chameleon';
+        if (fieldEvents.windTimer > 0 && !isWindImmune) {
+          const windMult = ani.posture === 'soaring_bird' ? 1.65 : (bodyTier === 'light' ? 1.45 : 0.85);
+          totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135) * windMult;
         }
 
         if (player.onPlatform) {
@@ -2864,7 +2920,7 @@
 
           if (p.type === 'electric' && electricCycle && player.invulnerable <= 0) {
             player.shockTimer = 0.48;
-            hurtPlayer(3, player.x + 15, player.y, '觸電 ');
+            hurtPlayer(getBodyDamage('electric', 3, ani), player.x + 15, player.y, '觸電 ');
             playSound('shock');
             if (ani.id !== 'hippo') {
               player.stunTimer = 0.42;
@@ -2975,7 +3031,7 @@
         if (player.x <= leftWallW) {
           player.x = leftWallW;
           if (lPushedWall && player.invulnerable <= 0) {
-            hurtPlayer(2, player.x + 15, player.y, '火牆燙傷 ');
+            hurtPlayer(getBodyDamage('flame', 2, ani), player.x + 15, player.y, '火牆燙傷 ');
             player.pushVx = 210;
           } else if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
@@ -2987,7 +3043,7 @@
         if (player.x + player.w >= LOGIC_W - rightWallW) {
           player.x = LOGIC_W - rightWallW - player.w;
           if (rPushedWall && player.invulnerable <= 0) {
-            hurtPlayer(2, player.x + 15, player.y, '火牆燙傷 ');
+            hurtPlayer(getBodyDamage('flame', 2, ani), player.x + 15, player.y, '火牆燙傷 ');
             player.pushVx = -210;
           } else if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
@@ -3051,7 +3107,7 @@
 
         const ceilingSpikeH = getCeilingSpikeH();
         if (player.y <= ceilingSpikeH) {
-          const dmg = (ani.id === 'crocodile' || ani.id === 'lion' || ani.weight >= 2.1 || player.giantTimer > 0) ? 3 : 5;
+          const dmg = getBodyDamage('ceiling', 5, ani);
           hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
           player.onPlatform = null;
           player.y = ceilingSpikeH + 5;
@@ -3524,7 +3580,7 @@
         ctx.save();
         ctx.globalAlpha = alpha;
 
-        const giantBoost = (isLocal && player.giantTimer > 0) ? 1.4 : 1.0;
+        const giantBoost = (isLocal && player.giantTimer > 0) ? (ani.weight < 0.95 ? 1.65 : 1.4) : 1.0;
         const inGameBaseScale = 1.7 * giantBoost;
         const s = inGameBaseScale * ani.sizeScale;
         const cx = x + 15;
