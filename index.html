@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#070a0e" />
-  <title>TOKYO SHAFT：東京地下叢林 - 12動物多人連線版</title>
+  <meta name="theme-color" content="#14181d" />
+  <title>TOKYO JUNGLE：地下生存戰 - 寫實猛獸多人連線版</title>
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
   <style>
     * {
@@ -22,9 +22,9 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #05070a;
-      color: #f1f5f9;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Noto Sans TC', sans-serif;
+      background-color: #0d1014;
+      color: #18181b;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Serif TC', 'Noto Sans TC', sans-serif;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -39,23 +39,24 @@
       max-height: 940px;
       display: flex;
       flex-direction: column;
-      background: #0b0f14;
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.95);
+      background: #cfd6df;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
       overflow: hidden;
-      border-left: 1px solid #1e293b;
-      border-right: 1px solid #1e293b;
+      border-left: 1px solid #334155;
+      border-right: 1px solid #334155;
     }
 
-    /* 東京叢林廢墟風頂部 HUD */
+    /* 頂部寫實荒野風 HUD */
     .hud {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 11px;
-      background: linear-gradient(180deg, #141c24 0%, #090d12 100%);
-      border-bottom: 2px solid #263238;
+      padding: 6px 10px;
+      background: linear-gradient(180deg, #181c22 0%, #0f1217 100%);
+      border-bottom: 2px solid #3f3f46;
       z-index: 10;
       gap: 6px;
+      color: #f4f4f5;
     }
 
     .hud-left {
@@ -68,7 +69,7 @@
       font-size: 12px;
       font-weight: 900;
       letter-spacing: 0.5px;
-      color: #94a3b8;
+      color: #d4d4d8;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -77,43 +78,41 @@
     .hp-bar {
       display: flex;
       gap: 2px;
-      background: #05070a;
+      background: #090b0e;
       padding: 3px;
-      border-radius: 4px;
-      border: 1px solid #334155;
+      border-radius: 3px;
+      border: 1px solid #52525b;
     }
 
     .hp-unit {
       width: 8px;
-      height: 12px;
-      border-radius: 1px;
-      background: #1e293b;
+      height: 11px;
+      background: #27272a;
       transition: background-color 0.15s ease;
     }
 
     .hp-unit.active {
-      background: #84cc16;
-      box-shadow: 0 0 5px rgba(132, 204, 22, 0.65);
+      background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+      box-shadow: 0 0 4px rgba(245, 158, 11, 0.6);
     }
 
     .hp-unit.danger {
-      background: #ef4444;
-      box-shadow: 0 0 6px rgba(239, 68, 68, 0.85);
+      background: linear-gradient(180deg, #ef4444 0%, #991b1b 100%);
+      box-shadow: 0 0 5px rgba(239, 68, 68, 0.85);
     }
 
     .hud-center {
       text-align: center;
-      background: #06090d;
-      padding: 3px 10px;
-      border-radius: 6px;
-      border: 1px solid #334155;
-      min-width: 106px;
-      position: relative;
+      background: #090b0e;
+      padding: 2px 10px;
+      border-radius: 4px;
+      border: 1px solid #52525b;
+      min-width: 108px;
     }
 
     .floor-title {
       font-size: 12px;
-      color: #a3e635;
+      color: #d97706;
       font-weight: 800;
       letter-spacing: 0.5px;
     }
@@ -121,10 +120,10 @@
     .floor-num {
       font-size: 18px;
       font-weight: 900;
+      font-family: Georgia, 'Times New Roman', serif;
       font-variant-numeric: tabular-nums;
-      color: #f8fafc;
+      color: #fafafa;
       letter-spacing: 1px;
-      text-shadow: 0 0 8px rgba(163, 230, 53, 0.45);
     }
 
     .hud-right {
@@ -136,11 +135,12 @@
     .icon-btn {
       width: 34px;
       height: 34px;
-      border-radius: 6px;
-      border: 1px solid #475569;
-      background: #16202a;
-      color: #f8fafc;
-      font-size: 15px;
+      border-radius: 5px;
+      border: 1px solid #52525b;
+      background: #27272a;
+      color: #f4f4f5;
+      font-size: 14px;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -149,7 +149,7 @@
 
     .icon-btn:active {
       transform: scale(0.92);
-      background: #263238;
+      background: #3f3f46;
     }
 
     /* 多人即時生存條 */
@@ -158,12 +158,13 @@
       align-items: center;
       justify-content: space-between;
       padding: 4px 10px;
-      background: #080c11;
-      border-bottom: 1px solid #1e293b;
+      background: #14171c;
+      border-bottom: 1px solid #27272a;
       font-size: 12px;
       z-index: 9;
       gap: 6px;
-      min-height: 28px;
+      min-height: 27px;
+      color: #e4e4e7;
     }
 
     .mp-status {
@@ -171,7 +172,7 @@
       align-items: center;
       gap: 5px;
       font-weight: 800;
-      color: #cbd5e1;
+      color: #d4d4d8;
       white-space: nowrap;
     }
 
@@ -179,12 +180,12 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #64748b;
+      background: #52525b;
     }
 
     .dot.online {
-      background: #84cc16;
-      box-shadow: 0 0 6px #84cc16;
+      background: #f59e0b;
+      box-shadow: 0 0 6px #f59e0b;
     }
 
     .mp-players-strip {
@@ -198,13 +199,14 @@
     .mp-chip {
       display: flex;
       align-items: center;
-      gap: 3px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #141c24;
-      border: 1px solid #334155;
+      gap: 4px;
+      padding: 1px 7px;
+      border-radius: 3px;
+      background: #27272a;
+      border: 1px solid #3f3f46;
       font-size: 12px;
       font-weight: 700;
+      color: #f4f4f5;
       white-space: nowrap;
     }
 
@@ -219,17 +221,17 @@
       flex: 1;
       width: 100%;
       overflow: hidden;
-      background: #070a0e;
+      background: #d8dee8;
       touch-action: none;
     }
 
-    canvas {
+    canvas#gameCanvas {
       display: block;
       width: 100%;
       height: 100%;
     }
 
-    /* 表情快捷列 */
+    /* 吼叫/情緒快捷列 */
     .emote-bar {
       position: absolute;
       right: 8px;
@@ -244,9 +246,11 @@
       width: 34px;
       height: 34px;
       border-radius: 50%;
-      border: 1px solid rgba(163, 230, 53, 0.35);
-      background: rgba(9, 13, 18, 0.8);
-      font-size: 16px;
+      border: 1px solid rgba(39, 39, 42, 0.55);
+      background: rgba(24, 24, 27, 0.78);
+      color: #fafafa;
+      font-size: 12px;
+      font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -256,64 +260,66 @@
 
     .emote-btn:active {
       transform: scale(0.86);
-      background: rgba(132, 204, 22, 0.35);
+      background: rgba(217, 119, 6, 0.85);
     }
 
     /* 底部手機觸控控制器 */
     .controls {
-      height: 104px;
-      background: linear-gradient(0deg, #05070a 0%, #0f161e 100%);
-      border-top: 2px solid #1e293b;
+      height: 98px;
+      background: linear-gradient(0deg, #090b0e 0%, #181c22 100%);
+      border-top: 2px solid #3f3f46;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      padding: 9px 14px calc(9px + env(safe-area-inset-bottom, 0px));
+      padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px));
       z-index: 10;
       touch-action: none;
     }
 
     .ctrl-btn {
       position: relative;
-      border-radius: 12px;
-      border: 2px solid #334155;
-      background: linear-gradient(180deg, #1b2632 0%, #0d131a 100%);
-      color: #e2e8f0;
+      border-radius: 8px;
+      border: 2px solid #52525b;
+      background: linear-gradient(180deg, #27272a 0%, #18181b 100%);
+      color: #f4f4f5;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 900;
-      box-shadow: 0 5px 0 #040608, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      letter-spacing: 1px;
+      box-shadow: 0 4px 0 #09090b, inset 0 1px 0 rgba(255, 255, 255, 0.12);
       cursor: pointer;
     }
 
     .ctrl-btn.pressed {
-      transform: translateY(4px);
-      box-shadow: 0 1px 0 #040608;
-      border-color: #a3e635;
-      background: linear-gradient(180deg, #3f6212 0%, #1a2e05 100%);
-      color: #ecfccb;
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #09090b;
+      border-color: #f59e0b;
+      background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
+      color: #fef3c7;
     }
 
     .ctrl-arrow {
-      font-size: 24px;
+      font-size: 22px;
       line-height: 1;
     }
 
-    /* 大廳與選角覆蓋層 */
+    /* ============== 《TOKYO JUNGLE》蒼白迷霧寫實風選角大廳 ============== */
     .overlay {
       position: absolute;
       inset: 0;
-      background: rgba(5, 8, 12, 0.9);
-      backdrop-filter: blur(7px);
+      background: radial-gradient(circle at 50% 25%, rgba(248, 250, 252, 0.96) 0%, rgba(212, 220, 232, 0.95) 60%, rgba(168, 179, 194, 0.96) 100%);
+      backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 10px 12px;
+      padding: 8px 10px;
       z-index: 20;
       overflow-y: auto;
+      color: #18181b;
     }
 
     .overlay.hidden {
@@ -323,129 +329,226 @@
 
     .card {
       width: 100%;
-      max-width: 390px;
-      background: linear-gradient(180deg, #131b24 0%, #0c1117 100%);
-      border: 2px solid #2e3d4f;
-      border-radius: 14px;
-      padding: 12px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+      max-width: 410px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
       margin: auto 0;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 2px 9px;
-      border-radius: 4px;
-      background: rgba(132, 204, 22, 0.18);
-      border: 1px solid rgba(163, 230, 53, 0.4);
-      color: #a3e635;
-      font-size: 12px;
-      font-weight: 900;
-      margin-bottom: 3px;
-      letter-spacing: 1px;
+    .header-banner {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 2px solid #18181b;
+      padding-bottom: 3px;
     }
 
     .title {
       font-size: 22px;
       font-weight: 900;
-      color: #f8fafc;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: #09090b;
       letter-spacing: 0.5px;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
     }
 
-    .subtitle {
+    .badge {
+      padding: 2px 7px;
+      background: #18181b;
+      color: #f8fafc;
       font-size: 12px;
-      color: #94a3b8;
-      margin-bottom: 8px;
+      font-weight: 900;
+      letter-spacing: 1px;
     }
 
-    /* 12 動物選角網格 */
-    .animal-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+    /* 選中角色超大動態展示舞台 (Large Spotlight Showcase) */
+    .showcase-stage {
+      position: relative;
+      width: 100%;
+      height: 168px;
+      background: radial-gradient(ellipse at 50% 55%, #ffffff 0%, #e2e8f0 65%, #cbd5e1 100%);
+      border: 2px solid #18181b;
+      border-radius: 8px;
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.14), 0 6px 18px rgba(0, 0, 0, 0.16);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .showcase-canvas-wrap {
+      position: relative;
+      width: 56%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#previewCanvas {
+      width: 210px;
+      height: 156px;
+      display: block;
+    }
+
+    .showcase-rank-num {
+      position: absolute;
+      left: 6px;
+      bottom: -8px;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 68px;
+      font-weight: 900;
+      color: rgba(15, 23, 42, 0.14);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .showcase-info {
+      width: 44%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
+      z-index: 2;
+      padding-left: 6px;
+      border-left: 1.5px solid rgba(24, 24, 27, 0.15);
+    }
+
+    .showcase-name {
+      font-size: 19px;
+      font-weight: 900;
+      color: #09090b;
+      line-height: 1.15;
+    }
+
+    .showcase-en {
+      font-size: 12px;
+      font-weight: 800;
+      color: #71717a;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .stat-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
       gap: 5px;
-      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #27272a;
+    }
+
+    .stat-track {
+      flex: 1;
+      height: 6px;
+      background: #cbd5e1;
+      border: 1px solid #475569;
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #b45309 0%, #d97706 100%);
+      transition: width 0.25s ease;
+    }
+
+    .showcase-desc {
+      font-size: 12px;
+      color: #27272a;
+      font-weight: 700;
+      line-height: 1.3;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 4px 6px;
+      border-left: 3px solid #b45309;
+    }
+
+    /* 兩小排選角列 (2 Rows × 6 Columns = 12隻，選中時放大凸顯！) */
+    .roster-section-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #27272a;
+      padding: 0 2px;
+    }
+
+    .animal-grid-2rows {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 62px);
+      gap: 6px;
+      padding: 6px 4px;
+      margin: 2px 0;
     }
 
     .animal-cell {
-      background: #090d12;
-      border: 1.5px solid #263238;
-      border-radius: 8px;
-      padding: 5px 2px;
+      position: relative;
+      background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 100%);
+      border: 1.5px solid #52525b;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
-      transition: transform 0.1s, border-color 0.1s, background 0.1s;
+      justify-content: flex-end;
+      padding-bottom: 3px;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, border-color 0.15s ease, background 0.15s ease;
+      overflow: visible;
     }
 
-    .animal-cell.selected {
-      border-color: #a3e635;
-      background: rgba(63, 98, 18, 0.35);
-      box-shadow: 0 0 10px rgba(163, 230, 53, 0.3);
-      transform: scale(1.03);
+    .animal-cell canvas {
+      width: 52px;
+      height: 42px;
+      display: block;
+      pointer-events: none;
+      transition: transform 0.18s ease;
     }
 
-    .animal-emoji {
-      font-size: 20px;
-      line-height: 1.1;
-    }
-
-    .animal-name {
+    .animal-cell-name {
       font-size: 12px;
-      font-weight: 800;
-      color: #e2e8f0;
-      white-space: nowrap;
-    }
-
-    .animal-wt {
-      font-size: 12px;
-      color: #a3e635;
-      font-weight: 700;
-    }
-
-    /* 動物能力說明卡 */
-    .animal-detail {
-      background: #080b10;
-      border: 1px solid #334155;
-      border-left: 4px solid #a3e635;
-      border-radius: 8px;
-      padding: 7px 10px;
-      text-align: left;
-      margin-bottom: 8px;
-    }
-
-    .detail-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 3px;
-      font-size: 13px;
       font-weight: 900;
-      color: #f8fafc;
+      color: #18181b;
+      line-height: 1;
+      white-space: nowrap;
+      transform: scale(0.92);
     }
 
-    .detail-stats {
-      font-size: 12px;
-      color: #facc15;
-      font-weight: 800;
+    /* 選到時明顯變大凸起！ */
+    .animal-cell.selected {
+      transform: scale(1.24) translateY(-4px);
+      z-index: 15;
+      background: radial-gradient(circle at 50% 40%, #ffffff 0%, #fef3c7 100%);
+      border: 2.5px solid #b45309;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.42), 0 0 0 2px #f59e0b;
     }
 
-    .detail-desc {
-      font-size: 12px;
-      color: #cbd5e1;
-      line-height: 1.35;
+    .animal-cell.selected canvas {
+      transform: scale(1.16) translateY(-2px);
+    }
+
+    .animal-cell.selected .animal-cell-name {
+      color: #92400e;
+      transform: scale(1);
     }
 
     /* 多人連線設定盒 */
     .mp-box {
-      background: #080b10;
-      border: 1px solid #263238;
-      border-radius: 10px;
+      background: rgba(24, 24, 27, 0.92);
+      border: 1.5px solid #18181b;
+      border-radius: 8px;
       padding: 8px 10px;
-      margin-bottom: 8px;
+      color: #f4f4f5;
       text-align: left;
     }
 
@@ -459,28 +562,28 @@
     .mp-input {
       flex: 1;
       min-width: 0;
-      background: #141c24;
-      border: 1px solid #475569;
-      color: #f8fafc;
+      background: #27272a;
+      border: 1px solid #52525b;
+      color: #fafafa;
       padding: 6px 8px;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       outline: none;
       user-select: text;
       -webkit-user-select: text;
     }
 
     .mp-input:focus {
-      border-color: #a3e635;
+      border-color: #f59e0b;
     }
 
     .mp-btn {
       padding: 6px 9px;
-      border-radius: 6px;
-      border: 1px solid #a3e635;
-      background: rgba(132, 204, 22, 0.15);
-      color: #a3e635;
+      border-radius: 4px;
+      border: 1px solid #f59e0b;
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
@@ -488,16 +591,16 @@
     }
 
     .mp-btn.share {
-      border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
-      color: #38bdf8;
+      border-color: #e4e4e7;
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
     }
 
     .room-roster {
       font-size: 12px;
-      color: #cbd5e1;
+      color: #d4d4d8;
       padding-top: 5px;
-      border-top: 1px dashed #263238;
+      border-top: 1px dashed #3f3f46;
     }
 
     .roster-list {
@@ -512,47 +615,55 @@
       align-items: center;
       gap: 4px;
       padding: 2px 7px;
-      border-radius: 4px;
-      background: #141c24;
-      border: 1px solid #334155;
+      border-radius: 3px;
+      background: #27272a;
+      border: 1px solid #52525b;
       font-size: 12px;
       font-weight: 700;
+      color: #f4f4f5;
     }
 
     .btn-group {
       display: grid;
-      grid-template-columns: 1.3fr 1fr;
+      grid-template-columns: 1.35fr 1fr;
       gap: 8px;
     }
 
     .primary-btn {
       width: 100%;
       padding: 11px 10px;
-      border-radius: 10px;
-      border: none;
-      background: linear-gradient(180deg, #84cc16 0%, #4d7c0f 100%);
+      border-radius: 6px;
+      border: 2px solid #09090b;
+      background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
       color: #ffffff;
       font-size: 15px;
       font-weight: 900;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      box-shadow: 0 4px 0 #365314;
+      box-shadow: 0 4px 0 #09090b;
     }
 
     .primary-btn:active {
       transform: translateY(3px);
-      box-shadow: 0 1px 0 #365314;
+      box-shadow: 0 1px 0 #09090b;
     }
 
     .secondary-btn {
       width: 100%;
       padding: 11px 10px;
-      border-radius: 10px;
-      border: 1px solid #475569;
-      background: #16202a;
-      color: #e2e8f0;
+      border-radius: 6px;
+      border: 2px solid #09090b;
+      background: #27272a;
+      color: #fafafa;
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
+      box-shadow: 0 4px 0 #09090b;
+    }
+
+    .secondary-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #09090b;
     }
 
     .toast {
@@ -560,11 +671,11 @@
       top: 52px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(9, 13, 18, 0.95);
-      border: 1px solid #a3e635;
-      color: #f8fafc;
+      background: #18181b;
+      border: 1.5px solid #f59e0b;
+      color: #fafafa;
       padding: 6px 14px;
-      border-radius: 999px;
+      border-radius: 4px;
       font-size: 12px;
       font-weight: 800;
       z-index: 30;
@@ -581,26 +692,26 @@
 </head>
 <body>
   <div id="app">
-    <div class="toast" id="toast">已複製房間連結！</div>
+    <div class="toast" id="toast">已複製房間邀請連結！</div>
 
     <!-- 頂部狀態列 -->
     <div class="hud">
       <div class="hud-left">
         <div class="hp-label">
-          <span id="hudAnimalLabel">🐕 博美犬</span>
-          <span id="hpText" style="color:#a3e635;">12/12</span>
+          <span id="hudAnimalLabel">孟加拉虎</span>
+          <span id="hpText" style="color:#f59e0b;">12/12</span>
         </div>
         <div class="hp-bar" id="hpBar"></div>
       </div>
 
       <div class="hud-center">
-        <div class="floor-title" id="zoneLabel">澀谷廢棄地鐵</div>
+        <div class="floor-title" id="zoneLabel">澀谷白霧豎井</div>
         <div class="floor-num" id="floorText">B0000</div>
       </div>
 
       <div class="hud-right">
-        <button class="icon-btn" id="soundBtn" title="音效開關">🔊</button>
-        <button class="icon-btn" id="pauseBtn" title="選擇動物與房間">🐾</button>
+        <button class="icon-btn" id="soundBtn" title="音效開關">音</button>
+        <button class="icon-btn" id="pauseBtn" title="猛獸圖鑑與房間">獸</button>
       </div>
     </div>
 
@@ -608,7 +719,7 @@
     <div class="mp-bar">
       <div class="mp-status">
         <span class="dot" id="netDot"></span>
-        <span id="roomLabel">房號: ----</span>
+        <span id="roomLabel">區域: ----</span>
       </div>
       <div class="mp-players-strip" id="mpStrip"></div>
     </div>
@@ -617,54 +728,77 @@
     <div class="canvas-wrap" id="canvasWrap">
       <canvas id="gameCanvas"></canvas>
 
-      <!-- 即時表情互動按鈕 -->
+      <!-- 野性呼喊互動鈕 -->
       <div class="emote-bar">
-        <button class="emote-btn" data-emote="🔥">🔥</button>
-        <button class="emote-btn" data-emote="🐾">🐾</button>
-        <button class="emote-btn" data-emote="⚡">⚡</button>
-        <button class="emote-btn" data-emote="👑">👑</button>
+        <button class="emote-btn" data-emote="咆哮!">吼</button>
+        <button class="emote-btn" data-emote="獵殺!">爪</button>
+        <button class="emote-btn" data-emote="小心!">危</button>
+        <button class="emote-btn" data-emote="霸主!">王</button>
       </div>
 
-      <!-- 大廳與 12 動物選擇面板 -->
+      <!-- 《TOKYO JUNGLE》寫實畫風選角大廳 -->
       <div class="overlay" id="overlay">
         <div class="card">
-          <div class="badge" id="overlayBadge">TOKYO JUNGLE SURVIVAL</div>
-          <div class="title" id="overlayTitle">東京地下叢林 Online</div>
-          <div class="subtitle" id="overlaySub">選擇你的野生動物！不同體重將壓斜階梯、引發震波或超載崩塌。</div>
-
-          <!-- 12 種動物圖鑑選單 -->
-          <div class="animal-grid" id="animalGrid"></div>
-
-          <!-- 當前選中動物專長說明 -->
-          <div class="animal-detail">
-            <div class="detail-header">
-              <span id="detailTitle">🐕 博美犬 (Pomeranian)</span>
-              <span class="detail-stats" id="detailStats">體重 0.5t | 速度 ★★★★ | 推力 ★☆</span>
-            </div>
-            <div class="detail-desc" id="detailDesc">【求生寵兒】體積靈巧；首次踩踏階梯有 25% 機率額外多回 +1 HP，踩腐朽木板不易斷裂。</div>
+          <div class="header-banner">
+            <div class="title" id="overlayTitle">TOKYO JUNGLE</div>
+            <div class="badge" id="overlayBadge">SURVIVAL MULTIPLAYER</div>
           </div>
+
+          <!-- 選中角色超大寫實動態預覽舞台 -->
+          <div class="showcase-stage" id="showcaseStage" title="點擊可觸發猛獸飛撲動作">
+            <div class="showcase-rank-num" id="showcaseNum">1</div>
+            <div class="showcase-canvas-wrap">
+              <canvas id="previewCanvas" width="420" height="312"></canvas>
+            </div>
+            <div class="showcase-info">
+              <div class="showcase-name" id="detailTitle">孟加拉虎</div>
+              <div class="showcase-en" id="detailEn">BENGAL TIGER · 1.5t</div>
+              <div class="stat-bars">
+                <div class="stat-row">
+                  <span>噸位</span>
+                  <div class="stat-track"><div class="stat-fill" id="barWeight" style="width:65%;"></div></div>
+                </div>
+                <div class="stat-row">
+                  <span>敏捷</span>
+                  <div class="stat-track"><div class="stat-fill" id="barSpeed" style="width:90%;"></div></div>
+                </div>
+                <div class="stat-row">
+                  <span>衝撞</span>
+                  <div class="stat-track"><div class="stat-fill" id="barPush" style="width:85%;"></div></div>
+                </div>
+              </div>
+              <div class="showcase-desc" id="detailDesc">【猛虎飛撲】助跑跳離階梯時爆發水平飛撲；從空中踩中獵物可借力二度躍起！</div>
+            </div>
+          </div>
+
+          <!-- 兩小排選角列 (2排 × 6格，點選時該格放大且上方舞台同步變大展示) -->
+          <div class="roster-section-label">
+            <span>▼ 點選物種（選中放大檢視動態細節）</span>
+            <span id="bestScoreText">最高生存: B0000</span>
+          </div>
+          <div class="animal-grid-2rows" id="animalGrid"></div>
 
           <!-- 多人連線房間設定 -->
           <div class="mp-box">
             <div class="mp-row">
-              <input type="text" id="nameInput" class="mp-input" maxlength="8" placeholder="暱稱" style="max-width:105px;" />
-              <input type="text" id="roomInput" class="mp-input" maxlength="8" placeholder="房號" style="text-transform:uppercase;max-width:75px;" />
-              <button class="mp-btn" id="joinRoomBtn">進房</button>
-              <button class="mp-btn share" id="shareBtn">🔗 邀好友</button>
+              <input type="text" id="nameInput" class="mp-input" maxlength="8" placeholder="生存者名稱" style="max-width:110px;" />
+              <input type="text" id="roomInput" class="mp-input" maxlength="8" placeholder="房號" style="text-transform:uppercase;max-width:76px;" />
+              <button class="mp-btn" id="joinRoomBtn">切換區域</button>
+              <button class="mp-btn share" id="shareBtn">邀請連線</button>
             </div>
 
             <div class="room-roster">
               <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span id="connStatusText">🟢 連線準備中...</span>
-                <span id="bestScoreText" style="color:#facc15;font-weight:800;">最高紀錄: B0000</span>
+                <span id="connStatusText">連線準備中...</span>
+                <span id="playerCountLabel" style="color:#fbbf24;font-weight:800;">同場 1 獸</span>
               </div>
               <div class="roster-list" id="rosterList"></div>
             </div>
           </div>
 
           <div class="btn-group">
-            <button class="primary-btn" id="startMpBtn">🚀 號召全房同步開局</button>
-            <button class="secondary-btn" id="startSoloBtn">🎯 單人立即求生</button>
+            <button class="primary-btn" id="startMpBtn">全房同步狩獵開局</button>
+            <button class="secondary-btn" id="startSoloBtn">單人立即求生</button>
           </div>
         </div>
       </div>
@@ -674,10 +808,10 @@
     <div class="controls">
       <button class="ctrl-btn" id="btnLeft" aria-label="向左移動">
         <span class="ctrl-arrow">◀</span>
-        <span>左撲</span>
+        <span>左奔</span>
       </button>
       <button class="ctrl-btn" id="btnRight" aria-label="向右移動">
-        <span>右撲</span>
+        <span>右奔</span>
         <span class="ctrl-arrow">▶</span>
       </button>
     </div>
@@ -685,91 +819,91 @@
 
   <script>
     (() => {
-      // ================== 12 種《東京叢林》動物定義 ==================
+      // ================== 對標參考圖的 12 種《TOKYO JUNGLE》寫實動物定義 ==================
       const ANIMALS = [
         {
-          id: 'pomeranian', name: '博美犬', emoji: '🐕',
-          weight: 0.5, speedMul: 1.16, pushMul: 0.65,
-          furPrimary: '#f5d0a9', furSecondary: '#ffffff', eyeColor: '#1e1b18',
-          statsText: '體重 0.5x | 速度 ★★★★ | 推力 ★☆',
-          desc: '【求生寵兒】《東京叢林》看板犬！首次踩踏階梯有 30% 機率額外多回 +1 HP，體輕不易壓斷木板。'
+          id: 'tiger', num: 1, name: '孟加拉虎', en: 'BENGAL TIGER',
+          weight: 1.45, speedMul: 1.28, pushMul: 1.45,
+          wPct: 62, sPct: 92, pPct: 82,
+          cDark: '#291507', cMid: '#c25e14', cLight: '#f6ad55', cBelly: '#fdf6e2',
+          desc: '【猛虎飛撲】助跑跳出階梯時觸發遠距獵食飛撲；從上方踩中其他動物可借力二段躍起！'
         },
         {
-          id: 'cat', name: '三花街貓', emoji: '🐱',
-          weight: 0.6, speedMul: 1.35, pushMul: 0.75,
-          furPrimary: '#fb923c', furSecondary: '#fef3c7', eyeColor: '#a3e635',
-          statsText: '體重 0.6x | 速度 ★★★★★ | 推力 ★★',
-          desc: '【九命輕功】全場移動速度最快！踩在「腐朽神社木板」上時，木板斷裂時間延緩 2 倍。'
-        },
-        {
-          id: 'chick', name: '小黃雞', emoji: '🐤',
-          weight: 0.4, speedMul: 1.06, pushMul: 0.5,
-          furPrimary: '#facc15', furSecondary: '#fef08a', eyeColor: '#0f172a',
-          statsText: '體重 0.4x | 滯空 ★★★★★ | 推力 ★',
-          desc: '【絨毛傘降】全場最輕！拍翅滑翔使下墜速度減緩 40%，擁有超長空中找路時間。'
-        },
-        {
-          id: 'rabbit', name: '穴兔', emoji: '🐰',
-          weight: 0.65, speedMul: 1.18, pushMul: 0.75,
-          furPrimary: '#cbd5e1', furSecondary: '#f8fafc', eyeColor: '#ef4444',
-          statsText: '體重 0.65x | 二段跳 ★★★★★ | 推力 ★★',
-          desc: '【蹬牆二段跳】失足離開階梯或貼近兩側牆壁時，可自動觸發一次「空中救命二段跳」！'
-        },
-        {
-          id: 'leopard', name: '黑斑花豹', emoji: '🐆',
-          weight: 1.1, speedMul: 1.26, pushMul: 1.15,
-          furPrimary: '#eab308', furSecondary: '#713f12', eyeColor: '#bef264',
-          statsText: '體重 1.1x | 撲擊 ★★★★★ | 推力 ★★★',
-          desc: '【獵食撲擊】助跑跳離階梯時獲得額外水平衝刺；從上方踩中其他動物可借力往上跳！'
-        },
-        {
-          id: 'frog', name: '巨型牛蛙', emoji: '🐸',
-          weight: 0.85, speedMul: 1.08, pushMul: 0.95,
-          furPrimary: '#4d7c0f', furSecondary: '#a3e635', eyeColor: '#fde047',
-          statsText: '體重 0.85x | 防滑 ★★★★★ | 推力 ★★★',
-          desc: '【濕滑吸盤】完全免疫「青苔斷橋」打滑與「傾斜階梯」下滑，輸送帶推力減少 70%。'
-        },
-        {
-          id: 'deer', name: '梅花鹿', emoji: '🦌',
-          weight: 1.2, speedMul: 1.14, pushMul: 1.05,
-          furPrimary: '#b45309', furSecondary: '#fef3c7', eyeColor: '#1e293b',
-          statsText: '體重 1.2x | 彈跳 ★★★★★ | 推力 ★★★',
-          desc: '【森林跳躍】踩上「報廢計程車頂」時彈跳高度完美受控不撞頂刺，且每次彈跳回復 +2 HP。'
-        },
-        {
-          id: 'boar', name: '荒原野豬', emoji: '🐗',
-          weight: 1.5, speedMul: 1.08, pushMul: 1.5,
-          furPrimary: '#57534e', furSecondary: '#d6d3d1', eyeColor: '#ef4444',
-          statsText: '體重 1.5x | 暴衝 ★★★★★ | 推力 ★★★★',
-          desc: '【獠牙暴衝】持續同方向奔跑 0.35 秒後進入紅眼暴衝狀態，速度 +30% 且撞飛對手力道翻倍！'
-        },
-        {
-          id: 'panda', name: '野生大熊貓', emoji: '🐼',
-          weight: 1.6, speedMul: 0.98, pushMul: 1.4,
-          furPrimary: '#f8fafc', furSecondary: '#0f172a', eyeColor: '#000000',
-          statsText: '體重 1.6x | 反彈 ★★★★★ | 推力 ★★★★',
-          desc: '【太極肉彈】與其他玩家碰撞時以 1.7 倍力道將對方彈飛；每深入 12 階自動啃竹葉回 +2 HP。'
-        },
-        {
-          id: 'croc', name: '灣鱷', emoji: '🐊',
-          weight: 1.7, speedMul: 0.95, pushMul: 1.45,
-          furPrimary: '#365314', furSecondary: '#65a30d', eyeColor: '#facc15',
-          statsText: '體重 1.7x | 裝甲 ★★★★★ | 推力 ★★★★',
-          desc: '【裝甲鱗片】低重心在斜坡絕不滑動；踩上「帶刺鐵絲網」傷害減半（只扣 2 HP）。'
-        },
-        {
-          id: 'hippo', name: '巨型河馬', emoji: '🦛',
-          weight: 2.1, speedMul: 0.88, pushMul: 1.7,
-          furPrimary: '#64748b', furSecondary: '#fda4af', eyeColor: '#0f172a',
-          statsText: '體重 2.1x | 噸位 ★★★★★ | 推力 ★★★★★',
-          desc: '【深淵巨口】重壓階梯使其大幅傾斜；對「漏電變電箱」麻痺免疫，落地濺起水花推開周圍對手。'
-        },
-        {
-          id: 'elephant', name: '亞洲巨象', emoji: '🐘',
+          id: 'elephant', num: 2, name: '亞洲巨象', en: 'GIANT ELEPHANT',
           weight: 2.5, speedMul: 0.84, pushMul: 2.0,
-          furPrimary: '#94a3b8', furSecondary: '#f8fafc', eyeColor: '#0f172a',
-          statsText: '體重 2.5x | 震波 ★★★★★ | 推力 MAX',
-          desc: '【末日重踏】全場最重霸主！高處落地釋放「重壓震波」把同階梯對手全部震飛，並能壓垮翹翹板！'
+          wPct: 100, sPct: 48, pPct: 100,
+          cDark: '#1e242b', cMid: '#52606d', cLight: '#9aa5b1', cBelly: '#cbd2d9',
+          desc: '【末日重踏】全場最高噸位！高處落地釋放「重壓震波」震飛同階梯對手，單側站立可壓垮翹翹板。'
+        },
+        {
+          id: 'crane', num: 3, name: '丹頂鶴', en: 'RED-CROWNED CRANE',
+          weight: 0.42, speedMul: 1.12, pushMul: 0.55,
+          wPct: 18, sPct: 86, pPct: 28,
+          cDark: '#111827', cMid: '#cbd5e1', cLight: '#ffffff', cBelly: '#dc2626',
+          desc: '【展翅滑翔】雙翼展開使空中下墜速度減緩 42%，擁有極長滯空尋找下層階梯的時間。'
+        },
+        {
+          id: 'beagle', num: 4, name: '米格魯獵犬', en: 'BEAGLE HOUND',
+          weight: 0.68, speedMul: 1.22, pushMul: 0.82,
+          wPct: 32, sPct: 84, pPct: 45,
+          cDark: '#27170c', cMid: '#b4692c', cLight: '#f8fafc', cBelly: '#ffffff',
+          desc: '【嗅覺本能】對空投補給與回血有敏銳直覺，每次踩上新階梯有 30% 機率額外多回 +1 HP。'
+        },
+        {
+          id: 'pomeranian', num: 5, name: '博美犬', en: 'POMERANIAN',
+          weight: 0.45, speedMul: 1.26, pushMul: 0.6,
+          wPct: 20, sPct: 88, pPct: 30,
+          cDark: '#5c2808', cMid: '#d97706', cLight: '#fcd34d', cBelly: '#fef3c7',
+          desc: '【求生寵兒】體型最嬌小靈巧！踩在腐朽神社木板上斷裂速度減緩 2 倍，極難被尖刺擦傷。'
+        },
+        {
+          id: 'lion', num: 6, name: '非洲雄獅', en: 'ALPHA LION',
+          weight: 1.65, speedMul: 1.18, pushMul: 1.65,
+          wPct: 74, sPct: 80, pPct: 90,
+          cDark: '#3b1d08', cMid: '#a16207', cLight: '#eab308', cBelly: '#fef08a',
+          desc: '【百獸王者】濃密鬃毛可抵禦尖刺傷害（少扣 2 HP），主動衝撞對手時附帶額外威懾擊退。'
+        },
+        {
+          id: 'wolf', num: 7, name: '荒原灰狼', en: 'TIMBER WOLF',
+          weight: 1.05, speedMul: 1.34, pushMul: 1.15,
+          wPct: 48, sPct: 98, pPct: 65,
+          cDark: '#18181b', cMid: '#52525b', cLight: '#a1a1aa', cBelly: '#e4e4e7',
+          desc: '【疾風奔襲】全場地面奔跑速度最快（1.34x）！在傾斜階梯上仍能高速逆坡衝刺。'
+        },
+        {
+          id: 'gazelle', num: 8, name: '湯氏瞪羚', en: 'THOMSON GAZELLE',
+          weight: 0.85, speedMul: 1.24, pushMul: 0.9,
+          wPct: 40, sPct: 90, pPct: 50,
+          cDark: '#271507', cMid: '#b7791f', cLight: '#f6e05e', cBelly: '#ffffff',
+          desc: '【羚羊二段躍】失足離開階梯或貼近兩側岩壁時，可自動觸發一次救命的「空中蹬躍二段跳」！'
+        },
+        {
+          id: 'crow', num: 9, name: '漆黑渡鴉', en: 'JUNGLE CROW',
+          weight: 0.38, speedMul: 1.15, pushMul: 0.5,
+          wPct: 15, sPct: 88, pPct: 25,
+          cDark: '#09090b', cMid: '#1e293b', cLight: '#475569', cBelly: '#0f172a',
+          desc: '【黑羽滯空】全場最輕量！不僅可拍翅緩降，踩在懸吊翹翹板與腐朽木板上完全不會引發斷裂。'
+        },
+        {
+          id: 'boar', num: 10, name: '荒原野豬', en: 'WILD BOAR',
+          weight: 1.55, speedMul: 1.1, pushMul: 1.6,
+          wPct: 68, sPct: 76, pPct: 88,
+          cDark: '#1c1917', cMid: '#44403c', cLight: '#78716c', cBelly: '#e7e5e4',
+          desc: '【獠牙暴衝】持續同向奔跑 0.32 秒後進入紅眼猛衝狀態，移速飆升 32% 且撞飛路徑上所有對手！'
+        },
+        {
+          id: 'hippo', num: 11, name: '巨型河馬', en: 'GIANT HIPPO',
+          weight: 2.15, speedMul: 0.88, pushMul: 1.8,
+          wPct: 90, sPct: 54, pPct: 94,
+          cDark: '#1f1d29', cMid: '#4a4458', cLight: '#8c7f9c', cBelly: '#e9d8fd',
+          desc: '【深淵裝甲】完全免疫青苔打滑、輸送帶推力與漏電麻痺；以沉重噸位穩紮穩打壓制全場。'
+        },
+        {
+          id: 'panda', num: 12, name: '野生大熊貓', en: 'GIANT PANDA',
+          weight: 1.6, speedMul: 0.98, pushMul: 1.5,
+          wPct: 72, sPct: 66, pPct: 85,
+          cDark: '#09090b', cMid: '#27272a', cLight: '#f8fafc', cBelly: '#ffffff',
+          desc: '【太極肉彈】遭遇其他動物碰撞時以 1.7 倍反作用力將對方彈飛；每深入 12 階自動回復 +2 HP。'
         }
       ];
 
@@ -778,6 +912,8 @@
       const canvas = document.getElementById('gameCanvas');
       const ctx = canvas.getContext('2d');
       const canvasWrap = document.getElementById('canvasWrap');
+      const previewCanvas = document.getElementById('previewCanvas');
+      const previewCtx = previewCanvas.getContext('2d');
 
       const hpBarEl = document.getElementById('hpBar');
       const hpTextEl = document.getElementById('hpText');
@@ -787,7 +923,6 @@
       const overlay = document.getElementById('overlay');
       const overlayBadge = document.getElementById('overlayBadge');
       const overlayTitle = document.getElementById('overlayTitle');
-      const overlaySub = document.getElementById('overlaySub');
       const bestScoreText = document.getElementById('bestScoreText');
       const startMpBtn = document.getElementById('startMpBtn');
       const startSoloBtn = document.getElementById('startSoloBtn');
@@ -796,15 +931,21 @@
       const btnLeft = document.getElementById('btnLeft');
       const btnRight = document.getElementById('btnRight');
 
+      const showcaseStage = document.getElementById('showcaseStage');
+      const showcaseNum = document.getElementById('showcaseNum');
       const animalGrid = document.getElementById('animalGrid');
       const detailTitle = document.getElementById('detailTitle');
-      const detailStats = document.getElementById('detailStats');
+      const detailEn = document.getElementById('detailEn');
+      const barWeight = document.getElementById('barWeight');
+      const barSpeed = document.getElementById('barSpeed');
+      const barPush = document.getElementById('barPush');
       const detailDesc = document.getElementById('detailDesc');
       const nameInput = document.getElementById('nameInput');
       const roomInput = document.getElementById('roomInput');
       const joinRoomBtn = document.getElementById('joinRoomBtn');
       const shareBtn = document.getElementById('shareBtn');
       const connStatusText = document.getElementById('connStatusText');
+      const playerCountLabel = document.getElementById('playerCountLabel');
       const rosterList = document.getElementById('rosterList');
       const netDot = document.getElementById('netDot');
       const roomLabel = document.getElementById('roomLabel');
@@ -817,52 +958,464 @@
       let viewScale = 1;
 
       const MAX_HP = 12;
-      const STORAGE_KEY = 'tokyo_shaft_best';
-      const NAME_KEY = 'tokyo_shaft_name';
-      const ANIMAL_KEY = 'tokyo_shaft_animal';
+      const STORAGE_KEY = 'tokyo_jungle_v3_best';
+      const NAME_KEY = 'tokyo_jungle_v3_name';
+      const ANIMAL_KEY = 'tokyo_jungle_v3_animal';
 
       const myId = 'p_' + Math.random().toString(36).slice(2, 9);
-      let myName = localStorage.getItem(NAME_KEY) || ('野獸' + Math.floor(100 + Math.random() * 900));
-      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'pomeranian';
-      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'pomeranian';
+      let myName = localStorage.getItem(NAME_KEY) || ('生存者' + Math.floor(10 + Math.random() * 89));
+      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'tiger';
+      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'tiger';
       nameInput.value = myName;
 
       let bestFloor = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-      bestScoreText.textContent = `最高紀錄: B${String(bestFloor).padStart(4, '0')}`;
+      bestScoreText.textContent = `最高生存: B${String(bestFloor).padStart(4, '0')}`;
 
-      // 建立 12 動物選角介面
-      function renderAnimalGrid() {
+      // ================== 寫實油彩骨骼肌理繪圖引擎 (Painterly Wildlife Anatomy Engine) ==================
+      // 專為參考圖風格打造：高反差肌肉陰影、毛皮筆觸、虎紋/象牙/羽翼/犬耳動態繪製
+      function drawRealisticAnimal(targetCtx, animalId, cx, cy, scale, facing, animPhase, leapPitch = 0) {
+        const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.scale((facing || 1) * scale, scale);
+        targetCtx.rotate(leapPitch);
+
+        const stride = Math.sin(animPhase);
+        const cosStride = Math.cos(animPhase);
+
+        // 建立寫實明暗油彩漸層 (Chiaroscuro Fur Gradient)
+        const bodyGrad = targetCtx.createLinearGradient(0, -14, 0, 12);
+        bodyGrad.addColorStop(0, ani.cLight);
+        bodyGrad.addColorStop(0.55, ani.cMid);
+        bodyGrad.addColorStop(1, ani.cDark);
+
+        // 地面投影
+        targetCtx.fillStyle = 'rgba(15, 23, 42, 0.22)';
+        targetCtx.beginPath();
+        targetCtx.ellipse(0, 15, 16, 3.5, 0, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // 鳥類系 (丹頂鶴 Crane / 漆黑渡鴉 Crow)
+        if (animalId === 'crane' || animalId === 'crow') {
+          const isCrane = animalId === 'crane';
+          const wingFlap = Math.sin(animPhase * 1.4) * 11;
+
+          // 後方遠端翅膀
+          targetCtx.fillStyle = isCrane ? '#94a3b8' : '#0f172a';
+          targetCtx.beginPath();
+          targetCtx.moveTo(-4, -2);
+          targetCtx.quadraticCurveTo(-16, -18 - wingFlap * 0.7, -26, -12 - wingFlap);
+          targetCtx.lineTo(-12, 3);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          // 修長雙足往後延伸 (如參考圖左上飛鶴)
+          targetCtx.strokeStyle = '#1e293b';
+          targetCtx.lineWidth = 1.6;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-6, 4);
+          targetCtx.lineTo(-22, 11 + stride * 2);
+          targetCtx.moveTo(-4, 5);
+          targetCtx.lineTo(-19, 14 - stride * 2);
+          targetCtx.stroke();
+
+          // 流線鳥身
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.ellipse(0, 1, 12, 6.5, -0.15, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          // 修長頸部與頭部
+          targetCtx.strokeStyle = isCrane ? '#1e293b' : '#09090b';
+          targetCtx.lineWidth = isCrane ? 3.5 : 5;
+          targetCtx.beginPath();
+          targetCtx.moveTo(8, -1);
+          targetCtx.quadraticCurveTo(15, -7, 20, -6);
+          targetCtx.stroke();
+
+          if (isCrane) {
+            // 丹頂鶴白首與朱紅鶴頂
+            targetCtx.fillStyle = '#ffffff';
+            targetCtx.beginPath();
+            targetCtx.arc(20, -6, 3.2, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.fillStyle = '#dc2626';
+            targetCtx.beginPath();
+            targetCtx.arc(20, -8.2, 2, 0, Math.PI * 2);
+            targetCtx.fill();
+          }
+
+          // 尖銳長喙
+          targetCtx.fillStyle = isCrane ? '#ca8a04' : '#334155';
+          targetCtx.beginPath();
+          targetCtx.moveTo(22, -7.5);
+          targetCtx.lineTo(31, -5.5);
+          targetCtx.lineTo(22, -4.5);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          // 前景主翼（帶黑色飛羽筆觸）
+          const wingGrad = targetCtx.createLinearGradient(0, -18, 0, 6);
+          wingGrad.addColorStop(0, isCrane ? '#ffffff' : '#475569');
+          wingGrad.addColorStop(0.7, isCrane ? '#e2e8f0' : '#1e293b');
+          wingGrad.addColorStop(1, '#09090b');
+          targetCtx.fillStyle = wingGrad;
+          targetCtx.beginPath();
+          targetCtx.moveTo(2, 0);
+          targetCtx.quadraticCurveTo(-6, -20 + wingFlap, -22, -16 + wingFlap);
+          targetCtx.lineTo(-16, -2 + wingFlap * 0.4);
+          targetCtx.lineTo(-2, 4);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.restore();
+          return;
+        }
+
+        // 巨獸系：亞洲巨象 (如參考圖正中央下方的厚重巨象)
+        if (animalId === 'elephant') {
+          // 後腿與前腿（粗壯柱狀肌理）
+          targetCtx.fillStyle = ani.cDark;
+          targetCtx.fillRect(-13 + stride * 3, 2, 6, 12);
+          targetCtx.fillRect(5 - stride * 3, 2, 6, 12);
+
+          // 龐大灰岩質感軀幹
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.ellipse(-2, -2, 16, 12, 0, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          // 前景雙腿
+          targetCtx.fillStyle = ani.cMid;
+          targetCtx.fillRect(-10 - stride * 3, 3, 6.5, 12);
+          targetCtx.fillRect(8 + stride * 3, 3, 6.5, 12);
+
+          // 皮膚皺褶筆觸
+          targetCtx.strokeStyle = 'rgba(15, 23, 42, 0.35)';
+          targetCtx.lineWidth = 1;
+          for (let wx = -8; wx <= 4; wx += 4) {
+            targetCtx.beginPath();
+            targetCtx.moveTo(wx, -9);
+            targetCtx.lineTo(wx - 1, 4);
+            targetCtx.stroke();
+          }
+
+          // 扇形巨耳
+          targetCtx.fillStyle = ani.cDark;
+          targetCtx.beginPath();
+          targetCtx.ellipse(6, -4, 6.5, 9.5, -0.2, 0, Math.PI * 2);
+          targetCtx.fill();
+          targetCtx.strokeStyle = ani.cLight;
+          targetCtx.lineWidth = 1;
+          targetCtx.stroke();
+
+          // 象頭與長垂象鼻
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.arc(12, -4, 8, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          targetCtx.strokeStyle = ani.cMid;
+          targetCtx.lineWidth = 5;
+          targetCtx.lineCap = 'round';
+          targetCtx.beginPath();
+          targetCtx.moveTo(17, -3);
+          targetCtx.quadraticCurveTo(23, 5, 19, 13 + cosStride * 2);
+          targetCtx.stroke();
+
+          // 兩根巨大彎曲白象牙 (如參考圖亮白象牙)
+          targetCtx.strokeStyle = '#f8fafc';
+          targetCtx.lineWidth = 2.6;
+          targetCtx.beginPath();
+          targetCtx.moveTo(14, 0);
+          targetCtx.quadraticCurveTo(22, 4, 27, -2);
+          targetCtx.stroke();
+
+          // 深邃小眼
+          targetCtx.fillStyle = '#09090b';
+          targetCtx.beginPath();
+          targetCtx.arc(15, -5, 1.5, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          targetCtx.restore();
+          return;
+        }
+
+        // 四足飛撲猛獸與愛玩動物通用解剖骨架 (虎、獅、狼、米格魯、博美、瞪羚、野豬、河馬、熊貓)
+        const isHeavy = ani.weight >= 1.5;
+        const torsoLen = isHeavy ? 15 : (animalId === 'pomeranian' ? 9.5 : 13.5);
+        const torsoThick = isHeavy ? 9.5 : (animalId === 'pomeranian' ? 7.5 : 7.2);
+
+        // 1. 動態尾巴
+        targetCtx.strokeStyle = ani.cDark;
+        targetCtx.lineWidth = animalId === 'pomeranian' ? 4.5 : 2.5;
+        targetCtx.lineCap = 'round';
+        targetCtx.beginPath();
+        if (animalId === 'pomeranian') {
+          // 博美蓬鬆捲尾 (如參考圖左下角博美)
+          targetCtx.strokeStyle = ani.cLight;
+          targetCtx.moveTo(-torsoLen + 2, -2);
+          targetCtx.quadraticCurveTo(-torsoLen - 6, -12, -torsoLen + 1, -11);
+        } else {
+          targetCtx.moveTo(-torsoLen, -1);
+          targetCtx.quadraticCurveTo(-torsoLen - 9, -5 + cosStride * 4, -torsoLen - 14, -9 - stride * 3);
+        }
+        targetCtx.stroke();
+
+        // 2. 遠端前後肢 (飛撲伸展動作，如參考圖右方猛虎與灰狼)
+        const legExt = stride * 7;
+        targetCtx.strokeStyle = ani.cDark;
+        targetCtx.lineWidth = isHeavy ? 4.5 : 3.2;
+        targetCtx.beginPath();
+        // 後腿蹬伸
+        targetCtx.moveTo(-torsoLen + 3, 2);
+        targetCtx.lineTo(-torsoLen - 4 - legExt, 11);
+        // 前腿前撲
+        targetCtx.moveTo(torsoLen - 3, 2);
+        targetCtx.lineTo(torsoLen + 6 + legExt, 10);
+        targetCtx.stroke();
+
+        // 3. 肌肉流線軀幹 (胸腔 + 腰腹收束)
+        targetCtx.fillStyle = bodyGrad;
+        targetCtx.beginPath();
+        targetCtx.moveTo(-torsoLen, -torsoThick * 0.7);
+        targetCtx.quadraticCurveTo(0, -torsoThick * 1.15, torsoLen, -torsoThick * 0.85);
+        targetCtx.quadraticCurveTo(torsoLen + 4, 0, torsoLen - 1, torsoThick * 0.85);
+        targetCtx.quadraticCurveTo(0, torsoThick * 0.55, -torsoLen, torsoThick * 0.75);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        // 腹部亮白/淺色高光毛皮
+        targetCtx.fillStyle = ani.cBelly;
+        targetCtx.beginPath();
+        targetCtx.ellipse(0, torsoThick * 0.55, torsoLen * 0.7, torsoThick * 0.32, 0, 0, Math.PI);
+        targetCtx.fill();
+
+        // 4. 物種專屬軀幹斑紋 (孟加拉虎黑紋 / 大熊貓黑白肩帶 / 米格魯三色塊 / 瞪羚黑側線)
+        if (animalId === 'tiger') {
+          targetCtx.strokeStyle = '#140b04';
+          targetCtx.lineWidth = 1.8;
+          for (let tx = -torsoLen + 3; tx <= torsoLen - 3; tx += 3.6) {
+            targetCtx.beginPath();
+            targetCtx.moveTo(tx, -torsoThick * 0.85);
+            targetCtx.lineTo(tx - 1.5, torsoThick * 0.35);
+            targetCtx.stroke();
+          }
+        } else if (animalId === 'panda') {
+          targetCtx.fillStyle = '#09090b';
+          targetCtx.fillRect(2, -torsoThick * 0.85, 7, torsoThick * 1.6);
+        } else if (animalId === 'beagle') {
+          targetCtx.fillStyle = '#1c1917';
+          targetCtx.beginPath();
+          targetCtx.ellipse(-2, -2, 7, 4.5, 0, 0, Math.PI * 2);
+          targetCtx.fill();
+        } else if (animalId === 'gazelle') {
+          targetCtx.fillStyle = '#1c1917';
+          targetCtx.fillRect(-torsoLen * 0.6, 1, torsoLen * 1.2, 2.5);
+        }
+
+        // 5. 近端前後肢（帶肌肉關節）
+        targetCtx.strokeStyle = animalId === 'panda' ? '#09090b' : ani.cMid;
+        targetCtx.lineWidth = isHeavy ? 5 : 3.6;
+        targetCtx.beginPath();
+        targetCtx.moveTo(-torsoLen + 4, 2);
+        targetCtx.lineTo(-torsoLen - 2 + legExt, 12);
+        targetCtx.moveTo(torsoLen - 2, 2);
+        targetCtx.lineTo(torsoLen + 7 - legExt, 11);
+        targetCtx.stroke();
+
+        // 6. 頸部、獅鬃與頭顱
+        if (animalId === 'lion') {
+          // 雄獅濃密深棕鬃毛
+          targetCtx.fillStyle = '#451a03';
+          targetCtx.beginPath();
+          targetCtx.ellipse(torsoLen - 1, -2, 9, 10, 0.2, 0, Math.PI * 2);
+          targetCtx.fill();
+        } else if (animalId === 'pomeranian') {
+          // 博美犬超蓬鬆胸毛領
+          targetCtx.fillStyle = ani.cLight;
+          targetCtx.beginPath();
+          targetCtx.arc(torsoLen - 2, -1, 8.5, 0, Math.PI * 2);
+          targetCtx.fill();
+        }
+
+        // 頭顱與吻部
+        targetCtx.fillStyle = bodyGrad;
+        targetCtx.beginPath();
+        targetCtx.ellipse(torsoLen + 4, -4, 6.5, 5.5, -0.1, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // 張口咆哮或吻部細節 (如參考圖張口露齒的猛虎、雄獅與灰狼)
+        if (animalId === 'tiger' || animalId === 'lion' || animalId === 'wolf' || animalId === 'hippo') {
+          // 上顎與張開的下顎
+          targetCtx.fillStyle = ani.cLight;
+          targetCtx.fillRect(torsoLen + 7, -7, 6.5, 4);
+          targetCtx.fillStyle = '#450a0a';
+          targetCtx.beginPath();
+          targetCtx.moveTo(torsoLen + 7, -3);
+          targetCtx.lineTo(torsoLen + 13, -2);
+          targetCtx.lineTo(torsoLen + 11, 2.5);
+          targetCtx.lineTo(torsoLen + 6, 1);
+          targetCtx.closePath();
+          targetCtx.fill();
+          // 銳利白牙
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fillRect(torsoLen + 11.5, -3.5, 1.5, 2.5);
+          targetCtx.fillRect(torsoLen + 10.5, 0, 1.5, 2.2);
+        } else if (animalId === 'boar') {
+          // 野豬上翹長獠牙
+          targetCtx.strokeStyle = '#ffffff';
+          targetCtx.lineWidth = 2.2;
+          targetCtx.beginPath();
+          targetCtx.moveTo(torsoLen + 9, -1);
+          targetCtx.lineTo(torsoLen + 14, -6);
+          targetCtx.stroke();
+        } else if (animalId === 'beagle') {
+          // 米格魯垂墜大長耳與白鼻吻 (如參考圖上方米格魯)
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fillRect(torsoLen + 8, -5, 4.5, 4);
+          targetCtx.fillStyle = '#7c2d12';
+          targetCtx.beginPath();
+          targetCtx.ellipse(torsoLen + 2, 0, 3.5, 7, 0.35, 0, Math.PI * 2);
+          targetCtx.fill();
+        } else if (animalId === 'gazelle') {
+          // 瞪羚後彎長角
+          targetCtx.strokeStyle = '#1c1917';
+          targetCtx.lineWidth = 2;
+          targetCtx.beginPath();
+          targetCtx.moveTo(torsoLen + 3, -8);
+          targetCtx.quadraticCurveTo(torsoLen - 4, -17, torsoLen - 9, -15);
+          targetCtx.stroke();
+        }
+
+        // 耳朵 (非垂耳物種)
+        if (animalId !== 'beagle') {
+          targetCtx.fillStyle = animalId === 'panda' ? '#09090b' : ani.cDark;
+          targetCtx.beginPath();
+          targetCtx.moveTo(torsoLen + 1, -8);
+          targetCtx.lineTo(torsoLen + 3, -13);
+          targetCtx.lineTo(torsoLen + 6, -8);
+          targetCtx.closePath();
+          targetCtx.fill();
+        }
+
+        // 銳利眼神高光
+        targetCtx.fillStyle = '#fef08a';
+        targetCtx.beginPath();
+        targetCtx.arc(torsoLen + 6.5, -5.5, 1.4, 0, Math.PI * 2);
+        targetCtx.fill();
+        targetCtx.fillStyle = '#09090b';
+        targetCtx.beginPath();
+        targetCtx.arc(torsoLen + 6.8, -5.5, 0.8, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // 頂部冷白背光輪廓線 (Rim Light，致敬參考圖強烈的頂光立體感)
+        targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+        targetCtx.lineWidth = 1.1;
+        targetCtx.beginPath();
+        targetCtx.moveTo(-torsoLen, -torsoThick * 0.75);
+        targetCtx.quadraticCurveTo(0, -torsoThick * 1.15, torsoLen + 7, -7);
+        targetCtx.stroke();
+
+        targetCtx.restore();
+      }
+
+      // ================== 建立兩小排 (2×6) 選角網格 + 選中放大預覽 ==================
+      const miniCanvases = new Map();
+      let previewLeapImpulse = 0;
+
+      function buildAnimalSelectRows() {
         animalGrid.innerHTML = '';
         ANIMALS.forEach((a) => {
           const cell = document.createElement('div');
           cell.className = 'animal-cell' + (a.id === myAnimalId ? ' selected' : '');
-          cell.innerHTML = `
-            <div class="animal-emoji">${a.emoji}</div>
-            <div class="animal-name">${a.name}</div>
-            <div class="animal-wt">${a.weight}t</div>
-          `;
+          cell.dataset.id = a.id;
+
+          const miniCv = document.createElement('canvas');
+          miniCv.width = 104;
+          miniCv.height = 84;
+          miniCanvases.set(a.id, miniCv);
+
+          const label = document.createElement('div');
+          label.className = 'animal-cell-name';
+          label.textContent = a.name;
+
+          cell.appendChild(miniCv);
+          cell.appendChild(label);
+
           cell.addEventListener('click', () => {
             myAnimalId = a.id;
             localStorage.setItem(ANIMAL_KEY, myAnimalId);
-            updateAnimalDetail();
-            renderAnimalGrid();
+            previewLeapImpulse = 1.0; // 點選時上方大預覽模型立即做出飛撲展示動作！
+            playSound('bump');
+            updateAnimalSelectionUI();
             broadcastHeartbeat();
             renderRoster();
           });
+
           animalGrid.appendChild(cell);
         });
       }
 
-      function updateAnimalDetail() {
-        const a = ANIMAL_MAP[myAnimalId];
-        detailTitle.textContent = `${a.emoji} ${a.name}`;
-        detailStats.textContent = a.statsText;
+      showcaseStage.addEventListener('click', () => {
+        previewLeapImpulse = 1.0;
+        playSound('bump');
+      });
+
+      function updateAnimalSelectionUI() {
+        const a = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
+        showcaseNum.textContent = a.num;
+        detailTitle.textContent = a.name;
+        detailEn.textContent = `${a.en} · ${a.weight}t`;
+        barWeight.style.width = `${a.wPct}%`;
+        barSpeed.style.width = `${a.sPct}%`;
+        barPush.style.width = `${a.pPct}%`;
         detailDesc.textContent = a.desc;
-        hudAnimalLabel.textContent = `${a.emoji} ${a.name}`;
+        hudAnimalLabel.textContent = a.name;
+
+        document.querySelectorAll('.animal-cell').forEach((el) => {
+          el.classList.toggle('selected', el.dataset.id === myAnimalId);
+        });
       }
 
-      renderAnimalGrid();
-      updateAnimalDetail();
+      function renderSelectScreenPortraits(now) {
+        if (overlay.classList.contains('hidden')) return;
+
+        // 1. 繪製兩小排 12 格角色圖示
+        for (const [id, miniCv] of miniCanvases.entries()) {
+          const mCtx = miniCv.getContext('2d');
+          mCtx.clearRect(0, 0, miniCv.width, miniCv.height);
+          const isSel = id === myAnimalId;
+          const phase = isSel ? now * 0.01 : 0.8;
+          drawRealisticAnimal(mCtx, id, 52, 48, isSel ? 1.55 : 1.32, 1, phase, isSel ? -0.12 : 0);
+        }
+
+        // 2. 繪製上方超大動態展示舞台 (放大 3.8 倍檢視細節！)
+        previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+        // 舞台背景放射光暈與速度線
+        const grad = previewCtx.createRadialGradient(210, 160, 15, 210, 160, 175);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+        grad.addColorStop(1, 'rgba(203, 213, 225, 0)');
+        previewCtx.fillStyle = grad;
+        previewCtx.fillRect(0, 0, 420, 312);
+
+        const jumpY = Math.sin(previewLeapImpulse * Math.PI) * -32;
+        const pitch = -0.14 - Math.sin(previewLeapImpulse * Math.PI) * 0.18;
+        drawRealisticAnimal(
+          previewCtx,
+          myAnimalId,
+          205,
+          176 + jumpY,
+          3.95,
+          1,
+          now * 0.011,
+          pitch
+        );
+      }
+
+      buildAnimalSelectRows();
+      updateAnimalSelectionUI();
 
       nameInput.addEventListener('change', () => {
         myName = nameInput.value.trim() || myName;
@@ -898,7 +1451,7 @@
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
       }
 
-      // 合成音效系統 (Web Audio API)
+      // 合成音效系統
       let audioCtx = null;
       let soundEnabled = true;
 
@@ -922,17 +1475,17 @@
 
         if (type === 'land') {
           osc.type = 'triangle';
-          const baseFreq = Math.max(110, 280 - weight * 65);
+          const baseFreq = Math.max(95, 270 - weight * 62);
           osc.frequency.setValueAtTime(baseFreq, now);
-          osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.3, now + 0.07);
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.28, now + 0.07);
           gain.gain.setValueAtTime(0.12, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
           osc.start(now);
           osc.stop(now + 0.07);
         } else if (type === 'stomp') {
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(95, now);
-          osc.frequency.linearRampToValueAtTime(42, now + 0.22);
+          osc.frequency.setValueAtTime(92, now);
+          osc.frequency.linearRampToValueAtTime(40, now + 0.22);
           gain.gain.setValueAtTime(0.24, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
           osc.start(now);
@@ -940,26 +1493,25 @@
           if (navigator.vibrate) navigator.vibrate(45);
         } else if (type === 'spring') {
           osc.type = 'square';
-          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.setValueAtTime(300, now);
           osc.frequency.setValueAtTime(420, now + 0.05);
-          osc.frequency.exponentialRampToValueAtTime(680, now + 0.16);
-          gain.gain.setValueAtTime(0.14, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.frequency.exponentialRampToValueAtTime(640, now + 0.15);
+          gain.gain.setValueAtTime(0.13, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
           osc.start(now);
-          osc.stop(now + 0.16);
+          osc.stop(now + 0.15);
         } else if (type === 'bump') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(160, now);
-          osc.frequency.exponentialRampToValueAtTime(300, now + 0.09);
-          gain.gain.setValueAtTime(0.18, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.frequency.exponentialRampToValueAtTime(290, now + 0.08);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
           osc.start(now);
-          osc.stop(now + 0.09);
-          if (navigator.vibrate) navigator.vibrate(25);
+          osc.stop(now + 0.08);
         } else if (type === 'hurt') {
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(165, now);
-          osc.frequency.linearRampToValueAtTime(65, now + 0.24);
+          osc.frequency.linearRampToValueAtTime(60, now + 0.24);
           gain.gain.setValueAtTime(0.22, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
           osc.start(now);
@@ -986,8 +1538,8 @@
           osc.stop(now + 0.32);
         } else if (type === 'gameover') {
           osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(280, now);
-          osc.frequency.linearRampToValueAtTime(75, now + 0.45);
+          osc.frequency.setValueAtTime(260, now);
+          osc.frequency.linearRampToValueAtTime(70, now + 0.45);
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
           osc.start(now);
@@ -997,7 +1549,7 @@
 
       soundBtn.addEventListener('click', () => {
         soundEnabled = !soundEnabled;
-        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+        soundBtn.textContent = soundEnabled ? '音' : '靜';
       });
 
       function resizeCanvas() {
@@ -1014,17 +1566,16 @@
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
-      // 東京叢林環境背景裝飾粒子（孢子與水滴）
-      const spores = Array.from({ length: 28 }, () => ({
+      // 濃霧與塵埃粒子
+      const mistClouds = Array.from({ length: 14 }, () => ({
         x: Math.random() * LOGIC_W,
         y: Math.random() * 600,
-        r: 1 + Math.random() * 2,
-        vy: -12 - Math.random() * 18,
-        vx: (Math.random() - 0.5) * 14,
-        alpha: 0.2 + Math.random() * 0.45
+        r: 45 + Math.random() * 65,
+        vy: -14 - Math.random() * 18,
+        vx: (Math.random() - 0.5) * 12,
+        alpha: 0.12 + Math.random() * 0.18
       }));
 
-      // 遊戲狀態
       let state = 'MENU';
       let hp = MAX_HP;
       let floor = 0;
@@ -1039,8 +1590,8 @@
       const player = {
         x: 180,
         y: 120,
-        w: 28,
-        h: 30,
+        w: 30,
+        h: 28,
         vx: 0,
         vy: 0,
         pushVx: 0,
@@ -1048,10 +1599,10 @@
         onPlatform: null,
         facing: 1,
         walkFrame: 0,
-        runTime: 0, // 野豬衝刺累積
-        canDoubleJump: true, // 穴兔二段跳
-        stunTimer: 0, // 觸電麻痺
-        adrenalineTimer: 0, // 空投箱狂暴加成
+        runTime: 0,
+        canDoubleJump: true,
+        stunTimer: 0,
+        adrenalineTimer: 0,
         invulnerable: 0
       };
 
@@ -1066,7 +1617,7 @@
       const urlParams = new URLSearchParams(window.location.search);
       let currentRoom = (urlParams.get('room') || '8888').toUpperCase().slice(0, 8);
       roomInput.value = currentRoom;
-      roomLabel.textContent = `房號: ${currentRoom}`;
+      roomLabel.textContent = `區域: ${currentRoom}`;
 
       let mqttClient = null;
       let currentTopic = '';
@@ -1077,16 +1628,16 @@
       let brokerIdx = 0;
 
       function getTopic(room) {
-        return `tokyo-shaft-v2/room/${room}`;
+        return `tokyo-jungle-v3/room/${room}`;
       }
 
       function connectMultiplayer() {
         if (typeof mqtt === 'undefined') {
-          connStatusText.textContent = '⚠️ 離線單機模式';
+          connStatusText.textContent = '離線單機模式';
           return;
         }
         const url = BROKERS[brokerIdx % BROKERS.length];
-        connStatusText.textContent = '🟡 連線東京地下伺服器...';
+        connStatusText.textContent = '正在連線東京伺服器...';
         netDot.classList.remove('online');
 
         if (mqttClient) {
@@ -1094,7 +1645,7 @@
         }
 
         mqttClient = mqtt.connect(url, {
-          clientId: 'tkshaft_' + myId + '_' + Math.floor(Math.random() * 999),
+          clientId: 'tkjg_' + myId + '_' + Math.floor(Math.random() * 999),
           clean: true,
           connectTimeout: 5000,
           reconnectPeriod: 3000
@@ -1102,7 +1653,7 @@
 
         mqttClient.on('connect', () => {
           netDot.classList.add('online');
-          connStatusText.textContent = `🟢 已連線 (房號 ${currentRoom})`;
+          connStatusText.textContent = `已連線 (區域 ${currentRoom})`;
           subscribeRoom(currentRoom);
           broadcastHeartbeat();
         });
@@ -1110,7 +1661,7 @@
         mqttClient.on('error', () => { brokerIdx++; });
         mqttClient.on('offline', () => {
           netDot.classList.remove('online');
-          connStatusText.textContent = '🟠 重新連線中...';
+          connStatusText.textContent = '重新連線中...';
         });
 
         mqttClient.on('message', (topic, payload) => {
@@ -1130,14 +1681,14 @@
         }
         currentRoom = cleanRoom;
         roomInput.value = currentRoom;
-        roomLabel.textContent = `房號: ${currentRoom}`;
+        roomLabel.textContent = `區域: ${currentRoom}`;
         currentTopic = getTopic(currentRoom);
         peers.clear();
         renderRoster();
 
         if (mqttClient && mqttClient.connected) {
           mqttClient.subscribe(currentTopic, { qos: 0 });
-          connStatusText.textContent = `🟢 已連線 (房號 ${currentRoom})`;
+          connStatusText.textContent = `已連線 (區域 ${currentRoom})`;
           broadcastHeartbeat();
         }
       }
@@ -1184,8 +1735,8 @@
         if (!p) {
           p = {
             id: msg.id,
-            name: msg.name || '野獸',
-            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'pomeranian',
+            name: msg.name || '生存者',
+            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'tiger',
             x: LOGIC_W / 2,
             worldY: 200,
             vx: 0,
@@ -1219,27 +1770,26 @@
           p.floor = msg.fl;
           p.alive = !!msg.alive;
         } else if (msg.t === 'start') {
-          showToast(`🚀 ${p.name} 號召了全房同步開局！`);
+          showToast(`${p.name} 發起了全房同步狩獵！`);
           startGame(msg.seed, false);
         } else if (msg.t === 'stomp') {
-          // 遠端巨象或河馬釋放震波
           const myWorldY = player.y + scrollDistance;
           if (Math.abs(myWorldY - msg.wy) < 30 && Math.abs(player.x - msg.x) < 110) {
             player.onPlatform = null;
-            player.vy = -270;
-            player.pushVx = (player.x >= msg.x ? 1 : -1) * 190;
+            player.vy = -275;
+            player.pushVx = (player.x >= msg.x ? 1 : -1) * 195;
             shakeTime = 0.25;
             playSound('stomp');
-            addPopup(player.x + 14, player.y, '💥 巨象震波！', '#facc15');
+            addPopup(player.x + 15, player.y, '巨象震波！', '#b45309');
           }
         } else if (msg.t === 'emote') {
-          addPopup(p.x + 14, p.worldY - scrollDistance - 16, msg.emoji, '#ffffff');
+          addPopup(p.x + 15, p.worldY - scrollDistance - 16, msg.emoji, '#18181b');
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
           p.floor = msg.fl || p.floor;
           const ani = ANIMAL_MAP[p.animalId] || ANIMALS[0];
-          addPopup(LOGIC_W / 2, 86, `💀 ${ani.emoji}${p.name} 在 B${p.floor} 倒下！`, '#f87171');
+          addPopup(LOGIC_W / 2, 86, `${ani.name} (${p.name}) 於 B${p.floor} 倒下`, '#991b1b');
           renderRoster();
         }
       }
@@ -1263,30 +1813,31 @@
       }, 60);
 
       function renderRoster() {
+        playerCountLabel.textContent = `同場 ${1 + peers.size} 獸`;
         rosterList.innerHTML = '';
-        const myAni = ANIMAL_MAP[myAnimalId];
+        const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         const meTag = document.createElement('div');
         meTag.className = 'roster-tag';
-        meTag.innerHTML = `<span>${myAni.emoji}</span><span>${escapeHtml(myName)} (${myAni.weight}t)</span>`;
+        meTag.innerHTML = `<span style="color:#fbbf24;">[${myAni.name}]</span><span>${escapeHtml(myName)}</span>`;
         rosterList.appendChild(meTag);
 
         for (const p of peers.values()) {
           const ani = ANIMAL_MAP[p.animalId] || ANIMALS[0];
           const tag = document.createElement('div');
           tag.className = 'roster-tag';
-          tag.innerHTML = `<span>${ani.emoji}</span><span>${escapeHtml(p.name)} (${ani.weight}t)</span>`;
+          tag.innerHTML = `<span style="color:#a1a1aa;">[${ani.name}]</span><span>${escapeHtml(p.name)}</span>`;
           rosterList.appendChild(tag);
         }
         renderMpStrip();
       }
 
       function renderMpStrip() {
-        const myAni = ANIMAL_MAP[myAnimalId];
+        const myAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         const list = [
-          { name: myName, emoji: myAni.emoji, floor, alive: state === 'PLAYING' && hp > 0 },
+          { name: myName, aniName: myAni.name, floor, alive: state === 'PLAYING' && hp > 0 },
           ...Array.from(peers.values()).map(p => ({
             name: p.name,
-            emoji: (ANIMAL_MAP[p.animalId] || ANIMALS[0]).emoji,
+            aniName: (ANIMAL_MAP[p.animalId] || ANIMALS[0]).name,
             floor: p.floor,
             alive: p.alive
           }))
@@ -1296,9 +1847,9 @@
         mpStrip.innerHTML = list.map(u => {
           const deadClass = (!u.alive && u.floor > 0 && state === 'PLAYING') ? ' dead' : '';
           return `<div class="mp-chip${deadClass}">
-            <span>${u.emoji}</span>
+            <span style="color:#fbbf24;">${u.aniName.slice(0, 2)}</span>
             <span>${escapeHtml(u.name.slice(0, 4))}</span>
-            <span style="color:#a3e635;">B${u.floor || 0}</span>
+            <span style="color:#f59e0b;">B${u.floor || 0}</span>
           </div>`;
         }).join('');
       }
@@ -1311,7 +1862,7 @@
         myName = nameInput.value.trim() || myName;
         localStorage.setItem(NAME_KEY, myName);
         subscribeRoom(roomInput.value);
-        showToast(`已進入房間 ${currentRoom}`);
+        showToast(`已切換至區域 ${currentRoom}`);
       });
 
       shareBtn.addEventListener('click', async () => {
@@ -1319,8 +1870,8 @@
         if (navigator.share) {
           try {
             await navigator.share({
-              title: 'TOKYO SHAFT：東京地下叢林 多人連線',
-              text: `快選一隻動物加入房間【${currentRoom}】，一起來東京地下叢林下樓梯大亂鬥！`,
+              title: 'TOKYO JUNGLE：地下生存多人連線',
+              text: `快選一隻猛獸加入區域【${currentRoom}】，一起來東京叢林下樓梯生存戰！`,
               url: shareUrl
             });
             return;
@@ -1328,7 +1879,7 @@
         }
         try {
           await navigator.clipboard.writeText(shareUrl);
-          showToast(`已複製房間【${currentRoom}】邀請連結！`);
+          showToast(`已複製區域【${currentRoom}】邀請連結！`);
         } catch (_) {
           prompt('請複製連結分享給好友：', shareUrl);
         }
@@ -1338,7 +1889,7 @@
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const emoji = btn.getAttribute('data-emote');
-          addPopup(player.x + player.w / 2, player.y - 12, emoji, '#ffffff');
+          addPopup(player.x + player.w / 2, player.y - 12, emoji, '#78350f');
           publishMsg({ t: 'emote', emoji });
         });
       });
@@ -1455,14 +2006,11 @@
         });
         floorTextEl.textContent = formatFloor(floor);
         if (floor < 30) {
-          zoneLabel.textContent = '澀谷廢棄地鐵';
-          zoneLabel.style.color = '#a3e635';
+          zoneLabel.textContent = '澀谷白霧豎井';
         } else if (floor < 60) {
-          zoneLabel.textContent = '地下高壓電網';
-          zoneLabel.style.color = '#38bdf8';
+          zoneLabel.textContent = '廢棄地下鐵道';
         } else {
-          zoneLabel.textContent = '深淵地熱核心';
-          zoneLabel.style.color = '#f87171';
+          zoneLabel.textContent = '地底深淵斷層';
         }
       }
 
@@ -1487,9 +2035,10 @@
       }
 
       // ============== 10 種《東京叢林》廢墟階梯生成器 ==============
+      let spawnedCount = 0;
+
       function pickPlatformType(approxFloor, indexCount) {
-        // 每 16 個階梯固定出一個東京空投補給箱
-        if (indexCount > 0 && indexCount % 16 === 0) return 'supply';
+        if (indexCount > 0 && indexCount % 15 === 0) return 'supply';
 
         const barbedWeight = Math.min(20, 8 + approxFloor * 0.16);
         const woodWeight = 13;
@@ -1514,8 +2063,6 @@
         if ((r -= electricWeight) < 0) return 'electric';
         return nextRandom() < 0.5 ? 'slanted_l' : 'slanted_r';
       }
-
-      let spawnedCount = 0;
 
       function createPlatformAtWorldY(worldY, forceSteel = false) {
         const margin = 18;
@@ -1607,7 +2154,7 @@
         player.adrenalineTimer = 0;
         player.invulnerable = 0;
 
-        updateAnimalDetail();
+        updateAnimalSelectionUI();
         updateHUD();
         state = 'PLAYING';
         overlay.classList.add('hidden');
@@ -1628,8 +2175,8 @@
         player.invulnerable = 0.55;
         shakeTime = 0.25;
         playSound('hurt');
-        addPopup(x, y, `${label}-${amount} HP`, '#ef4444');
-        spawnParticles(x, y, '#ef4444', 14);
+        addPopup(x, y, `${label}-${amount} HP`, '#991b1b');
+        spawnParticles(x, y, '#991b1b', 14);
         updateHUD();
         if (hp <= 0) {
           triggerGameOver('在東京地下叢林力竭倒下！');
@@ -1639,10 +2186,10 @@
       function healPlayer(amount, x, y, customLabel = '') {
         if (hp < MAX_HP) {
           hp = Math.min(MAX_HP, hp + amount);
-          addPopup(x, y, customLabel || `+${amount} HP`, '#a3e635');
+          addPopup(x, y, customLabel || `+${amount} HP`, '#15803d');
           updateHUD();
         } else if (customLabel) {
-          addPopup(x, y, customLabel, '#facc15');
+          addPopup(x, y, customLabel, '#b45309');
         }
       }
 
@@ -1655,19 +2202,18 @@
         if (floor > bestFloor) {
           bestFloor = floor;
           localStorage.setItem(STORAGE_KEY, String(bestFloor));
-          bestScoreText.textContent = `最高紀錄: B${String(bestFloor).padStart(4, '0')}`;
+          bestScoreText.textContent = `最高生存: B${String(bestFloor).padStart(4, '0')}`;
         }
 
-        const ani = ANIMAL_MAP[myAnimalId];
-        overlayBadge.textContent = `SURVIVAL RECORD: B${floor}`;
-        overlayTitle.textContent = `${ani.emoji} ${ani.name} 生存結束`;
-        overlaySub.textContent = `${reason} 隨時可換一隻動物或號召全房再次開局！`;
+        const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
+        overlayBadge.textContent = `RECORD: B${floor}`;
+        overlayTitle.textContent = `${ani.name} 生存終止`;
         overlay.classList.remove('hidden');
         renderMpStrip();
       }
 
       function handleLanding(plat, impactVy) {
-        const ani = ANIMAL_MAP[myAnimalId];
+        const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         player.onPlatform = plat;
         player.y = plat.y + plat.sagY - player.h;
         player.vy = 0;
@@ -1676,28 +2222,26 @@
         const cx = player.x + player.w / 2;
         const cy = player.y;
 
-        // 階梯重量下沉物理反饋 (體重 × 衝擊速度)
         plat.sagVy = Math.min(180, (45 + impactVy * 0.14) * ani.weight);
 
-        // 亞洲巨象 / 巨型河馬 高處重踏震波！
+        // 巨象 / 河馬 落地重踏震波
         if (ani.weight >= 2.0 && impactVy > 260) {
           shakeTime = 0.2;
           playSound('stomp');
-          shockwaves.push({ x: cx, y: plat.y, r: 8, maxR: 95, life: 0.35 });
+          shockwaves.push({ x: cx, y: plat.y, r: 8, maxR: 98, life: 0.35 });
           publishMsg({ t: 'stomp', x: Math.round(cx), wy: Math.round(plat.worldY) });
           if (ani.id === 'elephant') {
-            addPopup(cx, cy - 14, '🐘 末日重踏！', '#f8fafc');
+            addPopup(cx, cy - 14, '末日重踏！', '#18181b');
           }
         }
 
-        // 空投補給箱特殊獎勵
         if (plat.type === 'supply' && plat.crateIntact) {
           plat.crateIntact = false;
           plat.touched = true;
-          healPlayer(4, cx, cy - 10, '🥩 空投補給 +4 HP!');
+          healPlayer(4, cx, cy - 10, '獵物補給 +4 HP!');
           player.adrenalineTimer = 3.5;
           playSound('supply');
-          spawnParticles(cx, plat.y, '#facc15', 16);
+          spawnParticles(cx, plat.y, '#d97706', 16);
           return;
         }
 
@@ -1705,52 +2249,53 @@
           if (!plat.touched) {
             plat.touched = true;
             let dmg = 5;
-            if (ani.id === 'croc') dmg = 2; // 灣鱷裝甲鱗片減半
-            else if (ani.weight >= 2.1) dmg = 4; // 河馬/巨象厚皮
-            hurtPlayer(dmg, cx, cy, '🩸 鐵絲網 ');
+            if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
+            else if (ani.weight >= 2.1) dmg = 4;
+            hurtPlayer(dmg, cx, cy, '鐵絲網 ');
           }
         } else if (plat.type === 'taxi') {
           if (!plat.touched) {
             plat.touched = true;
-            const healAmt = ani.id === 'deer' ? 2 : 1;
-            healPlayer(healAmt, cx, cy, ani.id === 'deer' ? '🦌 森林跳躍 +2 HP' : '+1 HP');
+            healPlayer(1, cx, cy, '+1 HP');
           }
           plat.springCompress = 1;
           player.onPlatform = null;
-          // 體重影響彈跳高度，梅花鹿精準受控
-          const weightFactor = ani.id === 'deer' ? 0.86 : Math.max(0.72, Math.min(1.18, 1.08 / Math.sqrt(ani.weight)));
-          player.vy = -415 * weightFactor;
+          const weightFactor = Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
+          player.vy = -410 * weightFactor;
           playSound('spring');
-          spawnParticles(cx, plat.y, '#facc15', 10);
+          spawnParticles(cx, plat.y, '#b45309', 10);
         } else {
           if (!plat.touched) {
             plat.touched = true;
             let bonus = 1;
             let label = '+1 HP';
-            if (ani.id === 'pomeranian' && Math.random() < 0.3) {
+            if (ani.id === 'beagle' && Math.random() < 0.3) {
               bonus = 2;
-              label = '🐕 寵兒 +2 HP';
+              label = '嗅覺本能 +2 HP';
             }
             healPlayer(bonus, cx, cy, label);
             playSound('land', ani.weight);
-            spawnParticles(cx, plat.y, '#a3e635', 5);
+            spawnParticles(cx, plat.y, '#52525b', 5);
           }
         }
       }
 
       function update(dt) {
-        // 更新背景漂浮孢子
-        for (const sp of spores) {
-          sp.y += sp.vy * dt;
-          sp.x += sp.vx * dt;
-          if (sp.y < 0) { sp.y = H; sp.x = Math.random() * LOGIC_W; }
-          if (sp.x < 0) sp.x = LOGIC_W;
-          if (sp.x > LOGIC_W) sp.x = 0;
+        if (previewLeapImpulse > 0) {
+          previewLeapImpulse = Math.max(0, previewLeapImpulse - dt * 2.2);
+        }
+
+        for (const mc of mistClouds) {
+          mc.y += mc.vy * dt;
+          mc.x += mc.vx * dt;
+          if (mc.y < -60) { mc.y = H + 60; mc.x = Math.random() * LOGIC_W; }
+          if (mc.x < -60) mc.x = LOGIC_W + 60;
+          if (mc.x > LOGIC_W + 60) mc.x = -60;
         }
 
         if (state !== 'PLAYING') return;
 
-        const ani = ANIMAL_MAP[myAnimalId];
+        const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
 
         scrollSpeed = Math.min(242, 112 + floor * 1.32);
         const dy = scrollSpeed * dt;
@@ -1762,11 +2307,10 @@
         const newFloor = 1 + Math.floor(scrollDistance / 260);
         if (newFloor > floor) {
           floor = newFloor;
-          // 野生大熊貓每 12 階自動啃竹葉回血
           if (ani.id === 'panda' && floor % 12 === 0) {
-            healPlayer(2, player.x + 14, player.y, '🎍 竹葉 +2 HP');
+            healPlayer(2, player.x + 15, player.y, '竹葉回復 +2 HP');
           } else if (floor % 10 === 0) {
-            addPopup(LOGIC_W / 2, 65, `🐾 深入地下 ${floor} 階！`, '#a3e635');
+            addPopup(LOGIC_W / 2, 65, `深入地下 ${floor} 階`, '#18181b');
           }
           updateHUD();
         }
@@ -1781,13 +2325,11 @@
           nextSpawnWorldY += 76;
         }
 
-        // ============== 更新所有階梯的重量物理 (下沉、翹翹板傾斜、超載崩塌) ==============
-        const electricCycle = (Date.now() % 1800) < 480; // 漏電週期
+        const electricCycle = (Date.now() % 1800) < 480;
 
         for (let i = platforms.length - 1; i >= 0; i--) {
           const p = platforms[i];
 
-          // 彈簧下沉阻尼物理
           p.sagVy += (-p.sagY * 160 - p.sagVy * 12) * dt;
           p.sagY = Math.max(-4, Math.min(14, p.sagY + p.sagVy * dt));
 
@@ -1795,7 +2337,6 @@
             p.springCompress = Math.max(0, p.springCompress - dt * 5);
           }
 
-          // 計算站在這塊階梯上的所有動物總重量與偏心力矩
           let load = 0;
           let torque = 0;
           const pCenter = p.x + p.w / 2;
@@ -1809,42 +2350,40 @@
           for (const rp of peers.values()) {
             if (!rp.alive) continue;
             const rpAni = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
-            const onThisPlat = Math.abs((rp.worldY + 30) - p.worldY) < 18 &&
+            const onThisPlat = Math.abs((rp.worldY + 28) - p.worldY) < 18 &&
                                (rp.x + 24 > p.x) && (rp.x + 4 < p.x + p.w);
             if (onThisPlat) {
               load += rpAni.weight;
-              const offset = ((rp.x + 14) - pCenter) / (p.w / 2);
+              const offset = ((rp.x + 15) - pCenter) / (p.w / 2);
               torque += offset * rpAni.weight;
             }
           }
 
           p.totalLoad = load;
 
-          // 力矩傾斜角度計算（懸吊招牌 seesaw 最敏感，一般階梯也會因大象偏心而微傾）
           const tiltSensitivity = p.type === 'seesaw' ? 0.24 : (p.type === 'slanted_l' || p.type === 'slanted_r' ? 0.05 : 0.085);
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽神社木板：斷裂時間與體重成反比！
-          if (p.type === 'wood' && p.touched && !p.broken) {
-            const weightRate = ani.id === 'cat' ? 0.45 : Math.max(0.45, Math.max(load, ani.weight));
+          // 腐朽木板：渡鴉不觸發斷裂，博美減緩斷裂
+          if (p.type === 'wood' && p.touched && !p.broken && ani.id !== 'crow') {
+            const weightRate = ani.id === 'pomeranian' ? 0.42 : Math.max(0.45, Math.max(load, ani.weight));
             p.breakTimer += dt * weightRate;
             if (p.breakTimer >= 0.42) {
               p.broken = true;
-              spawnParticles(p.x + p.w / 2, p.y, '#d97706', 12);
+              spawnParticles(p.x + p.w / 2, p.y, '#78350f', 12);
               if (player.onPlatform === p) player.onPlatform = null;
             }
           }
 
-          // 多人超載崩塌：一般鋼樑若同時承載 > 2.75t 持續 1.0 秒則超載折斷
           if (p.type === 'steel' && load > 2.75 && !p.broken) {
             p.overloadTimer += dt;
             if (p.overloadTimer >= 1.0) {
               p.broken = true;
               shakeTime = 0.2;
               playSound('stomp');
-              spawnParticles(p.x + p.w / 2, p.y, '#f97316', 16);
-              addPopup(p.x + p.w / 2, p.y, '⚠️ 超載崩塌！', '#f97316');
+              spawnParticles(p.x + p.w / 2, p.y, '#9a3412', 16);
+              addPopup(p.x + p.w / 2, p.y, '超載崩塌！', '#9a3412');
               if (player.onPlatform === p) player.onPlatform = null;
             }
           } else {
@@ -1861,7 +2400,7 @@
           }
         }
 
-        // ============== 玩家水平移動、動物專長與斜坡物理 ==============
+        // 水平移動與動物專長
         let moveDir = 0;
         if (player.stunTimer <= 0) {
           if (input.left) moveDir -= 1;
@@ -1874,14 +2413,13 @@
           player.runTime = 0;
         }
 
-        // 荒原野豬暴衝加成 & 空投腎上腺素加成
         let speedMultiplier = ani.speedMul;
         let boarCharging = false;
         if (ani.id === 'boar' && player.runTime > 0.32) {
           speedMultiplier *= 1.32;
           boarCharging = true;
           if (Math.random() < 0.35) {
-            spawnParticles(player.x + 14, player.y + 26, '#f87171', 1);
+            spawnParticles(player.x + 15, player.y + 24, '#78350f', 1);
           }
         }
         if (player.adrenalineTimer > 0) {
@@ -1889,41 +2427,34 @@
         }
 
         const targetVx = moveDir * player.baseSpeed * speedMultiplier;
-
-        // 青苔水泥斷橋低摩擦慣性 vs 一般地面
-        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'frog' && ani.id !== 'croc';
+        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo';
         const accel = onMoss ? 4.2 : 18.0;
         player.vx += (targetVx - player.vx) * Math.min(1, accel * dt);
 
-        // 推擠速度衰減（體重越重越快穩住）
         player.pushVx *= Math.pow(0.005 / Math.sqrt(ani.weight), dt);
 
         if (moveDir !== 0) {
           player.facing = moveDir;
           player.walkFrame += dt * 15 * speedMultiplier;
         } else {
-          player.walkFrame = 0;
+          player.walkFrame += dt * 3;
         }
 
         let totalVx = player.vx + player.pushVx;
 
         if (player.onPlatform) {
           const p = player.onPlatform;
-
-          // 電動步道輸送帶推力（牛蛙減少 70%，重型動物慣性抗推）
-          const convFactor = ani.id === 'frog' ? 0.3 : (1 / Math.pow(ani.weight, 0.35));
+          const convFactor = ani.id === 'hippo' ? 0.2 : (1 / Math.pow(ani.weight, 0.35));
           if (p.type === 'conveyor_l') totalVx -= 125 * convFactor;
           if (p.type === 'conveyor_r') totalVx += 125 * convFactor;
 
-          // 斜坡重力下滑分力（灣鱷與牛蛙抓地不滑，小黃雞輕巧不易滑）
-          if (ani.id !== 'croc' && ani.id !== 'frog') {
-            const slideMul = onMoss ? 420 : (ani.id === 'chick' ? 140 : 280);
+          if (ani.id !== 'hippo' && ani.id !== 'wolf') {
+            const slideMul = onMoss ? 410 : 275;
             totalVx += Math.sin(p.tilt) * slideMul;
           }
 
-          // 漏電變電箱觸電判定
           if (p.type === 'electric' && electricCycle && player.invulnerable <= 0) {
-            hurtPlayer(3, player.x + 14, player.y, '⚡ 觸電 ');
+            hurtPlayer(3, player.x + 15, player.y, '觸電 ');
             playSound('shock');
             if (ani.id !== 'hippo') {
               player.stunTimer = 0.42;
@@ -1931,71 +2462,65 @@
           }
         }
 
-        // ============== 多人動物噸位碰撞推擠 & 花豹踩頭 / 熊貓反彈 ==============
+        // 多人猛獸碰撞與孟加拉虎踩躍 / 熊貓太極反彈
         const myWorldY = player.y + scrollDistance;
         for (const rp of peers.values()) {
           if (!rp.alive) continue;
           const rpAni = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
-          const dx = (player.x + player.w / 2) - (rp.x + 14);
+          const dx = (player.x + player.w / 2) - (rp.x + 15);
           const dyWorld = myWorldY - rp.worldY;
 
-          if (Math.abs(dx) < 24 && Math.abs(dyWorld) < 26) {
-            // 若我是花豹且從上方落下踩中對方頭頂
-            if (ani.id === 'leopard' && dyWorld < -8 && player.vy > 0) {
+          if (Math.abs(dx) < 25 && Math.abs(dyWorld) < 26) {
+            if (ani.id === 'tiger' && dyWorld < -8 && player.vy > 0) {
               player.onPlatform = null;
-              player.vy = -310;
+              player.vy = -315;
               playSound('spring');
-              addPopup(player.x + 14, player.y, '🐆 獵食踩躍！', '#facc15');
+              addPopup(player.x + 15, player.y, '猛虎踩躍！', '#b45309');
               continue;
             }
 
-            // 計算雙方推擠倍率：對方推力 × (若對方是熊貓或我是野豬暴衝) / 我的體重抗性
             const pushSign = dx >= 0 ? 1 : -1;
-            let incomingForce = 210 * (rpAni.pushMul / Math.pow(ani.weight, 0.65));
+            let incomingForce = 215 * (rpAni.pushMul / Math.pow(ani.weight, 0.65));
             if (rpAni.id === 'panda') {
               incomingForce *= 1.65;
-              addPopup(player.x + 14, player.y, '🐼 太極彈飛！', '#f8fafc');
+              addPopup(player.x + 15, player.y, '太極彈飛！', '#18181b');
             }
-            if (boarCharging) {
-              incomingForce *= 0.4; // 野豬暴衝時自身極難被推退
-            }
+            if (boarCharging) incomingForce *= 0.4;
             player.pushVx = pushSign * incomingForce;
             playSound('bump');
-            spawnParticles(player.x + 14, player.y + 15, '#a3e635', 5);
+            spawnParticles(player.x + 15, player.y + 15, '#78350f', 5);
           }
         }
 
         player.x += totalVx * dt;
 
-        // 左右牆壁邊界（穴兔貼牆可觸發蹬牆跳）
-        const wallWidth = 12;
+        // 左右牆壁邊界（瞪羚貼牆二段跳）
+        const wallWidth = 13;
         if (player.x <= wallWidth) {
           player.x = wallWidth;
-          if (ani.id === 'rabbit' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+          if (ani.id === 'gazelle' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
-            player.vy = -290;
-            player.pushVx = 160;
+            player.vy = -295;
+            player.pushVx = 165;
             playSound('spring');
-            addPopup(player.x + 14, player.y, '🐰 蹬牆跳！', '#f8fafc');
+            addPopup(player.x + 15, player.y, '羚羊蹬牆跳！', '#18181b');
           }
         }
         if (player.x + player.w >= LOGIC_W - wallWidth) {
           player.x = LOGIC_W - wallWidth - player.w;
-          if (ani.id === 'rabbit' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+          if (ani.id === 'gazelle' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
-            player.vy = -290;
-            player.pushVx = -160;
+            player.vy = -295;
+            player.pushVx = -165;
             playSound('spring');
-            addPopup(player.x + 14, player.y, '🐰 蹬牆跳！', '#f8fafc');
+            addPopup(player.x + 15, player.y, '羚羊蹬牆跳！', '#18181b');
           }
         }
 
-        // ============== 垂直移動與階梯碰撞 ==============
         const prevFootY = player.y + player.h;
 
         if (player.onPlatform) {
           const p = player.onPlatform;
-          // 計算傾斜階梯在玩家 X 位置的實際高度
           const relX = (player.x + player.w / 2) - (p.x + p.w / 2);
           const tiltOffsetY = Math.sin(p.tilt) * relX;
           player.y = p.y + p.sagY + tiltOffsetY - player.h;
@@ -2003,10 +2528,9 @@
           const overlap = (player.x + player.w - 4 > p.x) && (player.x + 4 < p.x + p.w);
           if (!overlap || p.broken) {
             player.onPlatform = null;
-            // 黑斑花豹助跑跳離階梯時獲得水平撲擊加速
-            if (ani.id === 'leopard' && moveDir !== 0 && !p.broken) {
-              player.pushVx = moveDir * 135;
-              player.vy = -115;
+            if (ani.id === 'tiger' && moveDir !== 0 && !p.broken) {
+              player.pushVx = moveDir * 145;
+              player.vy = -125;
             } else {
               player.vy = 0;
             }
@@ -2014,18 +2538,17 @@
         }
 
         if (!player.onPlatform) {
-          // 小黃雞拍翅滑翔重力減緩 40%
-          const gravity = (ani.id === 'chick' && player.vy > 0) ? 580 : 980;
-          const maxFall = (ani.id === 'chick') ? 340 : 580;
+          const isGlider = ani.id === 'crane' || ani.id === 'crow';
+          const gravity = (isGlider && player.vy > 0) ? 560 : 980;
+          const maxFall = isGlider ? 330 : 580;
           player.vy = Math.min(maxFall, player.vy + gravity * dt);
 
-          // 穴兔失足二段跳救命機制（掉出階梯且下墜速度剛開始時，若按住方向鍵自動觸發一次小躍起）
-          if (ani.id === 'rabbit' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
+          if (ani.id === 'gazelle' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
             player.canDoubleJump = false;
-            player.vy = -265;
+            player.vy = -270;
             playSound('spring');
-            spawnParticles(player.x + 14, player.y + 28, '#f8fafc', 6);
-            addPopup(player.x + 14, player.y, '🐰 二段跳！', '#f8fafc');
+            spawnParticles(player.x + 15, player.y + 26, '#ffffff', 6);
+            addPopup(player.x + 15, player.y, '羚羊二段躍！', '#18181b');
           }
 
           player.y += (player.vy * dt) - dy;
@@ -2045,11 +2568,10 @@
           }
         }
 
-        // 頂部廢墟鋼筋鑽頭碰撞 (高度 22px)
         const ceilingSpikeH = 22;
         if (player.y <= ceilingSpikeH) {
-          const dmg = ani.weight >= 2.1 ? 4 : 5;
-          hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '⚙️ 頂部鋼筋 ');
+          const dmg = (ani.id === 'lion' || ani.weight >= 2.1) ? 3 : 5;
+          hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
           player.onPlatform = null;
           player.y = ceilingSpikeH + 5;
           player.vy = 190;
@@ -2058,10 +2580,9 @@
         if (player.y > H + 35) {
           hp = 0;
           updateHUD();
-          triggerGameOver('墜入東京地底無底深淵！');
+          triggerGameOver('墜入東京地下深淵！');
         }
 
-        // 更新震波、粒子與浮動文字
         for (let i = shockwaves.length - 1; i >= 0; i--) {
           const sw = shockwaves[i];
           sw.r += (sw.maxR - sw.r) * 10 * dt;
@@ -2086,110 +2607,86 @@
         }
       }
 
-      // ================== 《東京叢林》末日廢墟美術渲染系統 ==================
-      function drawTokyoJungleBackground() {
-        // 隨深度變換環境色調
+      // ================== 致敬參考圖的「蒼白迷霧 × 高反差廢墟」背景渲染 ==================
+      function drawAtmosphericBackground() {
+        // 參考圖標誌性的明亮冷白迷霧漸層背景，襯托深色寫實猛獸剪影與毛皮肌理
         const grad = ctx.createLinearGradient(0, 0, 0, H);
         if (floor < 30) {
-          grad.addColorStop(0, '#070b0e');
-          grad.addColorStop(1, '#101b16');
+          grad.addColorStop(0, '#eef2f6');
+          grad.addColorStop(0.55, '#d5dde7');
+          grad.addColorStop(1, '#b8c4d4');
         } else if (floor < 60) {
-          grad.addColorStop(0, '#060b14');
-          grad.addColorStop(1, '#0c1f24');
+          grad.addColorStop(0, '#dbe4ee');
+          grad.addColorStop(0.55, '#b8c7d9');
+          grad.addColorStop(1, '#94a8be');
         } else {
-          grad.addColorStop(0, '#130707');
-          grad.addColorStop(1, '#230d08');
+          grad.addColorStop(0, '#e5dcd8');
+          grad.addColorStop(0.55, '#cbbab2');
+          grad.addColorStop(1, '#a68d82');
         }
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, LOGIC_W, H);
 
-        // 頂部探照燈體積光束 (Volumetric Light Shafts)
-        ctx.save();
-        const beamGrad = ctx.createLinearGradient(LOGIC_W * 0.5, 0, LOGIC_W * 0.5, H * 0.75);
-        beamGrad.addColorStop(0, 'rgba(163, 230, 53, 0.08)');
-        beamGrad.addColorStop(1, 'rgba(163, 230, 53, 0)');
-        ctx.fillStyle = beamGrad;
-        ctx.beginPath();
-        ctx.moveTo(LOGIC_W * 0.25, 0);
-        ctx.lineTo(LOGIC_W * 0.75, 0);
-        ctx.lineTo(LOGIC_W * 0.95, H * 0.75);
-        ctx.lineTo(LOGIC_W * 0.05, H * 0.75);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-
-        // 遠景廢棄地鐵拱門與鋼骨剪影
-        const bgScroll = (scrollDistance * 0.35) % 180;
-        ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
-        ctx.lineWidth = 3;
-        for (let y = -bgScroll; y < H + 180; y += 180) {
-          // 橫向廢墟鋼架
-          ctx.fillStyle = 'rgba(15, 23, 30, 0.55)';
-          ctx.fillRect(14, y, LOGIC_W - 28, 12);
-
-          // 閃爍殘破霓虹招牌 (SHIBUYA / 非常口)
-          const flicker = Math.sin(Date.now() * 0.01 + y) > -0.6 ? 0.22 : 0.05;
-          ctx.save();
-          ctx.strokeStyle = `rgba(132, 204, 22, ${flicker})`;
-          ctx.fillStyle = `rgba(132, 204, 22, ${flicker})`;
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(LOGIC_W / 2 - 58, y + 36, 116, 26);
-          ctx.font = '900 11px system-ui, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('SHIBUYA UNDERGROUND', LOGIC_W / 2, y + 53);
-          ctx.restore();
-        }
-
-        // 巨型地下樓層噴漆字樣
-        ctx.save();
-        ctx.fillStyle = 'rgba(148, 163, 184, 0.08)';
-        ctx.font = '900 74px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(formatFloor(floor), LOGIC_W / 2, H * 0.46);
-        ctx.restore();
-
-        // 漂浮森林孢子微粒
-        for (const sp of spores) {
-          ctx.fillStyle = floor >= 60 ? `rgba(251, 146, 60, ${sp.alpha})` : `rgba(190, 242, 100, ${sp.alpha})`;
+        // 遠景模糊廢墟鋼骨橋墩剪影
+        const bgScroll = (scrollDistance * 0.3) % 190;
+        for (let y = -bgScroll; y < H + 190; y += 190) {
+          ctx.fillStyle = 'rgba(71, 85, 105, 0.12)';
+          ctx.fillRect(14, y, LOGIC_W - 28, 16);
           ctx.beginPath();
-          ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+          ctx.moveTo(14, y + 16);
+          ctx.lineTo(65, y + 75);
+          ctx.lineTo(14, y + 75);
+          ctx.moveTo(LOGIC_W - 14, y + 16);
+          ctx.lineTo(LOGIC_W - 65, y + 75);
+          ctx.lineTo(LOGIC_W - 14, y + 75);
           ctx.fill();
         }
 
-        // 兩側水泥斷垣與攀附野生藤蔓
+        // 經典《TOKYO JUNGLE》襯線體巨型樓層浮水印 (如參考圖左下角的黑色巨型數字 "1")
+        ctx.save();
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
+        ctx.font = '900 105px Georgia, "Times New Roman", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(floor), LOGIC_W / 2, H * 0.48);
+        ctx.restore();
+
+        // 流動白霧層
+        for (const mc of mistClouds) {
+          const mGrad = ctx.createRadialGradient(mc.x, mc.y, 4, mc.x, mc.y, mc.r);
+          mGrad.addColorStop(0, `rgba(255, 255, 255, ${mc.alpha})`);
+          mGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = mGrad;
+          ctx.beginPath();
+          ctx.arc(mc.x, mc.y, mc.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 兩側深色斑駁水泥岩壁與枯藤
         const wallW = 13;
-        ctx.fillStyle = '#141c24';
+        ctx.fillStyle = '#27272a';
         ctx.fillRect(0, 0, wallW, H);
         ctx.fillRect(LOGIC_W - wallW, 0, wallW, H);
 
-        for (let y = -wallOffset; y < H; y += 18) {
-          ctx.strokeStyle = '#263238';
+        for (let y = -wallOffset; y < H; y += 20) {
+          ctx.strokeStyle = '#18181b';
           ctx.lineWidth = 1.5;
-          ctx.strokeRect(1, y, wallW - 2, 18);
-          ctx.strokeRect(LOGIC_W - wallW + 1, y, wallW - 2, 18);
-
-          // 野生藤蔓與青苔叢
-          ctx.fillStyle = '#365314';
-          ctx.beginPath();
-          ctx.arc(wallW, y + 9, 4 + Math.sin(y * 0.1) * 2, 0, Math.PI * 2);
-          ctx.arc(LOGIC_W - wallW, y + 9, 4 + Math.cos(y * 0.1) * 2, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.strokeRect(1, y, wallW - 2, 20);
+          ctx.strokeRect(LOGIC_W - wallW + 1, y, wallW - 2, 20);
         }
       }
 
       function drawCeilingSpikes() {
-        // 廢墟隧道頂部生鏽鋼樑與旋轉鑽頭尖刺
-        ctx.fillStyle = '#1c1917';
-        ctx.fillRect(0, 0, LOGIC_W, 8);
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(0, 0, LOGIC_W, 7);
 
         const spikeW = 18;
         const spikeH = 22;
         for (let x = 12; x < LOGIC_W - 12; x += spikeW) {
           const grad = ctx.createLinearGradient(x, 6, x + spikeW, spikeH);
-          grad.addColorStop(0, '#57534e');
-          grad.addColorStop(0.6, '#a8a29e');
-          grad.addColorStop(1, '#991b1b');
+          grad.addColorStop(0, '#27272a');
+          grad.addColorStop(0.6, '#52525b');
+          grad.addColorStop(1, '#7f1d1d');
           ctx.fillStyle = grad;
 
           ctx.beginPath();
@@ -2201,7 +2698,6 @@
         }
       }
 
-      // ================== 繪製 10 種《東京叢林》廢墟階梯（含重量傾斜與下沉） ==================
       function drawPlatforms() {
         const electricCycle = (Date.now() % 1800) < 480;
 
@@ -2212,9 +2708,8 @@
           const cx = p.x + p.w / 2;
           const cy = p.y + p.sagY + p.h / 2;
 
-          // 如果是懸吊招牌，畫出上方懸吊鐵鍊
           if (p.type === 'seesaw') {
-            ctx.strokeStyle = '#64748b';
+            ctx.strokeStyle = '#3f3f46';
             ctx.lineWidth = 2;
             ctx.setLineDash([3, 2]);
             ctx.beginPath();
@@ -2230,40 +2725,38 @@
           const hw = p.w / 2;
           const hh = p.h / 2;
 
+          // 階梯底部投影
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
+          ctx.fillRect(-hw + 2, hh, p.w, 4);
+
           if (p.type === 'steel') {
-            // 🔩 生鏽 H 型鋼樑（超載時閃紅光抖動）
             const overloadShake = p.overloadTimer > 0 ? (Math.random() - 0.5) * 4 : 0;
-            ctx.fillStyle = p.overloadTimer > 0 ? '#7c2d12' : '#334155';
+            ctx.fillStyle = p.overloadTimer > 0 ? '#7c2d12' : '#27272a';
             ctx.fillRect(-hw + overloadShake, -hh, p.w, p.h);
-            ctx.fillStyle = p.overloadTimer > 0 ? '#f97316' : '#64748b';
+            ctx.fillStyle = p.overloadTimer > 0 ? '#ea580c' : '#52525b';
             ctx.fillRect(-hw + overloadShake, -hh, p.w, 3);
             ctx.fillRect(-hw + overloadShake, hh - 3, p.w, 3);
-            // 鋼樑鉚釘與鐵鏽斑塊
-            ctx.fillStyle = '#9a3412';
+            ctx.fillStyle = '#78350f';
             for (let rx = -hw + 8; rx < hw - 6; rx += 16) {
               ctx.fillRect(rx + overloadShake, -2, 6, 4);
             }
           } else if (p.type === 'seesaw') {
-            // ⚖️ 懸吊搖晃澀谷霓虹招牌
-            ctx.fillStyle = '#0f172a';
+            ctx.fillStyle = '#18181b';
             ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.strokeStyle = '#a3e635';
+            ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 2;
             ctx.strokeRect(-hw, -hh, p.w, p.h);
-            // 中央軸心
-            ctx.fillStyle = '#facc15';
+            ctx.fillStyle = '#f59e0b';
             ctx.beginPath();
             ctx.arc(0, 0, 4, 0, Math.PI * 2);
             ctx.fill();
           } else if (p.type === 'wood') {
-            // 🪵 腐朽神社木板
             const shakeX = p.touched && !p.broken ? (Math.random() - 0.5) * 4 : 0;
-            ctx.fillStyle = '#78350f';
+            ctx.fillStyle = '#5c2808';
             ctx.fillRect(-hw + shakeX, -hh, p.w, p.h);
             ctx.fillStyle = '#92400e';
             ctx.fillRect(-hw + shakeX, -hh, p.w, 3);
-            // 斷裂木紋
-            ctx.strokeStyle = '#271206';
+            ctx.strokeStyle = '#1c0a00';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(-12 + shakeX, -hh);
@@ -2272,39 +2765,30 @@
             ctx.lineTo(8 + shakeX, hh);
             ctx.stroke();
           } else if (p.type === 'taxi') {
-            // 🚗 報廢東京計程車頂
             const comp = p.springCompress * 5;
-            ctx.fillStyle = '#15803d';
+            ctx.fillStyle = '#14532d';
             ctx.beginPath();
             ctx.roundRect(-hw, -hh + comp, p.w, p.h, 5);
             ctx.fill();
-            // 計程車頂燈與黃色條紋
-            ctx.fillStyle = '#facc15';
+            ctx.fillStyle = '#d97706';
             ctx.fillRect(-hw + 4, -2 + comp, p.w - 8, 4);
             ctx.fillStyle = '#fef08a';
             ctx.fillRect(-10, -hh - 5 + comp, 20, 5);
           } else if (p.type === 'moss') {
-            // 🌿 青苔水泥斷橋
-            ctx.fillStyle = '#475569';
+            ctx.fillStyle = '#3f3f46';
             ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.fillStyle = '#65a30d';
+            ctx.fillStyle = '#3f6212';
             ctx.fillRect(-hw, -hh, p.w, 5);
-            for (let mx = -hw + 6; mx < hw - 6; mx += 12) {
-              ctx.beginPath();
-              ctx.arc(mx, -hh + 4, 4, 0, Math.PI * 2);
-              ctx.fill();
-            }
           } else if (p.type === 'conveyor_l' || p.type === 'conveyor_r') {
-            // 🚇 廢棄電動步道
-            ctx.fillStyle = '#1e293b';
+            ctx.fillStyle = '#18181b';
             ctx.beginPath();
             ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
-            ctx.strokeStyle = '#eab308';
+            ctx.strokeStyle = '#b45309';
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            ctx.strokeStyle = '#facc15';
+            ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 2;
             const dir = p.type === 'conveyor_r' ? 1 : -1;
             const shift = dir * (conveyorAnim - 8);
@@ -2317,11 +2801,10 @@
               ctx.stroke();
             }
           } else if (p.type === 'barbed') {
-            // 🩸 帶刺鐵絲網路障
-            ctx.fillStyle = '#451a03';
+            ctx.fillStyle = '#271206';
             ctx.fillRect(-hw, -hh + 4, p.w, p.h - 4);
-            ctx.strokeStyle = '#cbd5e1';
-            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#3f3f46';
+            ctx.lineWidth = 1.6;
             for (let sx = -hw + 4; sx < hw - 6; sx += 10) {
               ctx.beginPath();
               ctx.moveTo(sx, -hh + 4);
@@ -2330,15 +2813,10 @@
               ctx.stroke();
             }
           } else if (p.type === 'electric') {
-            // ⚡ 漏電變電箱平台
-            ctx.fillStyle = electricCycle ? '#0284c7' : '#1e293b';
+            ctx.fillStyle = electricCycle ? '#0369a1' : '#1e293b';
             ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.strokeStyle = electricCycle ? '#e0f2fe' : '#38bdf8';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(-hw, -hh, p.w, p.h);
-
             if (electricCycle) {
-              ctx.strokeStyle = '#7dd3fc';
+              ctx.strokeStyle = '#38bdf8';
               ctx.lineWidth = 2;
               ctx.beginPath();
               ctx.moveTo(-hw, -hh - 3);
@@ -2348,25 +2826,19 @@
               ctx.stroke();
             }
           } else if (p.type === 'slanted_l' || p.type === 'slanted_r') {
-            // 🛢️ 傾斜毒液鐵桶架
-            ctx.fillStyle = '#3f3f46';
+            ctx.fillStyle = '#27272a';
             ctx.fillRect(-hw, -hh, p.w, p.h);
-            ctx.fillStyle = '#a3e635';
+            ctx.fillStyle = '#b45309';
             ctx.fillRect(-hw, -hh, p.w, 3);
           } else if (p.type === 'supply') {
-            // 🥩 東京空投補給箱平台
             ctx.fillStyle = '#365314';
             ctx.fillRect(-hw, -hh, p.w, p.h);
             if (p.crateIntact) {
-              ctx.fillStyle = '#eab308';
-              ctx.fillRect(-14, -hh - 18, 28, 18);
-              ctx.strokeStyle = '#713f12';
-              ctx.lineWidth = 2;
-              ctx.strokeRect(-14, -hh - 18, 28, 18);
-              ctx.fillStyle = '#713f12';
-              ctx.font = '900 11px system-ui';
-              ctx.textAlign = 'center';
-              ctx.fillText('🥩', 0, -hh - 5);
+              ctx.fillStyle = '#92400e';
+              ctx.fillRect(-13, -hh - 16, 26, 16);
+              ctx.strokeStyle = '#fef3c7';
+              ctx.lineWidth = 1.5;
+              ctx.strokeRect(-13, -hh - 16, 26, 16);
             }
           }
 
@@ -2374,206 +2846,29 @@
         }
       }
 
-      // ================== 12 種動物寫實剪影與皮毛特徵繪製 ==================
-      function drawAnimalCharacter(x, y, facing, walkFrame, animalId, name, hpVal, alpha = 1, isLocal = false, isAdrenaline = false) {
+      function drawInGameAnimal(x, y, facing, walkFrame, animalId, name, hpVal, alpha = 1, isLocal = false, vy = 0) {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
         ctx.save();
         ctx.globalAlpha = alpha;
 
-        const w = 28;
-        const h = 30;
-        const cx = x + w / 2;
-        const cy = y + h / 2;
+        const cx = x + 15;
+        const cy = y + 14;
 
-        // 頭頂名稱與體重標籤
-        ctx.font = '800 11px system-ui, sans-serif';
+        // 頭頂名稱與血量條
+        ctx.font = '900 11px system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillStyle = isLocal ? '#a3e635' : '#e2e8f0';
-        ctx.fillText(`${name}`, cx, y - 10);
+        ctx.fillStyle = isLocal ? '#78350f' : '#27272a';
+        ctx.fillText(name, cx, y - 11);
 
-        // 頭頂迷你血條
         const barW = 26;
-        ctx.fillStyle = 'rgba(5, 7, 10, 0.85)';
-        ctx.fillRect(cx - barW / 2, y - 6, barW, 3.5);
-        ctx.fillStyle = hpVal > 4 ? '#84cc16' : '#ef4444';
-        ctx.fillRect(cx - barW / 2, y - 6, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
+        ctx.fillStyle = 'rgba(24, 24, 27, 0.85)';
+        ctx.fillRect(cx - barW / 2, y - 7, barW, 3.5);
+        ctx.fillStyle = hpVal > 4 ? '#d97706' : '#dc2626';
+        ctx.fillRect(cx - barW / 2, y - 7, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
 
-        ctx.translate(cx, cy);
-        ctx.scale(facing || 1, 1);
-
-        // 體型縮放（根據動物體重呈現視覺大小差異！）
-        const sizeScale = Math.max(0.84, Math.min(1.26, 0.8 + ani.weight * 0.18));
-        ctx.scale(sizeScale, sizeScale);
-
-        if (isAdrenaline) {
-          ctx.shadowColor = '#facc15';
-          ctx.shadowBlur = 12;
-        }
-
-        const swing = Math.sin(walkFrame || 0) * 3.5;
-
-        // 四肢奔跑動態
-        ctx.fillStyle = ani.furSecondary;
-        ctx.fillRect(-9 + swing, 8, 4, 6);
-        ctx.fillRect(-3 - swing, 8, 4, 6);
-        ctx.fillStyle = ani.furPrimary;
-        ctx.fillRect(3 + swing, 8, 4, 6);
-        ctx.fillRect(7 - swing, 8, 4, 6);
-
-        // 身體軀幹（背光輪廓與皮毛色）
-        ctx.fillStyle = ani.furPrimary;
-        ctx.beginPath();
-        ctx.roundRect(-11, -3, 21, 13, 6);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        // 依據不同動物繪製專屬部位（耳朵、角、象鼻、斑紋、尾巴）
-        if (animalId === 'elephant') {
-          // 巨象：大耳、長鼻、白色象牙
-          ctx.fillStyle = ani.furPrimary;
-          ctx.beginPath();
-          ctx.arc(7, -5, 8, 0, Math.PI * 2);
-          ctx.fill();
-          // 象耳
-          ctx.fillStyle = '#64748b';
-          ctx.beginPath();
-          ctx.ellipse(2, -4, 5, 7, -0.2, 0, Math.PI * 2);
-          ctx.fill();
-          // 象鼻與象牙
-          ctx.strokeStyle = ani.furPrimary;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.moveTo(13, -4);
-          ctx.quadraticCurveTo(19, 2, 15, 7);
-          ctx.stroke();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2.2;
-          ctx.beginPath();
-          ctx.moveTo(11, -1);
-          ctx.lineTo(17, -3);
-          ctx.stroke();
-        } else if (animalId === 'deer') {
-          // 梅花鹿：修長頸部與分叉鹿角 + 白色梅花斑點
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(-6, 1, 2, 2);
-          ctx.fillRect(-1, 3, 2, 2);
-          ctx.fillStyle = ani.furPrimary;
-          ctx.beginPath();
-          ctx.roundRect(4, -10, 9, 9, 4);
-          ctx.fill();
-          // 鹿角
-          ctx.strokeStyle = '#fef3c7';
-          ctx.lineWidth = 1.8;
-          ctx.beginPath();
-          ctx.moveTo(7, -10);
-          ctx.lineTo(5, -17);
-          ctx.moveTo(6, -14);
-          ctx.lineTo(10, -16);
-          ctx.stroke();
-        } else if (animalId === 'rabbit') {
-          // 穴兔：長耳朵與圓白尾
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(-12, 3, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = ani.furPrimary;
-          ctx.beginPath();
-          ctx.arc(6, -5, 6.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.ellipse(4, -14, 2.5, 6, -0.25, 0, Math.PI * 2);
-          ctx.ellipse(8, -14, 2.5, 6, -0.1, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (animalId === 'boar') {
-          // 荒原野豬：背鬃與上彎白色獠牙
-          ctx.fillStyle = ani.furPrimary;
-          ctx.beginPath();
-          ctx.roundRect(3, -7, 11, 11, 4);
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2.2;
-          ctx.beginPath();
-          ctx.moveTo(12, 1);
-          ctx.lineTo(16, -4);
-          ctx.stroke();
-        } else if (animalId === 'panda') {
-          // 大熊貓：黑白拼接、黑眼圈與圓耳
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(-2, -3, 7, 12);
-          ctx.beginPath();
-          ctx.arc(4, -11, 3, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#f8fafc';
-          ctx.beginPath();
-          ctx.arc(7, -5, 7, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#0f172a';
-          ctx.beginPath();
-          ctx.arc(10, -5, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        } else if (animalId === 'croc') {
-          // 灣鱷：修長鋸齒背甲與長顎
-          ctx.fillStyle = ani.furPrimary;
-          ctx.fillRect(4, -5, 14, 7);
-          ctx.fillStyle = '#f8fafc';
-          ctx.fillRect(8, 1, 8, 2);
-          ctx.fillStyle = ani.furSecondary;
-          for (let sx = -10; sx <= 2; sx += 4) {
-            ctx.fillRect(sx, -6, 3, 3);
-          }
-        } else {
-          // 博美犬、街貓、小雞、花豹、牛蛙、河馬頭部與耳朵/尾巴
-          ctx.fillStyle = ani.furPrimary;
-          ctx.beginPath();
-          ctx.arc(7, -5, 7, 0, Math.PI * 2);
-          ctx.fill();
-
-          if (animalId === 'cat' || animalId === 'pomeranian') {
-            // 尖耳與翹尾
-            ctx.beginPath();
-            ctx.moveTo(3, -10);
-            ctx.lineTo(5, -15);
-            ctx.lineTo(8, -11);
-            ctx.moveTo(8, -11);
-            ctx.lineTo(11, -15);
-            ctx.lineTo(12, -9);
-            ctx.fill();
-
-            ctx.strokeStyle = ani.furPrimary;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(-10, 0);
-            ctx.quadraticCurveTo(-16, -6, -13, -12);
-            ctx.stroke();
-          } else if (animalId === 'leopard') {
-            // 花豹黑斑與長尾
-            ctx.fillStyle = '#422006';
-            ctx.fillRect(-6, 0, 3, 3);
-            ctx.fillRect(0, 2, 3, 3);
-            ctx.strokeStyle = ani.furPrimary;
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.moveTo(-10, 1);
-            ctx.quadraticCurveTo(-17, -3, -15, -9);
-            ctx.stroke();
-          } else if (animalId === 'chick') {
-            // 小黃雞橘色鳥喙
-            ctx.fillStyle = '#f97316';
-            ctx.beginPath();
-            ctx.moveTo(13, -6);
-            ctx.lineTo(18, -4);
-            ctx.lineTo(13, -2);
-            ctx.fill();
-          }
-        }
-
-        // 野生發光眼睛
-        ctx.fillStyle = ani.eyeColor;
-        ctx.beginPath();
-        ctx.arc(10, -6, 1.8, 0, Math.PI * 2);
-        ctx.fill();
+        const sizeScale = Math.max(0.86, Math.min(1.25, 0.82 + ani.weight * 0.17));
+        const pitch = Math.max(-0.32, Math.min(0.32, vy * 0.0006));
+        drawRealisticAnimal(ctx, animalId, cx, cy, sizeScale, facing, walkFrame, pitch);
 
         ctx.restore();
       }
@@ -2585,26 +2880,25 @@
           const ani = ANIMAL_MAP[rp.animalId] || ANIMALS[0];
 
           if (screenY > -40 && screenY < H + 40) {
-            drawAnimalCharacter(rp.x, screenY, rp.facing, Date.now() * 0.012, rp.animalId, rp.name, rp.hp, 0.88, false, false);
+            drawInGameAnimal(rp.x, screenY, rp.facing, Date.now() * 0.012, rp.animalId, rp.name, rp.hp, 0.88, false, rp.vy);
           } else {
             ctx.save();
             const clampedY = Math.max(30, Math.min(H - 22, screenY));
-            const cx = Math.max(35, Math.min(LOGIC_W - 35, rp.x + 14));
-            ctx.fillStyle = '#a3e635';
-            ctx.font = '800 11px system-ui, sans-serif';
+            const cx = Math.max(40, Math.min(LOGIC_W - 40, rp.x + 15));
+            ctx.fillStyle = '#18181b';
+            ctx.font = '900 11px system-ui, sans-serif';
             ctx.textAlign = 'center';
             const arrow = screenY < 0 ? '▲' : '▼';
-            ctx.fillText(`${arrow} ${ani.emoji}${rp.name} (B${rp.floor})`, cx, clampedY);
+            ctx.fillText(`${arrow} [${ani.name}] ${rp.name} (B${rp.floor})`, cx, clampedY);
             ctx.restore();
           }
         }
       }
 
       function drawEffects() {
-        // 震波圓環
         for (const sw of shockwaves) {
           ctx.save();
-          ctx.strokeStyle = `rgba(250, 204, 21, ${sw.life * 2.5})`;
+          ctx.strokeStyle = `rgba(180, 83, 9, ${sw.life * 2.5})`;
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.ellipse(sw.x, sw.y, sw.r, sw.r * 0.35, 0, 0, Math.PI * 2);
@@ -2624,7 +2918,7 @@
           ctx.font = '900 13px system-ui, sans-serif';
           ctx.textAlign = 'center';
           ctx.globalAlpha = Math.max(0, pp.life / pp.maxLife);
-          ctx.fillStyle = '#000000';
+          ctx.fillStyle = '#ffffff';
           ctx.fillText(pp.text, pp.x + 1, pp.y + 1);
           ctx.fillStyle = pp.color;
           ctx.fillText(pp.text, pp.x, pp.y);
@@ -2632,7 +2926,9 @@
         }
       }
 
-      function render() {
+      function render(now) {
+        renderSelectScreenPortraits(now);
+
         ctx.save();
         if (shakeTime > 0) {
           const dx = (Math.random() - 0.5) * 9;
@@ -2640,12 +2936,12 @@
           ctx.translate(dx, dy);
         }
 
-        drawTokyoJungleBackground();
+        drawAtmosphericBackground();
         drawPlatforms();
         drawRemotePlayers();
 
         if (!(player.invulnerable > 0 && Math.floor(player.invulnerable * 20) % 2 === 0)) {
-          drawAnimalCharacter(
+          drawInGameAnimal(
             player.x,
             player.y,
             player.facing,
@@ -2655,7 +2951,7 @@
             hp,
             1,
             true,
-            player.adrenalineTimer > 0
+            player.vy
           );
         }
 
@@ -2670,7 +2966,7 @@
         const dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
         update(dt);
-        render();
+        render(now);
         requestAnimationFrame(loop);
       }
 
