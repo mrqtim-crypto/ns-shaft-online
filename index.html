@@ -116,6 +116,44 @@
       margin-right: 4px;
     }
 
+    .hud-charge-wrap {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-charge-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .hud-charge-fill {
+      height: 100%;
+      width: 0%;
+      background: #38bdf8;
+      border-radius: 999px;
+      transition: width 0.12s linear;
+    }
+
+    .hud-charge-fill.ready {
+      background: linear-gradient(90deg, #4ade80, #facc15);
+    }
+
+    .hud-charge-fill.active {
+      background: linear-gradient(90deg, #f472b6, #a855f7);
+    }
+
+    .hud-charge-txt {
+      font-size: 10px;
+      font-weight: 800;
+      color: #bae6fd;
+      white-space: nowrap;
+    }
+
     .hp-bar {
       display: flex;
       gap: 2px;
@@ -905,7 +943,7 @@
           posture: 'leaping_predator', postureName: '挖掘潛行姿', face: -1,
           weight: 0.85, sizeScale: 0.88, speedMul: 1.06, pushMul: 0.9,
           wStat: 3, sStat: 5, cStat: 3, wPct: 30, sPct: 50, pPct: 30,
-          desc: '【鑽地穿板】每下 10 層獲 1 次充能（不疊加），站階梯往下拉可直接穿過腳下階梯！'
+          desc: '【鑽地穿板】每下 10 層獲 1 次充能（用後重算），站階梯往下拉直接穿過腳下階梯！'
         },
         {
           id: 'skunk', name: '臭鼬', en: "SKUNK", isTW: false,
@@ -926,14 +964,14 @@
           posture: 'leaping_predator', postureName: '捲尾擬態姿', face: -1,
           weight: 0.56, sizeScale: 0.82, speedMul: 1.13, pushMul: 0.6,
           wStat: 1, sStat: 6, cStat: 1, wPct: 10, sPct: 60, pPct: 10,
-          desc: '【擬態穿牆】碰牆瞬間從另一邊穿出！每下 10 層獲 1.8s 隱身，免疫推擠、反轉與敲暈。'
+          desc: '【擬態穿牆】碰牆從對側穿出！每下 10 層充能，與對手同梯或碰撞自動隱身 1.8s，且可吃掉蛛網！'
         },
         {
           id: 'bat', name: '蝙蝠', en: "FRUIT BAT", isTW: false,
           posture: 'soaring_bird', postureName: '展翼夜行姿', face: -1,
           weight: 0.56, sizeScale: 0.82, speedMul: 1.18, pushMul: 0.65,
           wStat: 1, sStat: 7, cStat: 1, wPct: 10, sPct: 70, pPct: 10,
-          desc: '【倒掛鋼筋】空中可向下俯衝；每下 20 層獲 1 次充能（不疊加），碰頂部鋼筋免傷彈下！'
+          desc: '【倒掛鋼筋】空中可俯衝；每下 10 層獲 1 次充能（用後重算），碰頂部鋼筋免傷彈下！'
         },
         {
           id: 'treefrog', name: '樹蛙', en: "GREEN TREE FROG", isTW: false,
@@ -961,7 +999,7 @@
           posture: 'soaring_bird', postureName: '巨翼翱翔姿', face: 0,
           weight: 0.99, sizeScale: 1.15, speedMul: 1.13, pushMul: 0.92,
           wStat: 3, sStat: 6, cStat: 3, wPct: 30, sPct: 60, pPct: 30,
-          desc: '【巨翼滑翔】空中可向下俯衝，斜坡不滑落；跑離階梯獲遠距水平滑翔推進！'
+          desc: '【巨翼翱翔】每下 10 層獲充能（用後重算），空中向上拉可多方向飛行 3 秒！離階水平滑翔。'
         },
         {
           id: 'owl', name: '大角鴞', en: "GREAT HORNED OWL", isTW: false,
@@ -996,7 +1034,7 @@
           posture: 'leaping_predator', postureName: '電氣浮游姿', face: -1,
           weight: 0.56, sizeScale: 0.85, speedMul: 1.04, pushMul: 0.55,
           wStat: 1, sStat: 4, cStat: 1, wPct: 10, sPct: 40, pPct: 10,
-          desc: '【觸電麻痺】任何時候碰觸對手皆使對方原地麻痺 0.5 秒！淹水可漂浮且免疫電擊！'
+          desc: '【觸電麻痺】碰觸對手使其麻痺 0.5s！完全免疫漏電與尖刺階梯，淹水可漂浮！'
         },
         {
           id: 'hedgehog', name: '刺蝟', en: "HEDGEHOG", isTW: false,
@@ -1126,9 +1164,8 @@
           return dmg;
         }
         if (source === 'electric') {
-          if (ani.id === 'jellyfish') return 0; // 水母免疫電擊
-          if (ani.id === 'hippo') return 1;
-          return tier === 'heavy' ? 2 : 3;
+          if (ani.id === 'jellyfish') return 0; // 水母免疫漏電
+          return 1;
         }
         if (source === 'ceiling') {
           if (player.giantTimer > 0 || ani.weight >= 2.1) return 3;
@@ -1624,8 +1661,13 @@
         pangolinRollTimer: 0,
         moleCharges: 1,
         batCharges: 1,
+        condorCharges: 1,
+        chamCharges: 1,
+        condorFlyTimer: 0,
         lastMoleFloor: 0,
         lastBatFloor: 0,
+        lastCondorFloor: 0,
+        lastChamFloor: 0,
         moleDropCd: 0,
         tortoiseShell: false,
         actionState: 'idle'
@@ -2326,7 +2368,19 @@
         timeTextEl.textContent = `⏱️ ${padMin}:${padSec}`;
         const curAni = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         if (hudSkillEl) {
-          hudSkillEl.innerHTML = `<strong>${curAni.name}</strong>${curAni.desc}`;
+          let chargeHtml = '';
+          const chargeCfg = {
+            mole: { label: '鑽地穿板', ready: player.moleCharges > 0, active: false, pct: Math.min(100, ((floor - player.lastMoleFloor) / 10) * 100), txt: player.moleCharges > 0 ? '就緒 (往下拉)' : `${Math.max(0, Math.min(10, floor - player.lastMoleFloor))}/10 階` },
+            bat: { label: '頂刺吊掛', ready: player.batCharges > 0, active: false, pct: Math.min(100, ((floor - player.lastBatFloor) / 10) * 100), txt: player.batCharges > 0 ? '就緒' : `${Math.max(0, Math.min(10, floor - player.lastBatFloor))}/10 階` },
+            condor: { label: '巨翼飛行', ready: player.condorCharges > 0, active: player.condorFlyTimer > 0, pct: player.condorFlyTimer > 0 ? (player.condorFlyTimer / 3.0) * 100 : (player.condorCharges > 0 ? 100 : Math.min(100, ((floor - player.lastCondorFloor) / 10) * 100)), txt: player.condorFlyTimer > 0 ? `飛行 ${player.condorFlyTimer.toFixed(1)}s` : (player.condorCharges > 0 ? '就緒 (往上飛)' : `${Math.max(0, Math.min(10, floor - player.lastCondorFloor))}/10 階`) },
+            chameleon: { label: '接觸隱身', ready: player.chamCharges > 0, active: player.phaseTimer > 0, pct: player.phaseTimer > 0 ? (player.phaseTimer / 1.8) * 100 : (player.chamCharges > 0 ? 100 : Math.min(100, ((floor - player.lastChamFloor) / 10) * 100)), txt: player.phaseTimer > 0 ? `隱身 ${player.phaseTimer.toFixed(1)}s` : (player.chamCharges > 0 ? '就緒 (同梯/碰撞)' : `${Math.max(0, Math.min(10, floor - player.lastChamFloor))}/10 階`) }
+          }[curAni.id];
+          if (chargeCfg) {
+            const cls = chargeCfg.active ? 'active' : (chargeCfg.ready ? 'ready' : '');
+            const w = chargeCfg.ready && !chargeCfg.active ? 100 : Math.max(0, Math.min(100, chargeCfg.pct));
+            chargeHtml = `<div class="hud-charge-wrap"><div class="hud-charge-bar"><div class="hud-charge-fill ${cls}" style="width:${w.toFixed(0)}%"></div></div><span class="hud-charge-txt">${chargeCfg.label}：${chargeCfg.txt}</span></div>`;
+          }
+          hudSkillEl.innerHTML = `<strong>${curAni.name}</strong>${curAni.desc}${chargeHtml}`;
         }
       }
 
@@ -2523,8 +2577,13 @@
         player.pangolinRollTimer = 0;
         player.moleCharges = 1;
         player.batCharges = 1;
+        player.condorCharges = 1;
+        player.chamCharges = 1;
+        player.condorFlyTimer = 0;
         player.lastMoleFloor = 0;
         player.lastBatFloor = 0;
+        player.lastCondorFloor = 0;
+        player.lastChamFloor = 0;
         player.moleDropCd = 0;
         player.tortoiseShell = false;
         player.actionState = 'idle';
@@ -2637,8 +2696,8 @@
           if (!plat.touched) {
             plat.touched = true;
             player.streakCount = 0;
-            if (ani.id === 'tortoise' && player.tortoiseShell) {
-              addPopup(cx, cy, '縮殼免疫!', '#16a34a');
+            if ((ani.id === 'tortoise' && player.tortoiseShell) || ani.id === 'jellyfish') {
+              addPopup(cx, cy, ani.id === 'jellyfish' ? '水母免疫!' : '縮殼免疫!', '#16a34a');
             } else {
               let dmg = 5;
               if (ani.id === 'pangolin' || ani.id === 'hedgehog') dmg = 2; // 鱗甲/針刺護體減半
@@ -2659,11 +2718,23 @@
           plat.springCompress = 1;
           player.onPlatform = null;
           player.jumpTimer = 0.35;
-          const weightFactor = ani.id === 'kangaroo' ? 1.18 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
+          const weightFactor = ani.id === 'kangaroo' ? 1.18 : (ani.weight >= 1.6 ? 0.85 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight))));
           player.vy = -410 * weightFactor;
+          if (ani.weight >= 1.6) {
+            shockwaves.push({ x: cx, y: plat.y, r: 8, maxR: 78, life: 0.3, color: '#f59e0b' });
+            publishMsg({ t: 'stomp', wy: Math.round(plat.worldY), x: Math.round(cx) });
+          }
           playSound('spring');
           spawnParticles(cx, plat.y, '#ef4444', 12);
         } else {
+          if (ani.weight >= 1.6) {
+            plat.sagVy += 185;
+            spawnParticles(cx, plat.y, '#78350f', 7);
+            if (impactVy > 220) {
+              shockwaves.push({ x: cx, y: plat.y, r: 6, maxR: 72, life: 0.28, color: '#d97706' });
+              publishMsg({ t: 'stomp', wy: Math.round(plat.worldY), x: Math.round(cx) });
+            }
+          }
           if (!plat.touched) {
             plat.touched = true;
             player.streakCount = (player.streakCount || 0) + 1;
@@ -2859,30 +2930,34 @@
             fieldBanner.timer = 3.0;
             addPopup(LOGIC_W / 2, 92, `⚡ 第 ${floor} 層！速度 +10%`, '#ea580c');
           }
-          if (ani.id === 'mole' && floor % 10 === 0 && floor > player.lastMoleFloor) {
-            player.lastMoleFloor = floor;
+          if (ani.id === 'mole' && player.moleCharges === 0 && (floor - player.lastMoleFloor) >= 10) {
             player.moleCharges = 1;
-            addPopup(player.x + 15, player.y, '鼴鼠鑽地充能!', '#92400e');
+            addPopup(player.x + 15, player.y, '鼴鼠鑽地就緒!', '#92400e');
           }
-          if (ani.id === 'bat' && floor % 20 === 0 && floor > player.lastBatFloor) {
-            player.lastBatFloor = floor;
+          if (ani.id === 'bat' && player.batCharges === 0 && (floor - player.lastBatFloor) >= 10) {
             player.batCharges = 1;
-            addPopup(player.x + 15, player.y, '蝙蝠吊掛充能!', '#7e22ce');
+            addPopup(player.x + 15, player.y, '蝙蝠吊掛就緒!', '#7e22ce');
           }
-          if (ani.id === 'chameleon' && floor % 10 === 0) {
-            player.phaseTimer = Math.max(player.phaseTimer, 1.8);
+          if (ani.id === 'condor' && player.condorCharges === 0 && player.condorFlyTimer <= 0 && (floor - player.lastCondorFloor) >= 10) {
+            player.condorCharges = 1;
+            addPopup(player.x + 15, player.y, '神鷹飛行就緒!', '#d97706');
+          }
+          if (ani.id === 'chameleon' && player.chamCharges === 0 && player.phaseTimer <= 0 && (floor - player.lastChamFloor) >= 10) {
+            player.chamCharges = 1;
+            addPopup(player.x + 15, player.y, '變色龍隱身就緒!', '#16a34a');
           }
           updateHUD();
         }
 
         if (player.moleDropCd > 0) player.moleDropCd = Math.max(0, player.moleDropCd - dt);
 
-        // 更新臭氣雲與蜘蛛絲網並檢查緩速
+        // 更新臭氣雲與蜘蛛絲網並檢查緩速（含食物鏈彩蛋）
         for (let i = skunkClouds.length - 1; i >= 0; i--) {
           const sc = skunkClouds[i];
           sc.life -= dt;
-          if (ani.id !== 'skunk' && Math.hypot((player.x + 15) - sc.x, (player.y + scrollDistance) - sc.worldY) < 42) {
+          if (ani.id !== 'skunk' && ani.id !== 'sloth' && Math.hypot((player.x + 15) - sc.x, (player.y + scrollDistance) - sc.worldY) < 48) {
             player.slowTimer = Math.max(player.slowTimer, 0.6);
+            if (Math.random() < 0.25) spawnParticles(player.x + 15, player.y - 6, '#84cc16', 1);
           }
           if (sc.life <= 0) skunkClouds.splice(i, 1);
         }
@@ -2892,6 +2967,12 @@
           const sy = wb.worldY - scrollDistance;
           if (ani.id !== 'spider' && player.onPlatform && Math.abs((player.y + player.h) - sy) < 16 &&
               player.x + player.w > wb.x && player.x < wb.x + wb.w) {
+            if (ani.id === 'treefrog' || ani.id === 'chameleon') {
+              spiderWebs.splice(i, 1);
+              addPopup(player.x + 15, player.y - 10, '吃掉蛛網!', '#22c55e');
+              spawnParticles(player.x + 15, player.y + 18, '#22c55e', 6);
+              continue;
+            }
             player.slowTimer = Math.max(player.slowTimer, 0.5);
           }
           if (wb.life <= 0) spiderWebs.splice(i, 1);
@@ -2909,7 +2990,21 @@
         if (player.wallWaveCd > 0) player.wallWaveCd = Math.max(0, player.wallWaveCd - dt);
         if (player.wallStickTimer > 0) player.wallStickTimer = Math.max(0, player.wallStickTimer - dt);
         if (player.pangolinRollTimer > 0) player.pangolinRollTimer = Math.max(0, player.pangolinRollTimer - dt);
-        if (player.phaseTimer > 0) player.phaseTimer = Math.max(0, player.phaseTimer - dt);
+        if (player.phaseTimer > 0) {
+          player.phaseTimer = Math.max(0, player.phaseTimer - dt);
+          if (ani.id === 'chameleon' && player.phaseTimer <= 0) {
+            player.lastChamFloor = floor;
+          }
+        }
+        if (player.condorFlyTimer > 0) {
+          player.condorFlyTimer = Math.max(0, player.condorFlyTimer - dt);
+          if (player.condorFlyTimer <= 0) {
+            player.lastCondorFloor = floor;
+          }
+          updateHUD();
+        } else if (ani.id === 'chameleon' && player.phaseTimer > 0) {
+          updateHUD();
+        }
         if (player.reverseTimer > 0) player.reverseTimer = Math.max(0, player.reverseTimer - dt);
         if (player.slowTimer > 0) player.slowTimer = Math.max(0, player.slowTimer - dt);
         if (player.featherTimer > 0) player.featherTimer = Math.max(0, player.featherTimer - dt);
@@ -2965,15 +3060,17 @@
 
           p.totalLoad = load;
 
-          const tiltSensitivity = p.type === 'seesaw' ? 0.24 : (p.type === 'slanted_l' || p.type === 'slanted_r' ? 0.05 : 0.085);
+          const heavyOnBoard = load >= 1.6 || (player.onPlatform === p && ani.weight >= 1.6);
+          const tiltSensitivity = p.type === 'seesaw' ? (heavyOnBoard ? 0.38 : 0.24) : (p.type === 'slanted_l' || p.type === 'slanted_r' ? 0.05 : 0.085);
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽木板或脆化階梯（依體型差異：重型 0.125s、中型 0.20s、輕型 0.29s 斷裂）
+          // 腐朽木板或脆化階梯（依體型差異：重型加快至 0.65 倍時間斷裂）
           if ((p.type === 'wood' || p.brittle) && p.touched && !p.broken) {
             const tier = getBodyTier(ani);
             const brittleLimit = tier === 'heavy' ? 0.125 : (tier === 'light' ? 0.29 : 0.20);
-            const weightRate = p.brittle ? 1.0 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
+            const heavyBreakRate = (player.onPlatform === p && ani.weight >= 1.6) ? 1.54 : 1.0;
+            const weightRate = (p.brittle ? 1.0 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)))) * heavyBreakRate;
             p.breakTimer += dt * weightRate;
             if (p.breakTimer >= (p.brittle ? brittleLimit : 0.21)) {
               p.broken = true;
@@ -3047,6 +3144,7 @@
         if (ani.id === 'mole' && player.onPlatform && !player.onPlatform.broken &&
             input.down && player.moleCharges > 0 && player.moleDropCd <= 0) {
           player.moleCharges = 0;
+          player.lastMoleFloor = floor;
           player.moleDropCd = 0.5;
           player.onPlatform = null;
           player.y += 16;
@@ -3054,6 +3152,7 @@
           playSound('stomp');
           spawnParticles(player.x + 15, player.y, '#78350f', 10);
           addPopup(player.x + 15, player.y - 8, '鼴鼠穿板!', '#92400e');
+          updateHUD();
         }
 
         let speedMultiplier = ani.speedMul;
@@ -3109,15 +3208,31 @@
 
         let totalVx = player.vx + player.pushVx;
         const bodyTier = getBodyTier(ani);
+        const windFlyActive = fieldEvents.windTimer > 0 && ani.posture === 'soaring_bird' && input.up;
+        if (windFlyActive && player.onPlatform) {
+          player.onPlatform = null;
+          player.vy = -150;
+        }
         const isWindImmune = player.giantTimer > 0 || (bodyTier === 'heavy' && ani.posture !== 'soaring_bird') || ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'chameleon';
         if (fieldEvents.windTimer > 0 && !isWindImmune) {
-          const windMult = ani.posture === 'soaring_bird' ? 1.65 : (bodyTier === 'light' ? 1.45 : 0.85);
-          totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135) * windMult;
+          if (windFlyActive) {
+            // 強風飛行系啟動多方向飛行：僅能順風飛行，逆風方向推力抑制
+            if (moveDir !== 0 && moveDir !== fieldEvents.windDir) {
+              totalVx = player.pushVx;
+            } else if (moveDir === fieldEvents.windDir) {
+              totalVx += fieldEvents.windDir * 110;
+            }
+            totalVx += fieldEvents.windDir * 125;
+          } else {
+            const windMult = ani.posture === 'soaring_bird' ? 1.65 : (bodyTier === 'light' ? 1.45 : 0.85);
+            totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135) * windMult;
+          }
         }
 
         if (player.onPlatform) {
           const p = player.onPlatform;
-          const convFactor = ani.id === 'hippo' ? 0.2 : (1 / Math.pow(ani.weight, 0.35));
+          let convFactor = ani.id === 'hippo' ? 0.2 : (1 / Math.pow(ani.weight, 0.35));
+          if (ani.weight >= 1.6 && ani.id !== 'hippo') convFactor *= 0.7; // 重型減 30% 輸送帶推力
           if (p.type === 'conveyor_l') totalVx -= 125 * convFactor;
           if (p.type === 'conveyor_r') totalVx += 125 * convFactor;
 
@@ -3129,12 +3244,13 @@
             totalVx += Math.sign(p.tilt) * 95;
           }
 
-          if (p.type === 'electric' && electricCycle && player.invulnerable <= 0) {
-            player.shockTimer = 0.48;
-            hurtPlayer(getBodyDamage('electric', 3, ani), player.x + 15, player.y, '觸電 ');
+          // 漏電地板隨時漏電：麻痺 1 秒、扣 1 HP（水母完全免疫）
+          if (p.type === 'electric' && player.invulnerable <= 0 && ani.id !== 'jellyfish') {
+            player.shockTimer = 0.6;
+            hurtPlayer(getBodyDamage('electric', 1, ani), player.x + 15, player.y, '觸電 ');
             playSound('shock');
             if (ani.id !== 'hippo') {
-              player.stunTimer = 0.42;
+              player.stunTimer = Math.max(player.stunTimer, 1.0);
             }
           }
         }
@@ -3170,6 +3286,12 @@
             publishMsg({ t: 'skill', ani: ani.id, wy: Math.round(curP.worldY), x: Math.round(cx) });
             if (ani.id === 'sandcat') {
               player.phaseTimer = 2.0;
+            } else if (ani.id === 'chameleon' && player.chamCharges > 0 && player.phaseTimer <= 0) {
+              player.chamCharges = 0;
+              player.phaseTimer = 1.8;
+              player.lastChamFloor = floor;
+              addPopup(cx, player.y - 10, '擬態隱身!', '#22c55e');
+              updateHUD();
             }
             playSound('bump');
           }
@@ -3185,6 +3307,15 @@
 
           const hitW = Math.max(36, 18 * (ani.sizeScale + rpAni.sizeScale));
           if (Math.abs(dx) < hitW && Math.abs(dyWorld) < 34) {
+            // 變色龍與別人碰撞接觸時觸發 1.8s 隱身（消耗充能，用後重算）
+            if (ani.id === 'chameleon' && player.chamCharges > 0 && player.phaseTimer <= 0) {
+              player.chamCharges = 0;
+              player.phaseTimer = 1.8;
+              player.lastChamFloor = floor;
+              addPopup(player.x + 15, player.y - 10, '擬態隱身!', '#22c55e');
+              updateHUD();
+              continue;
+            }
             // 臭鼬被撞或擦碰時噴出 2 秒臭氣雲（僅緩速不擊飛）
             if (ani.id === 'skunk' && player.skillCooldown <= 0) {
               player.skillCooldown = 2.5;
@@ -3407,6 +3538,10 @@
 
         const prevFootY = player.y + player.h;
 
+        if (player.onPlatform && ani.id === 'condor' && player.condorCharges > 0 && player.condorFlyTimer <= 0 && input.up) {
+          player.onPlatform = null;
+          player.y -= 4;
+        }
         if (player.onPlatform) {
           const p = player.onPlatform;
           const relX = (player.x + player.w / 2) - (p.x + p.w / 2);
@@ -3444,9 +3579,34 @@
           }
           const isGlider = ani.posture === 'soaring_bird' || player.featherTimer > 0;
           const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'spider') && (nearLeftWall || nearRightWall);
+          // 安第斯神鷹：空中往上推動即啟動 3 秒多方向飛行
+          if (ani.id === 'condor' && player.condorCharges > 0 && player.condorFlyTimer <= 0 && input.up) {
+            player.condorCharges = 0;
+            player.condorFlyTimer = 3.0;
+            player.lastCondorFloor = floor;
+            addPopup(player.x + 15, player.y - 10, '神鷹翱翔 3s!', '#f59e0b');
+            playSound('spring');
+            updateHUD();
+          }
           let gravity = (isGlider && player.vy > 0) ? 500 : 980;
           let maxFall = isGlider ? 290 : 580;
-          if (isGlider && input.down && player.wallStickTimer <= 0) {
+          if (ani.id === 'condor' && player.condorFlyTimer > 0) {
+            // 神鷹 3 秒多方向自由飛行
+            gravity = 0;
+            maxFall = 260;
+            if (input.up) player.vy = -210;
+            else if (input.down) player.vy = 220;
+            else player.vy *= Math.pow(0.05, dt);
+            if (Math.random() < 0.35) spawnParticles(player.x + 15, player.y + 24, '#fef08a', 1);
+          } else if (windFlyActive) {
+            // 強風期間飛行系可啟動多方向飛行（受風吹影響，僅順風方向飛行）
+            gravity = 0;
+            maxFall = 240;
+            if (input.up) player.vy = -175;
+            else if (input.down) player.vy = 200;
+            else player.vy *= Math.pow(0.1, dt);
+            if (Math.random() < 0.3) spawnParticles(player.x + 15, player.y + 20, '#bae6fd', 1);
+          } else if (isGlider && input.down && player.wallStickTimer <= 0) {
             gravity = 1650;
             maxFall = 760;
             if (Math.random() < 0.35) {
@@ -3461,7 +3621,9 @@
             gravity = 320;
             maxFall = 120;
           }
-          player.vy = Math.min(maxFall, player.vy + gravity * dt);
+          if (!(ani.id === 'condor' && player.condorFlyTimer > 0) && !windFlyActive) {
+            player.vy = Math.min(maxFall, player.vy + gravity * dt);
+          }
 
           // 環尾狐猴空中翻身二段跳
           if (ani.id === 'lemur' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
@@ -3515,6 +3677,7 @@
         if (player.y <= ceilingSpikeH) {
           if (ani.id === 'bat' && player.batCharges > 0) {
             player.batCharges = 0;
+            player.lastBatFloor = floor;
             player.invulnerable = 0.55;
             player.onPlatform = null;
             player.y = ceilingSpikeH + 6;
@@ -3522,6 +3685,7 @@
             playSound('spring');
             addPopup(player.x + player.w / 2, ceilingSpikeH + 18, '蝙蝠吊掛免傷!', '#a855f7');
             spawnParticles(player.x + player.w / 2, ceilingSpikeH + 8, '#a855f7', 10);
+            updateHUD();
           } else {
             const dmg = getBodyDamage('ceiling', 5, ani);
             hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
@@ -3895,8 +4059,8 @@
               ctx.stroke();
             }
           } else if (p.type === 'electric') {
-            // 繪本電擊亮藍雲朵板
-            ctx.fillStyle = electricCycle ? '#38bdf8' : '#64748b';
+            // 繪本電擊亮藍雲朵板（隨時漏電，持續冒電弧）
+            ctx.fillStyle = '#38bdf8';
             ctx.beginPath();
             ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
@@ -3906,16 +4070,14 @@
             ctx.fillStyle = '#fde047';
             ctx.fillRect(-hw + 2, -hh + 1, 9, p.h - 2);
             ctx.fillRect(hw - 11, -hh + 1, 9, p.h - 2);
-            if (electricCycle) {
-              ctx.strokeStyle = '#fef08a';
-              ctx.lineWidth = 2.6;
-              ctx.beginPath();
-              ctx.moveTo(-hw + 10, -hh - 3);
-              for (let ex = -hw + 20; ex <= hw - 10; ex += 10) {
-                ctx.lineTo(ex, -hh - 3 + (Math.random() - 0.5) * 11);
-              }
-              ctx.stroke();
+            ctx.strokeStyle = electricCycle ? '#fef08a' : 'rgba(254, 240, 138, 0.75)';
+            ctx.lineWidth = electricCycle ? 2.6 : 1.8;
+            ctx.beginPath();
+            ctx.moveTo(-hw + 10, -hh - 3);
+            for (let ex = -hw + 20; ex <= hw - 10; ex += 10) {
+              ctx.lineTo(ex, -hh - 3 + (Math.random() - 0.5) * 11);
             }
+            ctx.stroke();
           } else if (p.type === 'slanted_l' || p.type === 'slanted_r') {
             // 繪本滑梯木板
             const slg = ctx.createLinearGradient(0, -hh, 0, hh);
