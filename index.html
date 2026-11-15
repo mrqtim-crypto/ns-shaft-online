@@ -1121,6 +1121,13 @@
         const squash = (1 + Math.sin(phase * 2) * 0.025) * sy;
         targetCtx.scale((ani.face === -1 ? -1 : 1) * sx, squash);
 
+        if (action === 'hurt') {
+          targetCtx.globalAlpha = 0.85;
+        } else if (action === 'shocked') {
+          targetCtx.shadowColor = '#facc15';
+          targetCtx.shadowBlur = 10;
+        }
+
         if (img && img.complete && img.naturalWidth) {
           const ar = img.naturalWidth / img.naturalHeight;
           const baseDim = 40;
@@ -1135,7 +1142,7 @@
         }
         targetCtx.restore();
 
-        // 狀態對應表情符號與動作特效
+        // 純繪圖動作動態（不附加 emoji 或小圖示）
         if (action === 'shocked') {
           targetCtx.save();
           targetCtx.translate(cx, cy);
@@ -1145,53 +1152,16 @@
             const ang = (now * 0.022 + k * 1.57);
             targetCtx.beginPath();
             targetCtx.moveTo(Math.cos(ang) * 10 * s, Math.sin(ang) * 10 * s);
-            targetCtx.lineTo(Math.cos(ang + 0.45) * 19 * s, Math.sin(ang + 0.45) * 19 * s);
+            targetCtx.lineTo(Math.cos(ang + 0.45) * 18 * s, Math.sin(ang + 0.45) * 18 * s);
             targetCtx.stroke();
           }
-          targetCtx.font = '900 14px sans-serif';
-          targetCtx.textAlign = 'center';
-          targetCtx.fillText('⚡😵', 0, -21 * s);
           targetCtx.restore();
         } else if (action === 'hurt') {
           targetCtx.save();
           targetCtx.translate(cx, cy);
-          targetCtx.font = '900 14px sans-serif';
-          targetCtx.textAlign = 'center';
-          targetCtx.fillText('💢😣', 4, -19 * s);
-          targetCtx.restore();
-        } else if (action === 'slipping') {
-          targetCtx.save();
-          targetCtx.translate(cx, cy);
-          targetCtx.font = '900 13px sans-serif';
-          targetCtx.textAlign = 'center';
-          targetCtx.fillText('💦⁉️', 0, -20 * s);
-          targetCtx.restore();
-        } else if (action === 'jumping') {
-          targetCtx.save();
-          targetCtx.translate(cx, cy + 12 * s);
-          targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-          targetCtx.lineWidth = 2;
+          targetCtx.fillStyle = 'rgba(239, 68, 68, 0.25)';
           targetCtx.beginPath();
-          targetCtx.moveTo(-10, 0); targetCtx.lineTo(-12, 8);
-          targetCtx.moveTo(0, 2); targetCtx.lineTo(0, 11);
-          targetCtx.moveTo(10, 0); targetCtx.lineTo(12, 8);
-          targetCtx.stroke();
-          targetCtx.restore();
-        } else if (action === 'airborne') {
-          targetCtx.save();
-          targetCtx.translate(cx, cy);
-          targetCtx.font = '900 12px sans-serif';
-          targetCtx.textAlign = 'center';
-          targetCtx.fillText('💦', 11 * s, -15 * s);
-          targetCtx.restore();
-        } else if (action === 'run') {
-          targetCtx.save();
-          targetCtx.translate(cx - (facing || 1) * 14 * s, cy + 13 * s);
-          targetCtx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-          const puff = (now * 0.015) % 6;
-          targetCtx.beginPath();
-          targetCtx.arc(-puff * (facing || 1), -puff * 0.5, 3, 0, Math.PI * 2);
-          targetCtx.arc(-(puff + 4) * (facing || 1), -puff * 0.3, 2, 0, Math.PI * 2);
+          targetCtx.ellipse(0, 0, 16 * s, 14 * s, 0, 0, Math.PI * 2);
           targetCtx.fill();
           targetCtx.restore();
         }
@@ -1503,17 +1473,18 @@
       };
 
       const PICKUPS = [
-        { id: 'heal',    icon: '❤️', color: '#ef4444', label: '急救補血' },
-        { id: 'freeze',  icon: '❄️', color: '#0284c7', label: '全場冷凍 5 秒！' },
-        { id: 'ceiling', icon: '🔻', color: '#dc2626', label: '頂刺下壓 5 秒！' },
-        { id: 'walls',   icon: '🧱', color: '#d97706', label: '牆壁推擠 5 秒！' },
-        { id: 'feather', icon: '⚡', color: '#ca8a04', label: '疾風加速 5 秒！' },
-        { id: 'reverse', icon: '🌀', color: '#7c3aed', label: '全場反轉 5 秒！' },
-        { id: 'wind',    icon: '💨', color: '#0891b2', label: '強風吹襲 5 秒！' },
-        { id: 'giant',   icon: '🍄', color: '#ea580c', label: '巨無霸 5 秒！' },
-        { id: 'rush',    icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
-        { id: 'magnet',  icon: '🧲', color: '#db2777', label: '中央磁場 5 秒！' },
-        { id: 'brittle', icon: '💥', color: '#b45309', label: '階梯脆化 5 秒！' }
+        { id: 'heal',      icon: '❤️', color: '#ef4444', label: '急救補血' },
+        { id: 'freeze',    icon: '❄️', color: '#0284c7', label: '全場冷凍 2 秒！' },
+        { id: 'ceiling',   icon: '🔻', color: '#dc2626', label: '頂刺下壓 5 秒！' },
+        { id: 'walls',     icon: '🧱', color: '#d97706', label: '牆壁推擠 5 秒！' },
+        { id: 'feather',   icon: '⚡', color: '#ca8a04', label: '疾風加速 5 秒！' },
+        { id: 'reverse',   icon: '🌀', color: '#7c3aed', label: '全場反轉 5 秒！' },
+        { id: 'wind',      icon: '💨', color: '#0891b2', label: '強風吹襲 5 秒！' },
+        { id: 'giant',     icon: '🍄', color: '#ea580c', label: '巨無霸 5 秒！' },
+        { id: 'rush',      icon: '⬆️', color: '#e11d48', label: '地下崩塌 5 秒！' },
+        { id: 'magnet',    icon: '🧲', color: '#db2777', label: '中央磁場 5 秒！' },
+        { id: 'brittle',   icon: '💥', color: '#b45309', label: '階梯脆化 0.4 秒！' },
+        { id: 'rockslide', icon: '🪨', color: '#78350f', label: '土石流落石 5 秒！' }
       ];
       const PICKUP_MAP = Object.fromEntries(PICKUPS.map(p => [p.id, p]));
 
@@ -1522,25 +1493,33 @@
         freezeByMe: false,
         ceilingTimer: 0,
         wallTimer: 0,
+        wallSide: 1,
         windTimer: 0,
         windDir: 1,
         rushTimer: 0,
         magnetTimer: 0,
-        brittleTimer: 0
+        brittleTimer: 0,
+        rockslideTimer: 0
       };
       const fieldBanner = { text: '', color: '#d97706', timer: 0, maxTimer: 3.4 };
+      let rockslideRocks = [];
+      let rockSpawnCd = 0;
 
       function resetFieldEvents() {
         fieldEvents.freezeTimer = 0;
         fieldEvents.freezeByMe = false;
         fieldEvents.ceilingTimer = 0;
         fieldEvents.wallTimer = 0;
+        fieldEvents.wallSide = 1;
         fieldEvents.windTimer = 0;
         fieldEvents.windDir = 1;
         fieldEvents.rushTimer = 0;
         fieldEvents.magnetTimer = 0;
         fieldEvents.brittleTimer = 0;
+        fieldEvents.rockslideTimer = 0;
         fieldBanner.timer = 0;
+        rockslideRocks = [];
+        rockSpawnCd = 0;
       }
 
       function triggerPickupEvent(kind, isMine, extraDir = 1, actorName = '') {
@@ -1550,6 +1529,8 @@
         let bannerLabel = pk.label;
         if (kind === 'wind') {
           bannerLabel = extraDir > 0 ? '強風向右吹 5 秒！➡️' : '⬅️ 強風向左吹 5 秒！';
+        } else if (kind === 'walls') {
+          bannerLabel = extraDir < 0 ? '左側牆壁推擠 5 秒！' : '右側牆壁推擠 5 秒！';
         }
         if (kind !== 'heal' && kind !== 'feather' && kind !== 'giant') {
           fieldBanner.text = `${pk.icon} ${who}觸發【${bannerLabel}】`;
@@ -1568,7 +1549,7 @@
             playSound('supply');
           }
         } else if (kind === 'freeze') {
-          fieldEvents.freezeTimer = 5.0;
+          fieldEvents.freezeTimer = 2.0;
           fieldEvents.freezeByMe = isMine;
           playSound('shock');
         } else if (kind === 'ceiling') {
@@ -1576,6 +1557,7 @@
           playSound('stomp');
         } else if (kind === 'walls') {
           fieldEvents.wallTimer = 5.0;
+          fieldEvents.wallSide = extraDir < 0 ? -1 : 1;
           playSound('stomp');
         } else if (kind === 'feather') {
           if (isMine) { player.featherTimer = 5.0; playSound('spring'); }
@@ -1601,6 +1583,10 @@
           for (const plat of platforms) {
             if (plat.type === 'steel' && !plat.broken) plat.brittle = true;
           }
+          playSound('stomp');
+        } else if (kind === 'rockslide') {
+          fieldEvents.rockslideTimer = 5.0;
+          rockSpawnCd = 0.1;
           playSound('stomp');
         }
       }
@@ -2405,14 +2391,21 @@
         }
       }
 
-      function getWallWidth() {
-        if (fieldEvents.wallTimer <= 0) return 13;
-        const t = fieldEvents.wallTimer; // 5.5 -> 0
-        // 0.8s 內推，3.5s 維持，1.2s 退回
+      function getWallPushPx() {
+        if (fieldEvents.wallTimer <= 0) return 0;
+        const t = fieldEvents.wallTimer; // 5.0 -> 0
+        // 0.7s 內推，3.3s 維持，1.0s 退回（推到畫面中心附近，剩餘 55% 空間）
         let p = 1;
-        if (t > 4.7) p = (5.5 - t) / 0.8;
-        else if (t < 1.2) p = t / 1.2;
-        return 13 + Math.round(48 * Math.max(0, Math.min(1, p)));
+        if (t > 4.3) p = (5.0 - t) / 0.7;
+        else if (t < 1.0) p = t / 1.0;
+        const maxPush = Math.round((LOGIC_W - 26) * 0.45);
+        return Math.round(maxPush * Math.max(0, Math.min(1, p)));
+      }
+      function getLeftWallWidth() {
+        return 13 + (fieldEvents.wallSide < 0 ? getWallPushPx() : 0);
+      }
+      function getRightWallWidth() {
+        return 13 + (fieldEvents.wallSide >= 0 ? getWallPushPx() : 0);
       }
 
       function getCeilingSpikeH() {
@@ -2448,14 +2441,60 @@
         if (fieldEvents.rushTimer > 0) fieldEvents.rushTimer = Math.max(0, fieldEvents.rushTimer - dt);
         if (fieldEvents.magnetTimer > 0) fieldEvents.magnetTimer = Math.max(0, fieldEvents.magnetTimer - dt);
         if (fieldEvents.brittleTimer > 0) fieldEvents.brittleTimer = Math.max(0, fieldEvents.brittleTimer - dt);
+        if (fieldEvents.rockslideTimer > 0) fieldEvents.rockslideTimer = Math.max(0, fieldEvents.rockslideTimer - dt);
         if (fieldBanner.timer > 0) fieldBanner.timer = Math.max(0, fieldBanner.timer - dt);
 
-        const isFrozenTarget = fieldEvents.freezeTimer > 0 && !fieldEvents.freezeByMe;
-        const scrollFrozen = fieldEvents.freezeTimer > 0;
+        // 土石流隨機落石生成與掉落碰撞
+        if (fieldEvents.rockslideTimer > 0) {
+          rockSpawnCd -= dt;
+          if (rockSpawnCd <= 0) {
+            rockSpawnCd = 0.34;
+            const lw = getLeftWallWidth();
+            const rw = getRightWallWidth();
+            const span = Math.max(40, LOGIC_W - lw - rw - 24);
+            rockslideRocks.push({
+              x: lw + 12 + Math.random() * span,
+              y: -18,
+              r: 11 + Math.random() * 5,
+              vy: 330 + Math.random() * 60,
+              warn: 0.42
+            });
+          }
+        }
+        for (let ri = rockslideRocks.length - 1; ri >= 0; ri--) {
+          const rk = rockslideRocks[ri];
+          if (rk.warn > 0) {
+            rk.warn -= dt;
+            continue;
+          }
+          rk.y += rk.vy * dt;
+          const pcx = player.x + player.w / 2;
+          const pcy = player.y + player.h / 2;
+          if (Math.hypot(rk.x - pcx, rk.y - pcy) < rk.r + 14) {
+            rockslideRocks.splice(ri, 1);
+            spawnParticles(rk.x, rk.y, '#78350f', 10);
+            if (player.invulnerable <= 0) {
+              hurtPlayer(3, pcx, pcy, '落石砸中 ');
+              const immuneDrop = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'hippo' || ani.id === 'bison' || ani.id === 'sloth' || ani.id === 'pangolin';
+              if (!immuneDrop) {
+                player.onPlatform = null;
+                player.vy = 180;
+                player.stunTimer = 0.25;
+                addPopup(pcx, player.y - 12, '被砸落！', '#dc2626');
+              } else {
+                addPopup(pcx, player.y - 12, '穩住不掉落！', '#15803d');
+              }
+            }
+            continue;
+          }
+          if (rk.y > H + 30) rockslideRocks.splice(ri, 1);
+        }
 
+        const isFrozenTarget = fieldEvents.freezeTimer > 0 && !fieldEvents.freezeByMe;
+        // 冷凍只凍住角色，畫面捲動持續進行！
         scrollSpeed = Math.min(242, 112 + floor * 1.32);
         if (fieldEvents.rushTimer > 0) scrollSpeed *= 1.6;
-        const dy = scrollFrozen ? 0 : scrollSpeed * dt;
+        const dy = scrollSpeed * dt;
 
         scrollDistance += dy;
         wallOffset = (wallOffset + dy) % 36;
@@ -2542,11 +2581,11 @@
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽神社木板或脆化鋼鐵階梯
+          // 腐朽木板或脆化階梯（脆化固定 0.40 秒斷裂）
           if ((p.type === 'wood' || p.brittle) && p.touched && !p.broken) {
-            const weightRate = p.brittle ? 0.72 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
+            const weightRate = p.brittle ? 1.0 : ((ani.id === 'octopus' || ani.id === 'sandcat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight)));
             p.breakTimer += dt * weightRate;
-            if (p.breakTimer >= 0.42) {
+            if (p.breakTimer >= (p.brittle ? 0.40 : 0.42)) {
               p.broken = true;
               spawnParticles(p.x + p.w / 2, p.y, '#78350f', 12);
               if (player.onPlatform === p) player.onPlatform = null;
@@ -2790,26 +2829,27 @@
           }
         }
 
-        // 左右岩壁邊界（支援牆壁推擠內縮 + 跳羚蹬牆跳）
-        const wallWidth = getWallWidth();
-        if (player.x <= wallWidth) {
-          player.x = wallWidth;
+        // 左右岩壁邊界（支援單側推擠至空間剩 55% + 跳羚蹬牆跳）
+        const leftWallW = getLeftWallWidth();
+        const rightWallW = getRightWallWidth();
+        if (player.x <= leftWallW) {
+          player.x = leftWallW;
           if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
             player.vy = -295;
             player.pushVx = 165;
             playSound('spring');
-            addPopup(player.x + 15, player.y, '長鬃山羊蹬壁！', '#18181b');
+            addPopup(player.x + 15, player.y, '跳羚蹬壁！', '#78350f');
           }
         }
-        if (player.x + player.w >= LOGIC_W - wallWidth) {
-          player.x = LOGIC_W - wallWidth - player.w;
+        if (player.x + player.w >= LOGIC_W - rightWallW) {
+          player.x = LOGIC_W - rightWallW - player.w;
           if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
             player.vy = -295;
             player.pushVx = -165;
             playSound('spring');
-            addPopup(player.x + 15, player.y, '長鬃山羊蹬壁！', '#18181b');
+            addPopup(player.x + 15, player.y, '跳羚蹬壁！', '#78350f');
           }
         }
 
@@ -2949,29 +2989,35 @@
           ctx.restore();
         }
 
-        // 繪本圓木岩壁（牆壁推擠事件時變成橘紅警告條紋木樁）
-        const wallW = getWallWidth();
-        const wallColor = fieldEvents.wallTimer > 0 ? '#c2410c' : '#854d0e';
-        const wallInner = fieldEvents.wallTimer > 0 ? '#ea580c' : '#a16207';
-        ctx.fillStyle = wallColor;
-        ctx.fillRect(0, 0, wallW, H);
-        ctx.fillRect(LOGIC_W - wallW, 0, wallW, H);
-        ctx.fillStyle = wallInner;
-        ctx.fillRect(0, 0, Math.max(2, wallW - 4), H);
-        ctx.fillRect(LOGIC_W - wallW + 4, 0, Math.max(2, wallW - 4), H);
+        // 繪本圓木岩壁（單側推擠事件時推到畫面中心，剩餘 55% 空間）
+        const lw = getLeftWallWidth();
+        const rw = getRightWallWidth();
+        const lPushed = fieldEvents.wallTimer > 0 && fieldEvents.wallSide < 0;
+        const rPushed = fieldEvents.wallTimer > 0 && fieldEvents.wallSide >= 0;
+
+        ctx.fillStyle = lPushed ? '#c2410c' : '#854d0e';
+        ctx.fillRect(0, 0, lw, H);
+        ctx.fillStyle = rPushed ? '#c2410c' : '#854d0e';
+        ctx.fillRect(LOGIC_W - rw, 0, rw, H);
+
+        ctx.fillStyle = lPushed ? '#ea580c' : '#a16207';
+        ctx.fillRect(0, 0, Math.max(2, lw - 4), H);
+        ctx.fillStyle = rPushed ? '#ea580c' : '#a16207';
+        ctx.fillRect(LOGIC_W - rw + 4, 0, Math.max(2, rw - 4), H);
 
         // 深棕手繪邊線
-        ctx.fillStyle = fieldEvents.wallTimer > 0 ? '#fde047' : '#451a03';
-        ctx.fillRect(wallW - 2.5, 0, 2.5, H);
-        ctx.fillRect(LOGIC_W - wallW, 0, 2.5, H);
+        ctx.fillStyle = lPushed ? '#fde047' : '#451a03';
+        ctx.fillRect(lw - 2.5, 0, 2.5, H);
+        ctx.fillStyle = rPushed ? '#fde047' : '#451a03';
+        ctx.fillRect(LOGIC_W - rw, 0, 2.5, H);
 
         // 手繪原木石塊圓角紋理
         ctx.strokeStyle = '#5c3a21';
         ctx.lineWidth = 1.6;
         for (let y = -wallOffset; y < H; y += 22) {
           ctx.beginPath();
-          ctx.roundRect(1, y + 1, wallW - 4, 19, 4);
-          ctx.roundRect(LOGIC_W - wallW + 3, y + 1, wallW - 4, 19, 4);
+          ctx.roundRect(1, y + 1, Math.max(4, lw - 4), 19, 4);
+          ctx.roundRect(LOGIC_W - rw + 3, y + 1, Math.max(4, rw - 4), 19, 4);
           ctx.stroke();
         }
       }
@@ -3317,18 +3363,15 @@
         const cx = x + 15;
         // 腳底精準對齊 y + 28（階梯表面）
         const cy = (y + 28) - 15 * s;
-        const headY = cy - 22 * s;
+        const headY = cy - 23 * s - 12;
 
         ctx.font = '900 11px system-ui, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillStyle = isLocal ? '#78350f' : '#27272a';
-        ctx.fillText(name, cx, headY - 6);
-
-        const barW = 28;
-        ctx.fillStyle = 'rgba(24, 24, 27, 0.85)';
-        ctx.fillRect(cx - barW / 2, headY - 3, barW, 3.5);
-        ctx.fillStyle = hpVal > 4 ? '#d97706' : '#dc2626';
-        ctx.fillRect(cx - barW / 2, headY - 3, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+        ctx.strokeText(name, cx, headY);
+        ctx.fillStyle = isLocal ? '#92400e' : '#451a03';
+        ctx.fillText(name, cx, headY);
 
         const pitch = ani.posture === 'bipedal_bear' ? 0 : Math.max(-0.28, Math.min(0.28, vy * 0.0005));
         drawAuthenticAnimal(ctx, animalId, cx, cy, inGameBaseScale, facing, walkFrame, pitch, action);
@@ -3416,6 +3459,39 @@
           ctx.beginPath();
           ctx.arc(LOGIC_W / 2, H * 0.45, r, 0, Math.PI * 2);
           ctx.stroke();
+          ctx.restore();
+        }
+
+        // 土石流落石與落點預警
+        for (const rk of rockslideRocks) {
+          ctx.save();
+          if (rk.warn > 0) {
+            ctx.fillStyle = 'rgba(220, 38, 38, 0.85)';
+            ctx.beginPath();
+            ctx.moveTo(rk.x, 36);
+            ctx.lineTo(rk.x - 8, 22);
+            ctx.lineTo(rk.x + 8, 22);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(rk.x, 36); ctx.lineTo(rk.x, H);
+            ctx.stroke();
+          } else {
+            ctx.translate(rk.x, rk.y);
+            ctx.fillStyle = '#78350f';
+            ctx.beginPath();
+            ctx.arc(0, 0, rk.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 2.2;
+            ctx.stroke();
+            ctx.fillStyle = '#a16207';
+            ctx.beginPath();
+            ctx.arc(-rk.r * 0.3, -rk.r * 0.3, rk.r * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+          }
           ctx.restore();
         }
 
