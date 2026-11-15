@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#fdf6e3" />
-  <title>繪本森林大冒險 × 24動物多人連線版</title>
+  <title>動物大遷徙 × 24動物多人連線版</title>
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
   <style>
     * {
@@ -755,7 +755,7 @@
       <div class="overlay" id="overlay">
         <div class="card">
           <div class="header-banner">
-            <div class="title" id="overlayTitle">繪本森林 · 24 動物</div>
+            <div class="title" id="overlayTitle">動物大遷徙</div>
             <div class="badge" id="overlayBadge">體重 · 速度 · 衝撞</div>
           </div>
 
@@ -830,21 +830,21 @@
       const ANIMALS = [
         {
           id: 'elephant', name: '非洲象', en: "AFRICAN ELEPHANT", isTW: false,
-          posture: 'colossal', postureName: '巨型重裝壓迫姿', face: 1,
+          posture: 'colossal', postureName: '巨型重裝壓迫姿', face: -1,
           weight: 2.5, sizeScale: 1.55, speedMul: 0.95, pushMul: 2.0,
           wStat: 10, sStat: 3, cStat: 10, wPct: 100, sPct: 30, pPct: 100,
           desc: '【震地重踏】全場最重！高處落地釋放重壓震波震飛同階梯對手，單側可壓垮翹翹板。'
         },
         {
           id: 'hippo', name: '河馬', en: "HIPPOPOTAMUS", isTW: false,
-          posture: 'colossal', postureName: '巨口咆哮姿', face: 1,
+          posture: 'colossal', postureName: '巨口咆哮姿', face: -1,
           weight: 2.29, sizeScale: 1.35, speedMul: 0.95, pushMul: 1.84,
           wStat: 9, sStat: 3, cStat: 9, wPct: 90, sPct: 30, pPct: 90,
           desc: '【厚皮絕緣】完全免疫青苔打滑、輸送帶推力與漏電麻痺，噸位壓制全場。'
         },
         {
           id: 'bison', name: '歐亞野牛', en: "EUROPEAN BISON", isTW: false,
-          posture: 'colossal', postureName: '低頭彎角衝刺姿', face: 1,
+          posture: 'colossal', postureName: '低頭彎角衝刺姿', face: -1,
           weight: 2.07, sizeScale: 1.3, speedMul: 1.07, pushMul: 1.84,
           wStat: 8, sStat: 5, cStat: 9, wPct: 80, sPct: 50, pPct: 90,
           desc: '【蠻牛衝撞】同方向奔跑 0.3 秒後進入猛衝，速度 +32% 並撞飛路徑上的對手。'
@@ -872,7 +872,7 @@
         },
         {
           id: 'jaguar', name: '美洲豹', en: "JAGUAR", isTW: false,
-          posture: 'leaping_predator', postureName: '低伏潛行姿', face: 1,
+          posture: 'leaping_predator', postureName: '低伏潛行姿', face: -1,
           weight: 1.21, sizeScale: 1.1, speedMul: 1.24, pushMul: 1.38,
           wStat: 4, sStat: 8, cStat: 6, wPct: 40, sPct: 80, pPct: 60,
           desc: '【暗影飛撲】助跑跳出階梯觸發遠距飛撲；踩中其他動物頭頂可借力二段跳。'
@@ -886,7 +886,7 @@
         },
         {
           id: 'deer', name: '紅鹿', en: "RED DEER", isTW: false,
-          posture: 'bounding_ungulate', postureName: '高昂鹿角姿', face: 1,
+          posture: 'bounding_ungulate', postureName: '高昂鹿角姿', face: -1,
           weight: 1.21, sizeScale: 1.2, speedMul: 1.24, pushMul: 1.23,
           wStat: 4, sStat: 8, cStat: 5, wPct: 40, sPct: 80, pPct: 50,
           desc: '【林間跳躍】踩上彈跳車頂時高度受控不撞頂刺，每次彈跳回復 +2 HP。'
@@ -942,7 +942,7 @@
         },
         {
           id: 'fox', name: '北極狐', en: "ARCTIC FOX", isTW: false,
-          posture: 'leaping_predator', postureName: '雪地輕步姿', face: 1,
+          posture: 'leaping_predator', postureName: '雪地輕步姿', face: -1,
           weight: 0.78, sizeScale: 0.9, speedMul: 1.24, pushMul: 0.76,
           wStat: 2, sStat: 8, cStat: 2, wPct: 20, sPct: 80, pPct: 20,
           desc: '【嗅覺本能】對補給敏銳，每次踩上新階梯有機率額外 +1 HP。'
@@ -1104,8 +1104,6 @@
       // ================== 動物動態動作引擎（移動 / 跳躍 / 騰空 / 刺到 / 電到 / 滾輪驚訝） ==================
       const SPRITES = {};
       ANIMALS.forEach((a) => { const img = new Image(); img.src = `animals/${a.id}.png?v=3`; SPRITES[a.id] = img; });
-      const DINO_IMG = new Image();
-      DINO_IMG.src = 'animals/trex_boss.png?v=1';
 
       function drawAuthenticAnimal(targetCtx, animalId, cx, cy, baseScale, facing, phase, leapPitch = 0, action = 'idle') {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
@@ -1403,18 +1401,6 @@
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
           osc.start(now);
           osc.stop(now + 0.34);
-        } else if (type === 'dino') {
-          // 暴龍 Boss 登場低吼警告雙音
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(140, now);
-          osc.frequency.linearRampToValueAtTime(75, now + 0.18);
-          osc.frequency.setValueAtTime(155, now + 0.22);
-          osc.frequency.linearRampToValueAtTime(65, now + 0.45);
-          gain.gain.setValueAtTime(0.24, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.46);
-          osc.start(now);
-          osc.stop(now + 0.46);
-          if (navigator.vibrate) navigator.vibrate([70, 40, 90]);
         } else if (type === 'bump') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(160, now);
@@ -1561,42 +1547,6 @@
       let rockslideRocks = [];
       let rockSpawnCd = 0;
 
-      const dinoBoss = {
-        active: false,
-        leaving: false,
-        x: 190,
-        y: -60,
-        vx: 0,
-        vy: 0,
-        facing: 1,
-        timer: 0,
-        standTime: 0,
-        dropCooldown: 0,
-        targetFloor: 0
-      };
-      let lastDinoFloor = 0;
-
-      function spawnDinoBoss(fl) {
-        if (dinoBoss.active && dinoBoss.targetFloor === fl) return;
-        dinoBoss.active = true;
-        dinoBoss.leaving = false;
-        dinoBoss.x = LOGIC_W / 2;
-        dinoBoss.y = 44;
-        dinoBoss.vx = 0;
-        dinoBoss.vy = 60;
-        dinoBoss.facing = 1;
-        dinoBoss.timer = 13.0;
-        dinoBoss.standTime = 0;
-        dinoBoss.dropCooldown = 0;
-        dinoBoss.targetFloor = fl;
-        lastDinoFloor = Math.max(lastDinoFloor, fl);
-        playSound('dino');
-        fieldBanner.text = `🦖 第 ${fl} 層 Boss【巨型暴龍從天而降追擊中！】`;
-        fieldBanner.color = '#15803d';
-        fieldBanner.timer = 3.8;
-        addPopup(LOGIC_W / 2, 72, '🦖 巨型暴龍來襲！快逃！', '#15803d');
-      }
-
       function resetFieldEvents() {
         fieldEvents.freezeTimer = 0;
         fieldEvents.freezeByMe = false;
@@ -1612,7 +1562,6 @@
         fieldBanner.timer = 0;
         rockslideRocks = [];
         rockSpawnCd = 0;
-        dinoBoss.active = false;
       }
 
       function triggerPickupEvent(kind, isMine, extraDir = 1, actorName = '') {
@@ -1943,18 +1892,6 @@
             }
           }
           triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
-        } else if (msg.t === 'dino') {
-          if (state === 'PLAYING' && msg.fl > lastDinoFloor) {
-            spawnDinoBoss(msg.fl);
-          }
-        } else if (msg.t === 'dino_eat') {
-          if (dinoBoss.active && (!msg.fl || dinoBoss.targetFloor === msg.fl)) {
-            dinoBoss.leaving = true;
-            dinoBoss.vy = -420;
-            fieldBanner.text = `🦖 暴龍咬飛了 ${msg.name || '對手'} 後滿足離開了！`;
-            fieldBanner.color = '#15803d';
-            fieldBanner.timer = 3.2;
-          }
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -2339,7 +2276,6 @@
         player.stillTimer = 0;
         player.capyHealCd = 0;
         player.actionState = 'idle';
-        lastDinoFloor = 0;
         resetFieldEvents();
 
         updateAnimalSelectionUI();
@@ -2632,87 +2568,7 @@
           if (ani.id === 'chameleon' && floor % 10 === 0) {
             player.phaseTimer = Math.max(player.phaseTimer, 1.8);
           }
-          if (floor >= 25 && floor % 25 === 0 && floor > lastDinoFloor) {
-            spawnDinoBoss(floor);
-            publishMsg({ t: 'dino', fl: floor });
-          }
           updateHUD();
-        }
-
-        // 每 25 層巨型哥吉拉暴龍 Boss 追擊邏輯（佔據整個階梯尺寸，強化向下追擊 AI）
-        if (dinoBoss.active) {
-          dinoBoss.timer -= dt;
-          if (dinoBoss.dropCooldown > 0) dinoBoss.dropCooldown = Math.max(0, dinoBoss.dropCooldown - dt);
-          if (dinoBoss.leaving) {
-            dinoBoss.vy = -440;
-            dinoBoss.y += dinoBoss.vy * dt;
-            if (dinoBoss.y < -110) dinoBoss.active = false;
-          } else {
-            dinoBoss.vy = Math.min(480, dinoBoss.vy + 820 * dt);
-            const prevDinoY = dinoBoss.y;
-            dinoBoss.y += dinoBoss.vy * dt - dy;
-
-            let dinoPlat = null;
-            if (dinoBoss.vy >= 0 && dinoBoss.dropCooldown <= 0) {
-              for (const p of platforms) {
-                if (p.broken) continue;
-                if (dinoBoss.x >= p.x - 16 && dinoBoss.x <= p.x + p.w + 16 &&
-                    prevDinoY + 42 <= p.y + 8 && dinoBoss.y + 42 >= p.y - 4) {
-                  dinoBoss.y = p.y - 42;
-                  dinoBoss.vy = 0;
-                  dinoPlat = p;
-                  break;
-                }
-              }
-            }
-
-            const playerBelow = (player.y + 14) > dinoBoss.y + 24;
-            let goalX = player.x + 15;
-            if (dinoPlat && playerBelow) {
-              dinoBoss.standTime += dt;
-              // 站在階梯上時積極衝向最近邊緣往下掉，超過 0.45 秒直接躍下追擊！
-              const leftEdge = dinoPlat.x - 18;
-              const rightEdge = dinoPlat.x + dinoPlat.w + 18;
-              goalX = Math.abs(goalX - leftEdge) < Math.abs(goalX - rightEdge) ? leftEdge : rightEdge;
-              if (dinoBoss.standTime >= 0.45) {
-                dinoBoss.dropCooldown = 0.28;
-                dinoBoss.standTime = 0;
-                dinoBoss.vy = 140;
-              }
-            } else {
-              dinoBoss.standTime = 0;
-            }
-
-            const dxDino = goalX - dinoBoss.x;
-            if (Math.abs(dxDino) > 4) {
-              dinoBoss.facing = dxDino > 0 ? 1 : -1;
-              const chaseSpeed = (dinoPlat && playerBelow) ? 205 : 165;
-              dinoBoss.x += dinoBoss.facing * Math.min(chaseSpeed * dt, Math.abs(dxDino));
-            }
-
-            // 只要暴龍與玩家在同一階梯（或覆蓋整塊階梯的貼身範圍），咬住甩到牆壁並扣 40% 血量後離開
-            const onSamePlat = dinoPlat && player.onPlatform === dinoPlat;
-            const closeBite = Math.abs((player.x + 15) - dinoBoss.x) < 52 && Math.abs((player.y + 14) - dinoBoss.y) < 46;
-            if (onSamePlat || closeBite) {
-              const throwDir = (player.x + 15) < LOGIC_W / 2 ? -1 : 1;
-              player.onPlatform = null;
-              player.pushVx = throwDir * 720;
-              player.vy = -170;
-              player.stunTimer = 0.32;
-              shakeTime = 0.38;
-              const dinoDmg = Math.max(1, Math.round(MAX_HP * 0.4));
-              hurtPlayer(dinoDmg, player.x + 15, player.y, '暴龍咬甩 ');
-              spawnParticles(player.x + 15, player.y + 14, '#15803d', 18);
-              dinoBoss.leaving = true;
-              dinoBoss.vy = -420;
-              publishMsg({ t: 'dino_eat', name: myName, fl: dinoBoss.targetFloor });
-              fieldBanner.text = `🦖 巨型暴龍咬飛了 ${myName} 後滿足離開了！`;
-              fieldBanner.color = '#15803d';
-              fieldBanner.timer = 3.2;
-            } else if (dinoBoss.timer <= 0 || dinoBoss.y > H + 60) {
-              dinoBoss.leaving = true;
-            }
-          }
         }
 
         if (shakeTime > 0) shakeTime = Math.max(0, shakeTime - dt);
@@ -3676,28 +3532,6 @@
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(dir > 0 ? '💨 強風向右吹襲中 >>>' : '<<< 強風向左吹襲中 💨', LOGIC_W / 2, H - 83);
-          ctx.restore();
-        }
-
-        // 繪製每 25 層哥吉拉風巨型暴龍 Boss（佔據一個階梯寬度）
-        if (dinoBoss.active) {
-          ctx.save();
-          const wobble = Math.sin(Date.now() * 0.014) * 2;
-          ctx.translate(dinoBoss.x, dinoBoss.y + wobble);
-          ctx.scale(dinoBoss.facing, 1);
-          // 底部紅光震懾氣場
-          ctx.fillStyle = 'rgba(220, 38, 38, 0.25)';
-          ctx.beginPath();
-          ctx.ellipse(0, 40, 44, 10, 0, 0, Math.PI * 2);
-          ctx.fill();
-          if (DINO_IMG.complete && DINO_IMG.naturalWidth) {
-            const dw = 96;
-            const dh = dw * (DINO_IMG.naturalHeight / DINO_IMG.naturalWidth);
-            ctx.drawImage(DINO_IMG, -dw / 2, 42 - dh, dw, dh);
-          } else {
-            ctx.fillStyle = '#166534';
-            ctx.fillRect(-40, -40, 80, 82);
-          }
           ctx.restore();
         }
 
