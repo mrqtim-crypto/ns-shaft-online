@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#14181d" />
-  <title>TOKYO JUNGLE：地下生存戰 - 寫實猛獸多人連線版</title>
+  <title>TOKYO JUNGLE × 台灣原生猛獸：18動物多人連線版</title>
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
   <style>
     * {
@@ -231,7 +231,7 @@
       height: 100%;
     }
 
-    /* 吼叫/情緒快捷列 */
+    /* 野性呼喊快捷列 */
     .emote-bar {
       position: absolute;
       right: 8px;
@@ -265,7 +265,7 @@
 
     /* 底部手機觸控控制器 */
     .controls {
-      height: 98px;
+      height: 96px;
       background: linear-gradient(0deg, #090b0e 0%, #181c22 100%);
       border-top: 2px solid #3f3f46;
       display: grid;
@@ -306,17 +306,17 @@
       line-height: 1;
     }
 
-    /* ============== 《TOKYO JUNGLE》蒼白迷霧寫實風選角大廳 ============== */
+    /* ============== 《TOKYO JUNGLE》蒼白迷霧寫實風 18 動物選角大廳 ============== */
     .overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 25%, rgba(248, 250, 252, 0.96) 0%, rgba(212, 220, 232, 0.95) 60%, rgba(168, 179, 194, 0.96) 100%);
+      background: radial-gradient(circle at 50% 25%, rgba(248, 250, 252, 0.96) 0%, rgba(212, 220, 232, 0.96) 60%, rgba(168, 179, 194, 0.97) 100%);
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 8px 10px;
+      padding: 7px 10px;
       z-index: 20;
       overflow-y: auto;
       color: #18181b;
@@ -329,10 +329,10 @@
 
     .card {
       width: 100%;
-      max-width: 410px;
+      max-width: 416px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 6px;
       margin: auto 0;
     }
 
@@ -345,7 +345,7 @@
     }
 
     .title {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       font-family: Georgia, 'Times New Roman', serif;
       color: #09090b;
@@ -358,29 +358,29 @@
       color: #f8fafc;
       font-size: 12px;
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
     }
 
     /* 選中角色超大動態展示舞台 (Large Spotlight Showcase) */
     .showcase-stage {
       position: relative;
       width: 100%;
-      height: 168px;
-      background: radial-gradient(ellipse at 50% 55%, #ffffff 0%, #e2e8f0 65%, #cbd5e1 100%);
+      height: 162px;
+      background: radial-gradient(ellipse at 45% 55%, #ffffff 0%, #e2e8f0 65%, #cbd5e1 100%);
       border: 2px solid #18181b;
       border-radius: 8px;
-      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.14), 0 6px 18px rgba(0, 0, 0, 0.16);
+      box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.14), 0 6px 16px rgba(0, 0, 0, 0.16);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
+      padding: 6px 10px;
       cursor: pointer;
     }
 
     .showcase-canvas-wrap {
       position: relative;
-      width: 56%;
+      width: 54%;
       height: 100%;
       display: flex;
       align-items: center;
@@ -388,8 +388,8 @@
     }
 
     canvas#previewCanvas {
-      width: 210px;
-      height: 156px;
+      width: 205px;
+      height: 152px;
       display: block;
     }
 
@@ -398,27 +398,53 @@
       left: 6px;
       bottom: -8px;
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 68px;
+      font-size: 64px;
       font-weight: 900;
-      color: rgba(15, 23, 42, 0.14);
+      color: rgba(15, 23, 42, 0.13);
       line-height: 1;
       pointer-events: none;
     }
 
+    .posture-pill {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: rgba(9, 9, 11, 0.84);
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .tw-pill {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #15803d;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 1px 6px;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
     .showcase-info {
-      width: 44%;
+      width: 46%;
       height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       text-align: left;
       z-index: 2;
-      padding-left: 6px;
+      padding-left: 8px;
       border-left: 1.5px solid rgba(24, 24, 27, 0.15);
     }
 
     .showcase-name {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 900;
       color: #09090b;
       line-height: 1.15;
@@ -427,16 +453,18 @@
     .showcase-en {
       font-size: 12px;
       font-weight: 800;
-      color: #71717a;
-      letter-spacing: 0.5px;
-      margin-bottom: 5px;
+      color: #52525b;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .stat-bars {
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      margin-bottom: 6px;
+      gap: 2.5px;
+      margin-bottom: 5px;
     }
 
     .stat-row {
@@ -464,15 +492,15 @@
 
     .showcase-desc {
       font-size: 12px;
-      color: #27272a;
+      color: #18181b;
       font-weight: 700;
-      line-height: 1.3;
-      background: rgba(255, 255, 255, 0.72);
+      line-height: 1.28;
+      background: rgba(255, 255, 255, 0.78);
       padding: 4px 6px;
       border-left: 3px solid #b45309;
     }
 
-    /* 兩小排選角列 (2 Rows × 6 Columns = 12隻，選中時放大凸顯！) */
+    /* 兩小排 18 動物橫向滑動/換頁選角列 (2 Rows × 9 Columns，選中時放大凸起！) */
     .roster-section-label {
       display: flex;
       justify-content: space-between;
@@ -483,13 +511,25 @@
       padding: 0 2px;
     }
 
+    .animal-grid-scroll-wrap {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      padding: 9px 6px;
+      margin: -3px 0;
+      scrollbar-width: thin;
+      scrollbar-color: #78350f #cbd5e1;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .animal-grid-2rows {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(2, 62px);
+      grid-template-rows: repeat(2, 60px);
+      grid-auto-flow: column;
+      grid-auto-columns: 64px;
       gap: 6px;
-      padding: 6px 4px;
-      margin: 2px 0;
+      width: max-content;
     }
 
     .animal-cell {
@@ -509,10 +549,21 @@
 
     .animal-cell canvas {
       width: 52px;
-      height: 42px;
+      height: 40px;
       display: block;
       pointer-events: none;
       transition: transform 0.18s ease;
+    }
+
+    .animal-cell-tw {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #15803d;
+      box-shadow: 0 0 3px rgba(21, 128, 61, 0.8);
     }
 
     .animal-cell-name {
@@ -521,16 +572,16 @@
       color: #18181b;
       line-height: 1;
       white-space: nowrap;
-      transform: scale(0.92);
+      transform: scale(0.88);
     }
 
     /* 選到時明顯變大凸起！ */
     .animal-cell.selected {
-      transform: scale(1.24) translateY(-4px);
+      transform: scale(1.24) translateY(-3px);
       z-index: 15;
       background: radial-gradient(circle at 50% 40%, #ffffff 0%, #fef3c7 100%);
       border: 2.5px solid #b45309;
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.42), 0 0 0 2px #f59e0b;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45), 0 0 0 2px #f59e0b;
     }
 
     .animal-cell.selected canvas {
@@ -539,7 +590,7 @@
 
     .animal-cell.selected .animal-cell-name {
       color: #92400e;
-      transform: scale(1);
+      transform: scale(0.96);
     }
 
     /* 多人連線設定盒 */
@@ -547,7 +598,7 @@
       background: rgba(24, 24, 27, 0.92);
       border: 1.5px solid #18181b;
       border-radius: 8px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: #f4f4f5;
       text-align: left;
     }
@@ -555,7 +606,7 @@
     .mp-row {
       display: flex;
       gap: 6px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       align-items: center;
     }
 
@@ -565,7 +616,7 @@
       background: #27272a;
       border: 1px solid #52525b;
       color: #fafafa;
-      padding: 6px 8px;
+      padding: 5px 8px;
       border-radius: 4px;
       font-size: 13px;
       font-weight: 800;
@@ -579,7 +630,7 @@
     }
 
     .mp-btn {
-      padding: 6px 9px;
+      padding: 5px 9px;
       border-radius: 4px;
       border: 1px solid #f59e0b;
       background: rgba(245, 158, 11, 0.2);
@@ -599,22 +650,22 @@
     .room-roster {
       font-size: 12px;
       color: #d4d4d8;
-      padding-top: 5px;
+      padding-top: 4px;
       border-top: 1px dashed #3f3f46;
     }
 
     .roster-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 4px;
+      gap: 4px;
+      margin-top: 3px;
     }
 
     .roster-tag {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 7px;
+      padding: 1px 6px;
       border-radius: 3px;
       background: #27272a;
       border: 1px solid #52525b;
@@ -631,7 +682,7 @@
 
     .primary-btn {
       width: 100%;
-      padding: 11px 10px;
+      padding: 10px 10px;
       border-radius: 6px;
       border: 2px solid #09090b;
       background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
@@ -650,7 +701,7 @@
 
     .secondary-btn {
       width: 100%;
-      padding: 11px 10px;
+      padding: 10px 10px;
       border-radius: 6px;
       border: 2px solid #09090b;
       background: #27272a;
@@ -698,7 +749,7 @@
     <div class="hud">
       <div class="hud-left">
         <div class="hp-label">
-          <span id="hudAnimalLabel">孟加拉虎</span>
+          <span id="hudAnimalLabel">台灣黑熊</span>
           <span id="hpText" style="color:#f59e0b;">12/12</span>
         </div>
         <div class="hp-bar" id="hpBar"></div>
@@ -711,7 +762,7 @@
 
       <div class="hud-right">
         <button class="icon-btn" id="soundBtn" title="音效開關">音</button>
-        <button class="icon-btn" id="pauseBtn" title="猛獸圖鑑與房間">獸</button>
+        <button class="icon-btn" id="pauseBtn" title="18猛獸圖鑑與房間">獸</button>
       </div>
     </div>
 
@@ -736,47 +787,51 @@
         <button class="emote-btn" data-emote="霸主!">王</button>
       </div>
 
-      <!-- 《TOKYO JUNGLE》寫實畫風選角大廳 -->
+      <!-- 《TOKYO JUNGLE》18 種寫實動物選角大廳 -->
       <div class="overlay" id="overlay">
         <div class="card">
           <div class="header-banner">
-            <div class="title" id="overlayTitle">TOKYO JUNGLE</div>
-            <div class="badge" id="overlayBadge">SURVIVAL MULTIPLAYER</div>
+            <div class="title" id="overlayTitle">TOKYO JUNGLE · 18 猛獸</div>
+            <div class="badge" id="overlayBadge">含 9 大台灣原生特有種</div>
           </div>
 
           <!-- 選中角色超大寫實動態預覽舞台 -->
-          <div class="showcase-stage" id="showcaseStage" title="點擊可觸發猛獸飛撲動作">
-            <div class="showcase-rank-num" id="showcaseNum">1</div>
+          <div class="showcase-stage" id="showcaseStage" title="點擊可觸發猛獸招牌動作">
+            <div class="showcase-rank-num" id="showcaseNum">01</div>
             <div class="showcase-canvas-wrap">
-              <canvas id="previewCanvas" width="420" height="312"></canvas>
+              <div class="posture-pill" id="posturePill">雙足直立咆哮站姿</div>
+              <div class="tw-pill" id="twPill">台灣特有</div>
+              <canvas id="previewCanvas" width="410" height="304"></canvas>
             </div>
             <div class="showcase-info">
-              <div class="showcase-name" id="detailTitle">孟加拉虎</div>
-              <div class="showcase-en" id="detailEn">BENGAL TIGER · 1.5t</div>
+              <div class="showcase-name" id="detailTitle">台灣黑熊</div>
+              <div class="showcase-en" id="detailEn">FORMOSAN BEAR · 1.85t (1.28x)</div>
               <div class="stat-bars">
                 <div class="stat-row">
                   <span>噸位</span>
-                  <div class="stat-track"><div class="stat-fill" id="barWeight" style="width:65%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barWeight" style="width:80%;"></div></div>
                 </div>
                 <div class="stat-row">
                   <span>敏捷</span>
-                  <div class="stat-track"><div class="stat-fill" id="barSpeed" style="width:90%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barSpeed" style="width:76%;"></div></div>
                 </div>
                 <div class="stat-row">
                   <span>衝撞</span>
-                  <div class="stat-track"><div class="stat-fill" id="barPush" style="width:85%;"></div></div>
+                  <div class="stat-track"><div class="stat-fill" id="barPush" style="width:92%;"></div></div>
                 </div>
               </div>
-              <div class="showcase-desc" id="detailDesc">【猛虎飛撲】助跑跳離階梯時爆發水平飛撲；從空中踩中獵物可借力二度躍起！</div>
+              <div class="showcase-desc" id="detailDesc">【月牙霸體】雙足直立揮掌推力 1.75x；體力低於 4 格時激發狂暴加速與抗撞！</div>
             </div>
           </div>
 
-          <!-- 兩小排選角列 (2排 × 6格，點選時該格放大且上方舞台同步變大展示) -->
+          <!-- 兩小排選角列 (2排 × 9格 = 18隻，左右滑動點選，選中時放大凸起！) -->
           <div class="roster-section-label">
-            <span>▼ 點選物種（選中放大檢視動態細節）</span>
-            <span id="bestScoreText">最高生存: B0000</span>
+            <span>▼ 兩小排共 18 種動物（左右滑動點選放大檢視 · 綠點為台灣特有）</span>
+            <span id="bestScoreText">最高: B0000</span>
           </div>
-          <div class="animal-grid-2rows" id="animalGrid"></div>
+          <div class="animal-grid-scroll-wrap">
+            <div class="animal-grid-2rows" id="animalGrid"></div>
+          </div>
 
           <!-- 多人連線房間設定 -->
           <div class="mp-box">
@@ -819,91 +874,151 @@
 
   <script>
     (() => {
-      // ================== 對標參考圖的 12 種《TOKYO JUNGLE》寫實動物定義 ==================
+      // ================== 18 種真實姿態動物定義（含 9 種台灣原生特有種） ==================
       const ANIMALS = [
         {
-          id: 'tiger', num: 1, name: '孟加拉虎', en: 'BENGAL TIGER',
-          weight: 1.45, speedMul: 1.28, pushMul: 1.45,
-          wPct: 62, sPct: 92, pPct: 82,
-          cDark: '#291507', cMid: '#c25e14', cLight: '#f6ad55', cBelly: '#fdf6e2',
-          desc: '【猛虎飛撲】助跑跳出階梯時觸發遠距獵食飛撲；從上方踩中其他動物可借力二段躍起！'
+          id: 'tw_bear', num: '01', name: '台灣黑熊', en: 'FORMOSAN BEAR', isTW: true,
+          posture: 'bipedal_bear', postureName: '雙足直立咆哮站姿',
+          weight: 1.85, sizeScale: 1.28, speedMul: 1.06, pushMul: 1.75,
+          wPct: 82, sPct: 75, pPct: 92,
+          cDark: '#09090b', cMid: '#18181b', cLight: '#3f3f46', cBelly: '#ffffff',
+          desc: '【月牙霸體】雙足直立揮掌推力 1.75x；體力低於 4 格時激發野性狂暴，移速與抗撞力大幅飆升！'
         },
         {
-          id: 'elephant', num: 2, name: '亞洲巨象', en: 'GIANT ELEPHANT',
-          weight: 2.5, speedMul: 0.84, pushMul: 2.0,
+          id: 'panda', num: '02', name: '野生大熊貓', en: 'GIANT PANDA', isTW: false,
+          posture: 'bipedal_bear', postureName: '雙足半直立太極站姿',
+          weight: 1.65, sizeScale: 1.22, speedMul: 0.98, pushMul: 1.5,
+          wPct: 74, sPct: 68, pPct: 86,
+          cDark: '#09090b', cMid: '#18181b', cLight: '#f8fafc', cBelly: '#ffffff',
+          desc: '【太極肉彈】雙足半直立太極站姿，被撞時以 1.7 倍反作用力將對手彈飛；每下 12 階自動啃竹葉 +2 HP。'
+        },
+        {
+          id: 'tw_magpie', num: '03', name: '台灣藍鵲', en: 'TW BLUE MAGPIE', isTW: true,
+          posture: 'soaring_bird', postureName: '展翅翱翔長尾飛姿',
+          weight: 0.42, sizeScale: 0.96, speedMul: 1.15, pushMul: 0.55,
+          wPct: 18, sPct: 88, pPct: 30,
+          cDark: '#09090b', cMid: '#1d4ed8', cLight: '#3b82f6', cBelly: '#ef4444',
+          desc: '【山娘滑翔】展翅使空中下墜速度減緩 40%，長尾平衡使牠在傾斜階梯與搖晃招牌上完全不滑落。'
+        },
+        {
+          id: 'crane', num: '04', name: '丹頂鶴', en: 'CROWNED CRANE', isTW: false,
+          posture: 'soaring_bird', postureName: '大型修長展翅飛姿',
+          weight: 0.48, sizeScale: 1.15, speedMul: 1.12, pushMul: 0.55,
+          wPct: 22, sPct: 86, pPct: 30,
+          cDark: '#0f172a', cMid: '#cbd5e1', cLight: '#ffffff', cBelly: '#dc2626',
+          desc: '【鶴翼滯空】全場最強滑翔羽翼，空中下墜速度減緩 45%，擁有最充裕的空中找路時間。'
+        },
+        {
+          id: 'tw_pheasant', num: '05', name: '台灣帝雉', en: 'MIKADO PHEASANT', isTW: true,
+          posture: 'soaring_bird', postureName: '振翅騰空飛羽姿',
+          weight: 0.55, sizeScale: 1.02, speedMul: 1.18, pushMul: 0.65,
+          wPct: 25, sPct: 90, pPct: 35,
+          cDark: '#0f172a', cMid: '#1e1b4b', cLight: '#4338ca', cBelly: '#dc2626',
+          desc: '【迷霧騰躍】拍翅緩降外，跳離階梯瞬間獲得水平滑翔推進，能跨越極遠的階梯間隙！'
+        },
+        {
+          id: 'elephant', num: '06', name: '亞洲巨象', en: 'GIANT ELEPHANT', isTW: false,
+          posture: 'colossal', postureName: '超巨型重裝壓迫姿',
+          weight: 2.5, sizeScale: 1.52, speedMul: 0.84, pushMul: 2.0,
           wPct: 100, sPct: 48, pPct: 100,
           cDark: '#1e242b', cMid: '#52606d', cLight: '#9aa5b1', cBelly: '#cbd2d9',
-          desc: '【末日重踏】全場最高噸位！高處落地釋放「重壓震波」震飛同階梯對手，單側站立可壓垮翹翹板。'
+          desc: '【末日重踏】全場最巨大體型（1.52x）！高處落地釋放「重壓震波」震飛同階梯對手，單側可壓垮翹翹板。'
         },
         {
-          id: 'crane', num: 3, name: '丹頂鶴', en: 'RED-CROWNED CRANE',
-          weight: 0.42, speedMul: 1.12, pushMul: 0.55,
-          wPct: 18, sPct: 86, pPct: 28,
-          cDark: '#111827', cMid: '#cbd5e1', cLight: '#ffffff', cBelly: '#dc2626',
-          desc: '【展翅滑翔】雙翼展開使空中下墜速度減緩 42%，擁有極長滯空尋找下層階梯的時間。'
+          id: 'hippo', num: '07', name: '巨型河馬', en: 'GIANT HIPPO', isTW: false,
+          posture: 'colossal', postureName: '厚重巨口咆哮姿',
+          weight: 2.15, sizeScale: 1.38, speedMul: 0.88, pushMul: 1.85,
+          wPct: 90, sPct: 54, pPct: 95,
+          cDark: '#1f1d29', cMid: '#4a4458', cLight: '#8c7f9c', cBelly: '#fda4af',
+          desc: '【深淵巨口】張開 120 度巨口威嚇！完全免疫青苔打滑、輸送帶推力與漏電麻痺，噸位壓制全場。'
         },
         {
-          id: 'beagle', num: 4, name: '米格魯獵犬', en: 'BEAGLE HOUND',
-          weight: 0.68, speedMul: 1.22, pushMul: 0.82,
-          wPct: 32, sPct: 84, pPct: 45,
-          cDark: '#27170c', cMid: '#b4692c', cLight: '#f8fafc', cBelly: '#ffffff',
-          desc: '【嗅覺本能】對空投補給與回血有敏銳直覺，每次踩上新階梯有 30% 機率額外多回 +1 HP。'
-        },
-        {
-          id: 'pomeranian', num: 5, name: '博美犬', en: 'POMERANIAN',
-          weight: 0.45, speedMul: 1.26, pushMul: 0.6,
-          wPct: 20, sPct: 88, pPct: 30,
-          cDark: '#5c2808', cMid: '#d97706', cLight: '#fcd34d', cBelly: '#fef3c7',
-          desc: '【求生寵兒】體型最嬌小靈巧！踩在腐朽神社木板上斷裂速度減緩 2 倍，極難被尖刺擦傷。'
-        },
-        {
-          id: 'lion', num: 6, name: '非洲雄獅', en: 'ALPHA LION',
-          weight: 1.65, speedMul: 1.18, pushMul: 1.65,
-          wPct: 74, sPct: 80, pPct: 90,
-          cDark: '#3b1d08', cMid: '#a16207', cLight: '#eab308', cBelly: '#fef08a',
-          desc: '【百獸王者】濃密鬃毛可抵禦尖刺傷害（少扣 2 HP），主動衝撞對手時附帶額外威懾擊退。'
-        },
-        {
-          id: 'wolf', num: 7, name: '荒原灰狼', en: 'TIMBER WOLF',
-          weight: 1.05, speedMul: 1.34, pushMul: 1.15,
-          wPct: 48, sPct: 98, pPct: 65,
-          cDark: '#18181b', cMid: '#52525b', cLight: '#a1a1aa', cBelly: '#e4e4e7',
-          desc: '【疾風奔襲】全場地面奔跑速度最快（1.34x）！在傾斜階梯上仍能高速逆坡衝刺。'
-        },
-        {
-          id: 'gazelle', num: 8, name: '湯氏瞪羚', en: 'THOMSON GAZELLE',
-          weight: 0.85, speedMul: 1.24, pushMul: 0.9,
-          wPct: 40, sPct: 90, pPct: 50,
-          cDark: '#271507', cMid: '#b7791f', cLight: '#f6e05e', cBelly: '#ffffff',
-          desc: '【羚羊二段躍】失足離開階梯或貼近兩側岩壁時，可自動觸發一次救命的「空中蹬躍二段跳」！'
-        },
-        {
-          id: 'crow', num: 9, name: '漆黑渡鴉', en: 'JUNGLE CROW',
-          weight: 0.38, speedMul: 1.15, pushMul: 0.5,
-          wPct: 15, sPct: 88, pPct: 25,
-          cDark: '#09090b', cMid: '#1e293b', cLight: '#475569', cBelly: '#0f172a',
-          desc: '【黑羽滯空】全場最輕量！不僅可拍翅緩降，踩在懸吊翹翹板與腐朽木板上完全不會引發斷裂。'
-        },
-        {
-          id: 'boar', num: 10, name: '荒原野豬', en: 'WILD BOAR',
-          weight: 1.55, speedMul: 1.1, pushMul: 1.6,
-          wPct: 68, sPct: 76, pPct: 88,
+          id: 'tw_boar', num: '08', name: '台灣野豬', en: 'FORMOSAN BOAR', isTW: true,
+          posture: 'colossal', postureName: '低頭獠牙猛衝姿',
+          weight: 1.5, sizeScale: 1.15, speedMul: 1.1, pushMul: 1.6,
+          wPct: 68, sPct: 78, pPct: 88,
           cDark: '#1c1917', cMid: '#44403c', cLight: '#78716c', cBelly: '#e7e5e4',
           desc: '【獠牙暴衝】持續同向奔跑 0.32 秒後進入紅眼猛衝狀態，移速飆升 32% 且撞飛路徑上所有對手！'
         },
         {
-          id: 'hippo', num: 11, name: '巨型河馬', en: 'GIANT HIPPO',
-          weight: 2.15, speedMul: 0.88, pushMul: 1.8,
-          wPct: 90, sPct: 54, pPct: 94,
-          cDark: '#1f1d29', cMid: '#4a4458', cLight: '#8c7f9c', cBelly: '#e9d8fd',
-          desc: '【深淵裝甲】完全免疫青苔打滑、輸送帶推力與漏電麻痺；以沉重噸位穩紮穩打壓制全場。'
+          id: 'tw_leopard_cat', num: '09', name: '台灣石虎', en: 'TW LEOPARD CAT', isTW: true,
+          posture: 'leaping_predator', postureName: '靈巧弓背飛撲姿',
+          weight: 0.62, sizeScale: 0.92, speedMul: 1.36, pushMul: 0.78,
+          wPct: 28, sPct: 100, pPct: 42,
+          cDark: '#271507', cMid: '#b45309', cLight: '#fbbf24', cBelly: '#fef3c7',
+          desc: '【夜行神速】全場移動速度最快（1.36x）且空中轉向極靈敏；踩在腐朽木板上斷裂速度減緩 50%。'
         },
         {
-          id: 'panda', num: 12, name: '野生大熊貓', en: 'GIANT PANDA',
-          weight: 1.6, speedMul: 0.98, pushMul: 1.5,
-          wPct: 72, sPct: 66, pPct: 85,
-          cDark: '#09090b', cMid: '#27272a', cLight: '#f8fafc', cBelly: '#ffffff',
-          desc: '【太極肉彈】遭遇其他動物碰撞時以 1.7 倍反作用力將對方彈飛；每深入 12 階自動回復 +2 HP。'
+          id: 'tiger', num: '10', name: '孟加拉虎', en: 'BENGAL TIGER', isTW: false,
+          posture: 'leaping_predator', postureName: '張口露齒猛撲姿',
+          weight: 1.45, sizeScale: 1.24, speedMul: 1.28, pushMul: 1.45,
+          wPct: 64, sPct: 92, pPct: 82,
+          cDark: '#291507', cMid: '#c25e14', cLight: '#f6ad55', cBelly: '#fdf6e2',
+          desc: '【猛虎飛撲】助跑跳出階梯時觸發遠距獵食飛撲；從上方踩中其他動物頭頂可借力二段躍起！'
+        },
+        {
+          id: 'lion', num: '11', name: '非洲雄獅', en: 'ALPHA LION', isTW: false,
+          posture: 'leaping_predator', postureName: '濃密鬃毛躍擊姿',
+          weight: 1.6, sizeScale: 1.26, speedMul: 1.18, pushMul: 1.65,
+          wPct: 72, sPct: 82, pPct: 90,
+          cDark: '#3b1d08', cMid: '#a16207', cLight: '#eab308', cBelly: '#fef08a',
+          desc: '【百獸王者】濃密鬃毛可抵禦尖刺傷害（少扣 2 HP），主動衝撞對手時附帶額外威懾擊退。'
+        },
+        {
+          id: 'wolf', num: '12', name: '荒原灰狼', en: 'TIMBER WOLF', isTW: false,
+          posture: 'leaping_predator', postureName: '疾風奔襲飛躍姿',
+          weight: 1.05, sizeScale: 1.08, speedMul: 1.32, pushMul: 1.15,
+          wPct: 48, sPct: 95, pPct: 65,
+          cDark: '#18181b', cMid: '#52525b', cLight: '#a1a1aa', cBelly: '#e4e4e7',
+          desc: '【狼群奔襲】地面衝刺極快（1.32x），強健狼爪讓牠在傾斜階梯上仍能高速逆坡衝刺。'
+        },
+        {
+          id: 'tw_pangolin', num: '13', name: '台灣穿山甲', en: 'TW PANGOLIN', isTW: true,
+          posture: 'armored_pangolin', postureName: '拱背層疊鱗甲姿',
+          weight: 0.95, sizeScale: 0.95, speedMul: 1.04, pushMul: 1.1,
+          wPct: 44, sPct: 72, pPct: 62,
+          cDark: '#271206', cMid: '#78350f', cLight: '#b45309', cBelly: '#fde68a',
+          desc: '【金剛鱗甲】全身古銅色重疊鱗片使「鐵絲網」與「頂部鋼筋」傷害減半（只扣 2 HP），斜坡絕不打滑。'
+        },
+        {
+          id: 'tw_deer', num: '14', name: '台灣梅花鹿', en: 'FORMOSAN DEER', isTW: true,
+          posture: 'bounding_ungulate', postureName: '高昂鹿角騰躍姿',
+          weight: 1.15, sizeScale: 1.16, speedMul: 1.16, pushMul: 1.05,
+          wPct: 52, sPct: 84, pPct: 60,
+          cDark: '#451a03', cMid: '#b45309', cLight: '#f59e0b', cBelly: '#ffffff',
+          desc: '【森林跳躍】踩上「報廢計程車頂」時彈跳高度完美受控不撞頂刺，且每次彈跳回復 +2 HP。'
+        },
+        {
+          id: 'tw_serow', num: '15', name: '台灣長鬃山羊', en: 'TAIWAN SEROW', isTW: true,
+          posture: 'bounding_ungulate', postureName: '峭壁攀岩蹬跳姿',
+          weight: 1.1, sizeScale: 1.08, speedMul: 1.18, pushMul: 1.12,
+          wPct: 50, sPct: 85, pPct: 64,
+          cDark: '#09090b', cMid: '#27272a', cLight: '#57534e', cBelly: '#d6d3d1',
+          desc: '【峭壁蹄印】攀岩專家！在傾斜階梯完全不滑落，貼近左右岩壁時還可觸發「峭壁蹬牆跳」！'
+        },
+        {
+          id: 'hare', num: '16', name: '台灣野兔', en: 'FORMOSAN HARE', isTW: true,
+          posture: 'bounding_ungulate', postureName: '長耳蓄力彈射姿',
+          weight: 0.55, sizeScale: 0.85, speedMul: 1.22, pushMul: 0.7,
+          wPct: 24, sPct: 90, pPct: 38,
+          cDark: '#291d12', cMid: '#785536', cLight: '#c49a6c', cBelly: '#f5ebe0',
+          desc: '【失足二段跳】掉出階梯邊緣時，在空中按住方向鍵可自動觸發一次救命的「空中蹬腿二段跳」！'
+        },
+        {
+          id: 'beagle', num: '17', name: '米格魯獵犬', en: 'BEAGLE HOUND', isTW: false,
+          posture: 'leaping_predator', postureName: '垂耳跳躍追蹤姿',
+          weight: 0.68, sizeScale: 0.92, speedMul: 1.22, pushMul: 0.82,
+          wPct: 32, sPct: 84, pPct: 45,
+          cDark: '#27170c', cMid: '#b4692c', cLight: '#f8fafc', cBelly: '#ffffff',
+          desc: '【嗅覺本能】對生存補給敏銳，每次踩上新階梯有 30% 機率額外多回 +1 HP。'
+        },
+        {
+          id: 'pomeranian', num: '18', name: '博美犬', en: 'POMERANIAN', isTW: false,
+          posture: 'leaping_predator', postureName: '蓬鬆毛球小碎步姿',
+          weight: 0.4, sizeScale: 0.78, speedMul: 1.26, pushMul: 0.55,
+          wPct: 16, sPct: 88, pPct: 28,
+          cDark: '#5c2808', cMid: '#d97706', cLight: '#fcd34d', cBelly: '#fef3c7',
+          desc: '【求生寵兒】全場最迷你（0.78x）不易擦撞尖刺；踩腐朽木板極難斷裂，25% 機率多回 +1 HP。'
         }
       ];
 
@@ -933,6 +1048,8 @@
 
       const showcaseStage = document.getElementById('showcaseStage');
       const showcaseNum = document.getElementById('showcaseNum');
+      const posturePill = document.getElementById('posturePill');
+      const twPill = document.getElementById('twPill');
       const animalGrid = document.getElementById('animalGrid');
       const detailTitle = document.getElementById('detailTitle');
       const detailEn = document.getElementById('detailEn');
@@ -958,224 +1075,426 @@
       let viewScale = 1;
 
       const MAX_HP = 12;
-      const STORAGE_KEY = 'tokyo_jungle_v3_best';
-      const NAME_KEY = 'tokyo_jungle_v3_name';
-      const ANIMAL_KEY = 'tokyo_jungle_v3_animal';
+      const STORAGE_KEY = 'tokyo_jungle_v4_best';
+      const NAME_KEY = 'tokyo_jungle_v4_name';
+      const ANIMAL_KEY = 'tokyo_jungle_v4_animal';
 
       const myId = 'p_' + Math.random().toString(36).slice(2, 9);
       let myName = localStorage.getItem(NAME_KEY) || ('生存者' + Math.floor(10 + Math.random() * 89));
-      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'tiger';
-      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'tiger';
+      let myAnimalId = localStorage.getItem(ANIMAL_KEY) || 'tw_bear';
+      if (!ANIMAL_MAP[myAnimalId]) myAnimalId = 'tw_bear';
       nameInput.value = myName;
 
       let bestFloor = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-      bestScoreText.textContent = `最高生存: B${String(bestFloor).padStart(4, '0')}`;
+      bestScoreText.textContent = `最高: B${String(bestFloor).padStart(4, '0')}`;
 
-      // ================== 寫實油彩骨骼肌理繪圖引擎 (Painterly Wildlife Anatomy Engine) ==================
-      // 專為參考圖風格打造：高反差肌肉陰影、毛皮筆觸、虎紋/象牙/羽翼/犬耳動態繪製
-      function drawRealisticAnimal(targetCtx, animalId, cx, cy, scale, facing, animPhase, leapPitch = 0) {
+      // ================== 5 大真實解剖姿態與體型比例繪製引擎 ==================
+      function drawAuthenticAnimal(targetCtx, animalId, cx, cy, baseScale, facing, phase, leapPitch = 0) {
         const ani = ANIMAL_MAP[animalId] || ANIMALS[0];
         targetCtx.save();
         targetCtx.translate(cx, cy);
-        targetCtx.scale((facing || 1) * scale, scale);
+        const s = baseScale * ani.sizeScale;
+        targetCtx.scale((facing || 1) * s, s);
         targetCtx.rotate(leapPitch);
 
-        const stride = Math.sin(animPhase);
-        const cosStride = Math.cos(animPhase);
+        const stride = Math.sin(phase);
+        const cosStride = Math.cos(phase);
 
-        // 建立寫實明暗油彩漸層 (Chiaroscuro Fur Gradient)
-        const bodyGrad = targetCtx.createLinearGradient(0, -14, 0, 12);
+        const bodyGrad = targetCtx.createLinearGradient(0, -18, 0, 14);
         bodyGrad.addColorStop(0, ani.cLight);
         bodyGrad.addColorStop(0.55, ani.cMid);
         bodyGrad.addColorStop(1, ani.cDark);
 
-        // 地面投影
+        // 地面真實投影
         targetCtx.fillStyle = 'rgba(15, 23, 42, 0.22)';
         targetCtx.beginPath();
-        targetCtx.ellipse(0, 15, 16, 3.5, 0, 0, Math.PI * 2);
+        targetCtx.ellipse(0, 15, ani.posture === 'colossal' ? 18 : 13, 3.2, 0, 0, Math.PI * 2);
         targetCtx.fill();
 
-        // 鳥類系 (丹頂鶴 Crane / 漆黑渡鴉 Crow)
-        if (animalId === 'crane' || animalId === 'crow') {
-          const isCrane = animalId === 'crane';
-          const wingFlap = Math.sin(animPhase * 1.4) * 11;
+        // ------------------------------------------------------------------
+        // 姿態 1：雙足直立熊科站姿 (台灣黑熊 / 野生大熊貓)
+        // ------------------------------------------------------------------
+        if (ani.posture === 'bipedal_bear') {
+          const isPanda = ani.id === 'panda';
+          const sway = Math.sin(phase * 0.8) * 1.5;
 
-          // 後方遠端翅膀
-          targetCtx.fillStyle = isCrane ? '#94a3b8' : '#0f172a';
+          targetCtx.fillStyle = '#09090b';
           targetCtx.beginPath();
-          targetCtx.moveTo(-4, -2);
-          targetCtx.quadraticCurveTo(-16, -18 - wingFlap * 0.7, -26, -12 - wingFlap);
-          targetCtx.lineTo(-12, 3);
-          targetCtx.closePath();
+          targetCtx.roundRect(-8 + stride * 2, 4, 6.2, 11.5, 3);
+          targetCtx.roundRect(2 - stride * 2, 4, 6.2, 11.5, 3);
           targetCtx.fill();
 
-          // 修長雙足往後延伸 (如參考圖左上飛鶴)
-          targetCtx.strokeStyle = '#1e293b';
-          targetCtx.lineWidth = 1.6;
+          targetCtx.fillStyle = isPanda ? '#f8fafc' : bodyGrad;
           targetCtx.beginPath();
-          targetCtx.moveTo(-6, 4);
-          targetCtx.lineTo(-22, 11 + stride * 2);
-          targetCtx.moveTo(-4, 5);
-          targetCtx.lineTo(-19, 14 - stride * 2);
-          targetCtx.stroke();
-
-          // 流線鳥身
-          targetCtx.fillStyle = bodyGrad;
-          targetCtx.beginPath();
-          targetCtx.ellipse(0, 1, 12, 6.5, -0.15, 0, Math.PI * 2);
+          targetCtx.ellipse(0, -3 + sway * 0.3, 10, 13, -0.1, 0, Math.PI * 2);
           targetCtx.fill();
 
-          // 修長頸部與頭部
-          targetCtx.strokeStyle = isCrane ? '#1e293b' : '#09090b';
-          targetCtx.lineWidth = isCrane ? 3.5 : 5;
-          targetCtx.beginPath();
-          targetCtx.moveTo(8, -1);
-          targetCtx.quadraticCurveTo(15, -7, 20, -6);
-          targetCtx.stroke();
-
-          if (isCrane) {
-            // 丹頂鶴白首與朱紅鶴頂
-            targetCtx.fillStyle = '#ffffff';
+          if (isPanda) {
+            targetCtx.fillStyle = '#09090b';
             targetCtx.beginPath();
-            targetCtx.arc(20, -6, 3.2, 0, Math.PI * 2);
+            targetCtx.ellipse(1, -8, 9.6, 5.2, -0.1, 0, Math.PI * 2);
             targetCtx.fill();
-            targetCtx.fillStyle = '#dc2626';
+          } else {
+            // 台灣黑熊招牌：胸前清晰白色 V 字型月牙斑紋
+            targetCtx.strokeStyle = '#ffffff';
+            targetCtx.lineWidth = 2.6;
+            targetCtx.lineCap = 'round';
             targetCtx.beginPath();
-            targetCtx.arc(20, -8.2, 2, 0, Math.PI * 2);
-            targetCtx.fill();
-          }
-
-          // 尖銳長喙
-          targetCtx.fillStyle = isCrane ? '#ca8a04' : '#334155';
-          targetCtx.beginPath();
-          targetCtx.moveTo(22, -7.5);
-          targetCtx.lineTo(31, -5.5);
-          targetCtx.lineTo(22, -4.5);
-          targetCtx.closePath();
-          targetCtx.fill();
-
-          // 前景主翼（帶黑色飛羽筆觸）
-          const wingGrad = targetCtx.createLinearGradient(0, -18, 0, 6);
-          wingGrad.addColorStop(0, isCrane ? '#ffffff' : '#475569');
-          wingGrad.addColorStop(0.7, isCrane ? '#e2e8f0' : '#1e293b');
-          wingGrad.addColorStop(1, '#09090b');
-          targetCtx.fillStyle = wingGrad;
-          targetCtx.beginPath();
-          targetCtx.moveTo(2, 0);
-          targetCtx.quadraticCurveTo(-6, -20 + wingFlap, -22, -16 + wingFlap);
-          targetCtx.lineTo(-16, -2 + wingFlap * 0.4);
-          targetCtx.lineTo(-2, 4);
-          targetCtx.closePath();
-          targetCtx.fill();
-
-          targetCtx.restore();
-          return;
-        }
-
-        // 巨獸系：亞洲巨象 (如參考圖正中央下方的厚重巨象)
-        if (animalId === 'elephant') {
-          // 後腿與前腿（粗壯柱狀肌理）
-          targetCtx.fillStyle = ani.cDark;
-          targetCtx.fillRect(-13 + stride * 3, 2, 6, 12);
-          targetCtx.fillRect(5 - stride * 3, 2, 6, 12);
-
-          // 龐大灰岩質感軀幹
-          targetCtx.fillStyle = bodyGrad;
-          targetCtx.beginPath();
-          targetCtx.ellipse(-2, -2, 16, 12, 0, 0, Math.PI * 2);
-          targetCtx.fill();
-
-          // 前景雙腿
-          targetCtx.fillStyle = ani.cMid;
-          targetCtx.fillRect(-10 - stride * 3, 3, 6.5, 12);
-          targetCtx.fillRect(8 + stride * 3, 3, 6.5, 12);
-
-          // 皮膚皺褶筆觸
-          targetCtx.strokeStyle = 'rgba(15, 23, 42, 0.35)';
-          targetCtx.lineWidth = 1;
-          for (let wx = -8; wx <= 4; wx += 4) {
-            targetCtx.beginPath();
-            targetCtx.moveTo(wx, -9);
-            targetCtx.lineTo(wx - 1, 4);
+            targetCtx.moveTo(-2, -9);
+            targetCtx.lineTo(3, -4);
+            targetCtx.lineTo(7, -9);
             targetCtx.stroke();
           }
 
-          // 扇形巨耳
-          targetCtx.fillStyle = ani.cDark;
-          targetCtx.beginPath();
-          targetCtx.ellipse(6, -4, 6.5, 9.5, -0.2, 0, Math.PI * 2);
-          targetCtx.fill();
-          targetCtx.strokeStyle = ani.cLight;
-          targetCtx.lineWidth = 1;
-          targetCtx.stroke();
-
-          // 象頭與長垂象鼻
-          targetCtx.fillStyle = bodyGrad;
-          targetCtx.beginPath();
-          targetCtx.arc(12, -4, 8, 0, Math.PI * 2);
-          targetCtx.fill();
-
-          targetCtx.strokeStyle = ani.cMid;
-          targetCtx.lineWidth = 5;
+          // 張開揮擊的雙前臂與熊掌
+          targetCtx.strokeStyle = '#09090b';
+          targetCtx.lineWidth = 5.2;
           targetCtx.lineCap = 'round';
           targetCtx.beginPath();
-          targetCtx.moveTo(17, -3);
-          targetCtx.quadraticCurveTo(23, 5, 19, 13 + cosStride * 2);
+          targetCtx.moveTo(-6, -8);
+          targetCtx.quadraticCurveTo(-13, -12 + stride * 3, -10, -17 + stride * 3);
+          targetCtx.moveTo(6, -7);
+          targetCtx.quadraticCurveTo(14, -9 - stride * 3, 16, -13 - stride * 3);
           targetCtx.stroke();
 
-          // 兩根巨大彎曲白象牙 (如參考圖亮白象牙)
-          targetCtx.strokeStyle = '#f8fafc';
-          targetCtx.lineWidth = 2.6;
+          targetCtx.strokeStyle = '#e2e8f0';
+          targetCtx.lineWidth = 1.1;
           targetCtx.beginPath();
-          targetCtx.moveTo(14, 0);
-          targetCtx.quadraticCurveTo(22, 4, 27, -2);
+          targetCtx.moveTo(16, -14 - stride * 3); targetCtx.lineTo(19, -13 - stride * 3);
+          targetCtx.moveTo(16, -12 - stride * 3); targetCtx.lineTo(19, -11 - stride * 3);
           targetCtx.stroke();
 
-          // 深邃小眼
           targetCtx.fillStyle = '#09090b';
           targetCtx.beginPath();
-          targetCtx.arc(15, -5, 1.5, 0, Math.PI * 2);
+          targetCtx.arc(-4, -21, 3.2, 0, Math.PI * 2);
+          targetCtx.arc(5, -21, 3.2, 0, Math.PI * 2);
           targetCtx.fill();
+
+          targetCtx.fillStyle = isPanda ? '#ffffff' : bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.arc(1, -15.5, 7.2, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          if (isPanda) {
+            targetCtx.fillStyle = '#09090b';
+            targetCtx.beginPath();
+            targetCtx.ellipse(4.5, -16, 2.5, 1.9, 0.3, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.fillStyle = '#ffffff';
+            targetCtx.beginPath();
+            targetCtx.arc(5, -16.3, 0.8, 0, Math.PI * 2);
+            targetCtx.fill();
+          } else {
+            targetCtx.fillStyle = '#78350f';
+            targetCtx.beginPath();
+            targetCtx.ellipse(6.2, -14, 3.8, 2.8, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+            targetCtx.fillStyle = '#991b1b';
+            targetCtx.fillRect(5.8, -13, 3.8, 1.8);
+            targetCtx.fillStyle = '#fef08a';
+            targetCtx.beginPath();
+            targetCtx.arc(4, -17, 1.2, 0, Math.PI * 2);
+            targetCtx.fill();
+          }
 
           targetCtx.restore();
           return;
         }
 
-        // 四足飛撲猛獸與愛玩動物通用解剖骨架 (虎、獅、狼、米格魯、博美、瞪羚、野豬、河馬、熊貓)
-        const isHeavy = ani.weight >= 1.5;
-        const torsoLen = isHeavy ? 15 : (animalId === 'pomeranian' ? 9.5 : 13.5);
-        const torsoThick = isHeavy ? 9.5 : (animalId === 'pomeranian' ? 7.5 : 7.2);
+        // ------------------------------------------------------------------
+        // 姿態 2：展翅翱翔飛姿 (台灣藍鵲 / 丹頂鶴 / 台灣帝雉)
+        // ------------------------------------------------------------------
+        if (ani.posture === 'soaring_bird') {
+          const flap = Math.sin(phase * 1.4) * 10.5;
 
-        // 1. 動態尾巴
-        targetCtx.strokeStyle = ani.cDark;
-        targetCtx.lineWidth = animalId === 'pomeranian' ? 4.5 : 2.5;
+          targetCtx.fillStyle = ani.cDark;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-2, -3);
+          targetCtx.quadraticCurveTo(-12, -19 - flap * 0.6, -23, -14 - flap);
+          targetCtx.lineTo(-10, 2);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          if (ani.id === 'tw_magpie') {
+            const wave = Math.sin(phase * 1.2) * 4.5;
+            targetCtx.strokeStyle = '#1d4ed8';
+            targetCtx.lineWidth = 3.8;
+            targetCtx.beginPath();
+            targetCtx.moveTo(-9, 1);
+            targetCtx.quadraticCurveTo(-23, 4 + wave * 0.5, -36, 1 + wave);
+            targetCtx.stroke();
+            targetCtx.strokeStyle = '#ffffff';
+            targetCtx.lineWidth = 4;
+            targetCtx.setLineDash([4, 4]);
+            targetCtx.beginPath();
+            targetCtx.moveTo(-17, 2 + wave * 0.3);
+            targetCtx.lineTo(-36, 1 + wave);
+            targetCtx.stroke();
+            targetCtx.setLineDash([]);
+          } else if (ani.id === 'tw_pheasant') {
+            targetCtx.strokeStyle = '#1e293b';
+            targetCtx.lineWidth = 4.2;
+            targetCtx.beginPath();
+            targetCtx.moveTo(-9, 1);
+            targetCtx.lineTo(-30, -3 + stride * 3);
+            targetCtx.stroke();
+            targetCtx.strokeStyle = '#e2e8f0';
+            targetCtx.lineWidth = 4.2;
+            targetCtx.setLineDash([2, 3]);
+            targetCtx.beginPath();
+            targetCtx.moveTo(-12, 0);
+            targetCtx.lineTo(-30, -3 + stride * 3);
+            targetCtx.stroke();
+            targetCtx.setLineDash([]);
+          } else {
+            targetCtx.strokeStyle = '#1e293b';
+            targetCtx.lineWidth = 1.5;
+            targetCtx.beginPath();
+            targetCtx.moveTo(-7, 3); targetCtx.lineTo(-23, 10 + stride * 2);
+            targetCtx.moveTo(-5, 4); targetCtx.lineTo(-20, 13 - stride * 2);
+            targetCtx.stroke();
+          }
+
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.ellipse(0, 0, 10.5, 5.8, -0.15, 0, Math.PI * 2);
+          targetCtx.fill();
+
+          if (ani.id === 'crane') {
+            targetCtx.strokeStyle = '#ffffff';
+            targetCtx.lineWidth = 3.6;
+            targetCtx.beginPath();
+            targetCtx.moveTo(8, -1);
+            targetCtx.quadraticCurveTo(15, -7, 20, -6);
+            targetCtx.stroke();
+            targetCtx.fillStyle = '#dc2626';
+            targetCtx.beginPath();
+            targetCtx.arc(19.5, -8, 2.1, 0, Math.PI * 2);
+            targetCtx.fill();
+          } else {
+            targetCtx.fillStyle = '#09090b';
+            targetCtx.beginPath();
+            targetCtx.arc(9.5, -3, 4.8, 0, Math.PI * 2);
+            targetCtx.fill();
+            if (ani.id === 'tw_pheasant') {
+              targetCtx.fillStyle = '#dc2626';
+              targetCtx.beginPath();
+              targetCtx.arc(10.5, -3.5, 2.5, 0, Math.PI * 2);
+              targetCtx.fill();
+            }
+          }
+
+          targetCtx.fillStyle = ani.id === 'tw_magpie' ? '#ef4444' : '#eab308';
+          targetCtx.beginPath();
+          const bx = ani.id === 'crane' ? 21 : 13.5;
+          const by = ani.id === 'crane' ? -6 : -3.5;
+          targetCtx.moveTo(bx, by - 1.7);
+          targetCtx.lineTo(bx + 7.5, by);
+          targetCtx.lineTo(bx, by + 1.7);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.fillStyle = ani.cLight;
+          targetCtx.beginPath();
+          targetCtx.moveTo(3, -1);
+          targetCtx.quadraticCurveTo(-5, -20 + flap, -20, -15 + flap);
+          targetCtx.lineTo(-13, -1 + flap * 0.4);
+          targetCtx.lineTo(-2, 3);
+          targetCtx.closePath();
+          targetCtx.fill();
+          targetCtx.strokeStyle = ani.id === 'tw_magpie' ? '#ffffff' : '#09090b';
+          targetCtx.lineWidth = 1.4;
+          targetCtx.stroke();
+
+          targetCtx.restore();
+          return;
+        }
+
+        // ------------------------------------------------------------------
+        // 姿態 3：巨獸重裝級姿態 (亞洲巨象 / 巨型河馬 / 台灣野豬)
+        // ------------------------------------------------------------------
+        if (ani.posture === 'colossal') {
+          if (ani.id === 'elephant') {
+            targetCtx.fillStyle = ani.cDark;
+            targetCtx.fillRect(-13 + stride * 3, 2, 6, 12);
+            targetCtx.fillRect(5 - stride * 3, 2, 6, 12);
+
+            targetCtx.fillStyle = bodyGrad;
+            targetCtx.beginPath();
+            targetCtx.ellipse(-2, -3, 15.5, 12, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            targetCtx.fillStyle = ani.cMid;
+            targetCtx.fillRect(-10 - stride * 3, 3, 6.2, 12);
+            targetCtx.fillRect(8 + stride * 3, 3, 6.2, 12);
+
+            targetCtx.fillStyle = ani.cDark;
+            targetCtx.beginPath();
+            targetCtx.ellipse(6, -5, 6.2, 9, -0.2, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            targetCtx.fillStyle = bodyGrad;
+            targetCtx.beginPath();
+            targetCtx.arc(12, -5, 8, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            targetCtx.strokeStyle = ani.cMid;
+            targetCtx.lineWidth = 4.8;
+            targetCtx.lineCap = 'round';
+            targetCtx.beginPath();
+            targetCtx.moveTo(17, -3);
+            targetCtx.quadraticCurveTo(22, 5, 18.5, 12.5 + cosStride * 2);
+            targetCtx.stroke();
+
+            targetCtx.strokeStyle = '#ffffff';
+            targetCtx.lineWidth = 2.6;
+            targetCtx.beginPath();
+            targetCtx.moveTo(14, 0);
+            targetCtx.quadraticCurveTo(21, 4, 27, -2);
+            targetCtx.stroke();
+
+            targetCtx.restore();
+            return;
+          }
+
+          if (ani.id === 'hippo') {
+            targetCtx.fillStyle = ani.cDark;
+            targetCtx.fillRect(-13 + stride * 2.5, 4, 5.5, 10);
+            targetCtx.fillRect(4 - stride * 2.5, 4, 5.5, 10);
+
+            targetCtx.fillStyle = bodyGrad;
+            targetCtx.beginPath();
+            targetCtx.ellipse(-2, 0, 15, 10, 0, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            targetCtx.fillStyle = ani.cMid;
+            targetCtx.fillRect(-10 - stride * 2.5, 5, 5.5, 10);
+            targetCtx.fillRect(7 + stride * 2.5, 5, 5.5, 10);
+
+            targetCtx.fillStyle = ani.cMid;
+            targetCtx.beginPath();
+            targetCtx.ellipse(12.5, -5, 6.8, 4.8, -0.35, 0, Math.PI * 2);
+            targetCtx.fill();
+
+            targetCtx.fillStyle = '#be123c';
+            targetCtx.beginPath();
+            targetCtx.moveTo(9, -3);
+            targetCtx.lineTo(19.5, -6);
+            targetCtx.lineTo(18.5, 5);
+            targetCtx.lineTo(9, 3);
+            targetCtx.closePath();
+            targetCtx.fill();
+            targetCtx.fillStyle = '#ffffff';
+            targetCtx.fillRect(15.5, -5, 2, 3.2);
+            targetCtx.fillRect(15.5, 1, 2.2, 3.8);
+
+            targetCtx.restore();
+            return;
+          }
+
+          // 台灣野豬
+          targetCtx.strokeStyle = ani.cDark;
+          targetCtx.lineWidth = 3.8;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-10, 3); targetCtx.lineTo(-13 - stride * 5, 12.5);
+          targetCtx.moveTo(8, 3); targetCtx.lineTo(12 + stride * 5, 12.5);
+          targetCtx.stroke();
+
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-13, 2);
+          targetCtx.quadraticCurveTo(-2, -11.5, 11, -5);
+          targetCtx.lineTo(15.5, 2);
+          targetCtx.lineTo(-12, 6);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.strokeStyle = '#f8fafc';
+          targetCtx.lineWidth = 2;
+          targetCtx.beginPath();
+          targetCtx.moveTo(7, 1); targetCtx.lineTo(12.5, 0);
+          targetCtx.moveTo(12.5, 1); targetCtx.lineTo(16.5, -5);
+          targetCtx.stroke();
+
+          targetCtx.restore();
+          return;
+        }
+
+        // ------------------------------------------------------------------
+        // 姿態 4：穿山甲拱背鱗甲姿 (台灣穿山甲)
+        // ------------------------------------------------------------------
+        if (ani.posture === 'armored_pangolin') {
+          targetCtx.fillStyle = ani.cDark;
+          targetCtx.beginPath();
+          targetCtx.moveTo(-8, 2);
+          targetCtx.quadraticCurveTo(-19, 4, -26, 9 + stride * 2);
+          targetCtx.lineTo(-17, 10);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.fillStyle = bodyGrad;
+          targetCtx.beginPath();
+          targetCtx.arc(0, 4, 11.5, Math.PI, 0, false);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.strokeStyle = '#fde68a';
+          targetCtx.lineWidth = 1;
+          for (let rx = -8; rx <= 6; rx += 4.5) {
+            targetCtx.beginPath();
+            targetCtx.arc(rx, -1, 2.8, -Math.PI * 0.8, 0.2);
+            targetCtx.stroke();
+            targetCtx.beginPath();
+            targetCtx.arc(rx + 2, 2.5, 2.8, -Math.PI * 0.8, 0.2);
+            targetCtx.stroke();
+          }
+
+          targetCtx.fillStyle = ani.cMid;
+          targetCtx.beginPath();
+          targetCtx.moveTo(10, -1);
+          targetCtx.lineTo(18.5, 3);
+          targetCtx.lineTo(10, 5);
+          targetCtx.closePath();
+          targetCtx.fill();
+
+          targetCtx.strokeStyle = '#fde68a';
+          targetCtx.lineWidth = 1.8;
+          targetCtx.beginPath();
+          targetCtx.moveTo(8, 6);
+          targetCtx.quadraticCurveTo(12.5, 10, 9, 12.5);
+          targetCtx.stroke();
+
+          targetCtx.restore();
+          return;
+        }
+
+        // ------------------------------------------------------------------
+        // 姿態 5：掠食飛撲姿 & 高昂蹄躍姿
+        // ------------------------------------------------------------------
+        const legExt = stride * 7.2;
+        const torsoLen = 12.5;
+        const torsoThick = 6.8;
+
+        targetCtx.strokeStyle = ani.id === 'pomeranian' ? ani.cLight : ani.cDark;
+        targetCtx.lineWidth = ani.id === 'pomeranian' ? 4.5 : 2.5;
         targetCtx.lineCap = 'round';
         targetCtx.beginPath();
-        if (animalId === 'pomeranian') {
-          // 博美蓬鬆捲尾 (如參考圖左下角博美)
-          targetCtx.strokeStyle = ani.cLight;
-          targetCtx.moveTo(-torsoLen + 2, -2);
-          targetCtx.quadraticCurveTo(-torsoLen - 6, -12, -torsoLen + 1, -11);
+        if (ani.id === 'pomeranian') {
+          targetCtx.moveTo(-8.5, -2);
+          targetCtx.quadraticCurveTo(-14.5, -11.5, -7.5, -10.5);
         } else {
           targetCtx.moveTo(-torsoLen, -1);
-          targetCtx.quadraticCurveTo(-torsoLen - 9, -5 + cosStride * 4, -torsoLen - 14, -9 - stride * 3);
+          targetCtx.quadraticCurveTo(-torsoLen - 8.5, -5 + cosStride * 4, -torsoLen - 13.5, -8.5 - stride * 3);
         }
         targetCtx.stroke();
 
-        // 2. 遠端前後肢 (飛撲伸展動作，如參考圖右方猛虎與灰狼)
-        const legExt = stride * 7;
         targetCtx.strokeStyle = ani.cDark;
-        targetCtx.lineWidth = isHeavy ? 4.5 : 3.2;
+        targetCtx.lineWidth = 3.1;
         targetCtx.beginPath();
-        // 後腿蹬伸
-        targetCtx.moveTo(-torsoLen + 3, 2);
-        targetCtx.lineTo(-torsoLen - 4 - legExt, 11);
-        // 前腿前撲
-        targetCtx.moveTo(torsoLen - 3, 2);
-        targetCtx.lineTo(torsoLen + 6 + legExt, 10);
+        targetCtx.moveTo(-torsoLen + 3, 2); targetCtx.lineTo(-torsoLen - 4.5 - legExt, 11.5);
+        targetCtx.moveTo(torsoLen - 3, 2); targetCtx.lineTo(torsoLen + 5.5 + legExt, 10.5);
         targetCtx.stroke();
 
-        // 3. 肌肉流線軀幹 (胸腔 + 腰腹收束)
         targetCtx.fillStyle = bodyGrad;
         targetCtx.beginPath();
         targetCtx.moveTo(-torsoLen, -torsoThick * 0.7);
@@ -1185,142 +1504,113 @@
         targetCtx.closePath();
         targetCtx.fill();
 
-        // 腹部亮白/淺色高光毛皮
         targetCtx.fillStyle = ani.cBelly;
         targetCtx.beginPath();
-        targetCtx.ellipse(0, torsoThick * 0.55, torsoLen * 0.7, torsoThick * 0.32, 0, 0, Math.PI);
+        targetCtx.ellipse(0, torsoThick * 0.55, torsoLen * 0.7, torsoThick * 0.3, 0, 0, Math.PI);
         targetCtx.fill();
 
-        // 4. 物種專屬軀幹斑紋 (孟加拉虎黑紋 / 大熊貓黑白肩帶 / 米格魯三色塊 / 瞪羚黑側線)
-        if (animalId === 'tiger') {
+        if (ani.id === 'tiger') {
           targetCtx.strokeStyle = '#140b04';
-          targetCtx.lineWidth = 1.8;
-          for (let tx = -torsoLen + 3; tx <= torsoLen - 3; tx += 3.6) {
+          targetCtx.lineWidth = 1.7;
+          for (let tx = -8.5; tx <= 8.5; tx += 3.4) {
             targetCtx.beginPath();
-            targetCtx.moveTo(tx, -torsoThick * 0.85);
-            targetCtx.lineTo(tx - 1.5, torsoThick * 0.35);
+            targetCtx.moveTo(tx, -5.8); targetCtx.lineTo(tx - 1.5, 2.8);
             targetCtx.stroke();
           }
-        } else if (animalId === 'panda') {
-          targetCtx.fillStyle = '#09090b';
-          targetCtx.fillRect(2, -torsoThick * 0.85, 7, torsoThick * 1.6);
-        } else if (animalId === 'beagle') {
+        } else if (ani.id === 'tw_leopard_cat') {
+          targetCtx.fillStyle = '#271507';
+          for (let sx = -7.5; sx <= 5.5; sx += 4.2) {
+            targetCtx.beginPath();
+            targetCtx.arc(sx, -2, 1.5, 0, Math.PI * 2);
+            targetCtx.arc(sx + 2, 1.4, 1.3, 0, Math.PI * 2);
+            targetCtx.fill();
+          }
+        } else if (ani.id === 'tw_deer') {
+          targetCtx.fillStyle = '#ffffff';
+          for (let dx = -7.5; dx <= 5.5; dx += 4.2) {
+            targetCtx.beginPath();
+            targetCtx.arc(dx, -2, 1.3, 0, Math.PI * 2);
+            targetCtx.arc(dx + 2, 1, 1.1, 0, Math.PI * 2);
+            targetCtx.fill();
+          }
+        } else if (ani.id === 'beagle') {
           targetCtx.fillStyle = '#1c1917';
           targetCtx.beginPath();
-          targetCtx.ellipse(-2, -2, 7, 4.5, 0, 0, Math.PI * 2);
+          targetCtx.ellipse(-2, -2, 6, 3.8, 0, 0, Math.PI * 2);
           targetCtx.fill();
-        } else if (animalId === 'gazelle') {
-          targetCtx.fillStyle = '#1c1917';
-          targetCtx.fillRect(-torsoLen * 0.6, 1, torsoLen * 1.2, 2.5);
         }
 
-        // 5. 近端前後肢（帶肌肉關節）
-        targetCtx.strokeStyle = animalId === 'panda' ? '#09090b' : ani.cMid;
-        targetCtx.lineWidth = isHeavy ? 5 : 3.6;
+        targetCtx.strokeStyle = ani.cMid;
+        targetCtx.lineWidth = 3.4;
         targetCtx.beginPath();
-        targetCtx.moveTo(-torsoLen + 4, 2);
-        targetCtx.lineTo(-torsoLen - 2 + legExt, 12);
-        targetCtx.moveTo(torsoLen - 2, 2);
-        targetCtx.lineTo(torsoLen + 7 - legExt, 11);
+        targetCtx.moveTo(-torsoLen + 4, 2); targetCtx.lineTo(-torsoLen - 2 + legExt, 12.5);
+        targetCtx.moveTo(torsoLen - 2, 2); targetCtx.lineTo(torsoLen + 6.5 - legExt, 11.5);
         targetCtx.stroke();
 
-        // 6. 頸部、獅鬃與頭顱
-        if (animalId === 'lion') {
-          // 雄獅濃密深棕鬃毛
+        if (ani.id === 'lion') {
           targetCtx.fillStyle = '#451a03';
           targetCtx.beginPath();
-          targetCtx.ellipse(torsoLen - 1, -2, 9, 10, 0.2, 0, Math.PI * 2);
+          targetCtx.ellipse(torsoLen - 1, -2, 8.2, 9, 0.2, 0, Math.PI * 2);
           targetCtx.fill();
-        } else if (animalId === 'pomeranian') {
-          // 博美犬超蓬鬆胸毛領
+        } else if (ani.id === 'pomeranian') {
           targetCtx.fillStyle = ani.cLight;
           targetCtx.beginPath();
-          targetCtx.arc(torsoLen - 2, -1, 8.5, 0, Math.PI * 2);
+          targetCtx.arc(torsoLen - 3, -1, 7.6, 0, Math.PI * 2);
           targetCtx.fill();
         }
 
-        // 頭顱與吻部
         targetCtx.fillStyle = bodyGrad;
         targetCtx.beginPath();
-        targetCtx.ellipse(torsoLen + 4, -4, 6.5, 5.5, -0.1, 0, Math.PI * 2);
+        targetCtx.ellipse(torsoLen + 4, -5, 5.8, 4.8, -0.1, 0, Math.PI * 2);
         targetCtx.fill();
 
-        // 張口咆哮或吻部細節 (如參考圖張口露齒的猛虎、雄獅與灰狼)
-        if (animalId === 'tiger' || animalId === 'lion' || animalId === 'wolf' || animalId === 'hippo') {
-          // 上顎與張開的下顎
-          targetCtx.fillStyle = ani.cLight;
-          targetCtx.fillRect(torsoLen + 7, -7, 6.5, 4);
-          targetCtx.fillStyle = '#450a0a';
+        if (ani.id === 'tw_deer') {
+          targetCtx.strokeStyle = '#fef3c7';
+          targetCtx.lineWidth = 1.9;
           targetCtx.beginPath();
-          targetCtx.moveTo(torsoLen + 7, -3);
-          targetCtx.lineTo(torsoLen + 13, -2);
-          targetCtx.lineTo(torsoLen + 11, 2.5);
-          targetCtx.lineTo(torsoLen + 6, 1);
-          targetCtx.closePath();
-          targetCtx.fill();
-          // 銳利白牙
-          targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillRect(torsoLen + 11.5, -3.5, 1.5, 2.5);
-          targetCtx.fillRect(torsoLen + 10.5, 0, 1.5, 2.2);
-        } else if (animalId === 'boar') {
-          // 野豬上翹長獠牙
-          targetCtx.strokeStyle = '#ffffff';
-          targetCtx.lineWidth = 2.2;
-          targetCtx.beginPath();
-          targetCtx.moveTo(torsoLen + 9, -1);
-          targetCtx.lineTo(torsoLen + 14, -6);
+          targetCtx.moveTo(torsoLen + 3, -9);
+          targetCtx.lineTo(torsoLen - 1, -18.5);
+          targetCtx.moveTo(torsoLen + 1, -13.5);
+          targetCtx.lineTo(torsoLen + 5.5, -16.5);
+          targetCtx.moveTo(torsoLen, -16.5);
+          targetCtx.lineTo(torsoLen - 4.5, -17.5);
           targetCtx.stroke();
-        } else if (animalId === 'beagle') {
-          // 米格魯垂墜大長耳與白鼻吻 (如參考圖上方米格魯)
-          targetCtx.fillStyle = '#ffffff';
-          targetCtx.fillRect(torsoLen + 8, -5, 4.5, 4);
+        } else if (ani.id === 'tw_serow') {
+          targetCtx.strokeStyle = '#09090b';
+          targetCtx.lineWidth = 2.1;
+          targetCtx.beginPath();
+          targetCtx.moveTo(torsoLen + 3, -8.5);
+          targetCtx.quadraticCurveTo(torsoLen - 1, -14.5, torsoLen - 5, -12.5);
+          targetCtx.stroke();
+        } else if (ani.id === 'hare') {
+          targetCtx.fillStyle = ani.cMid;
+          targetCtx.beginPath();
+          targetCtx.ellipse(torsoLen, -12.5, 2.1, 6.2, -0.45, 0, Math.PI * 2);
+          targetCtx.fill();
+        } else if (ani.id === 'beagle') {
           targetCtx.fillStyle = '#7c2d12';
           targetCtx.beginPath();
-          targetCtx.ellipse(torsoLen + 2, 0, 3.5, 7, 0.35, 0, Math.PI * 2);
+          targetCtx.ellipse(torsoLen + 2, 0, 3, 6.2, 0.35, 0, Math.PI * 2);
           targetCtx.fill();
-        } else if (animalId === 'gazelle') {
-          // 瞪羚後彎長角
-          targetCtx.strokeStyle = '#1c1917';
-          targetCtx.lineWidth = 2;
+        } else if (ani.id === 'tw_leopard_cat') {
+          targetCtx.fillStyle = '#09090b';
           targetCtx.beginPath();
-          targetCtx.moveTo(torsoLen + 3, -8);
-          targetCtx.quadraticCurveTo(torsoLen - 4, -17, torsoLen - 9, -15);
-          targetCtx.stroke();
+          targetCtx.arc(torsoLen + 2, -9.5, 2.6, 0, Math.PI * 2);
+          targetCtx.fill();
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fillRect(torsoLen + 1.2, -10.2, 1.5, 1.5);
+          targetCtx.fillRect(torsoLen + 5.5, -7.8, 2.4, 1.1);
         }
 
-        // 耳朵 (非垂耳物種)
-        if (animalId !== 'beagle') {
-          targetCtx.fillStyle = animalId === 'panda' ? '#09090b' : ani.cDark;
-          targetCtx.beginPath();
-          targetCtx.moveTo(torsoLen + 1, -8);
-          targetCtx.lineTo(torsoLen + 3, -13);
-          targetCtx.lineTo(torsoLen + 6, -8);
-          targetCtx.closePath();
-          targetCtx.fill();
-        }
-
-        // 銳利眼神高光
         targetCtx.fillStyle = '#fef08a';
         targetCtx.beginPath();
-        targetCtx.arc(torsoLen + 6.5, -5.5, 1.4, 0, Math.PI * 2);
+        targetCtx.arc(torsoLen + 6.2, -5.8, 1.2, 0, Math.PI * 2);
         targetCtx.fill();
-        targetCtx.fillStyle = '#09090b';
-        targetCtx.beginPath();
-        targetCtx.arc(torsoLen + 6.8, -5.5, 0.8, 0, Math.PI * 2);
-        targetCtx.fill();
-
-        // 頂部冷白背光輪廓線 (Rim Light，致敬參考圖強烈的頂光立體感)
-        targetCtx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-        targetCtx.lineWidth = 1.1;
-        targetCtx.beginPath();
-        targetCtx.moveTo(-torsoLen, -torsoThick * 0.75);
-        targetCtx.quadraticCurveTo(0, -torsoThick * 1.15, torsoLen + 7, -7);
-        targetCtx.stroke();
 
         targetCtx.restore();
       }
 
-      // ================== 建立兩小排 (2×6) 選角網格 + 選中放大預覽 ==================
+      // ================== 建立兩小排 (2×9 = 18隻) 選角網格 + 選中放大預覽 ==================
       const miniCanvases = new Map();
       let previewLeapImpulse = 0;
 
@@ -1331,9 +1621,16 @@
           cell.className = 'animal-cell' + (a.id === myAnimalId ? ' selected' : '');
           cell.dataset.id = a.id;
 
+          if (a.isTW) {
+            const twDot = document.createElement('div');
+            twDot.className = 'animal-cell-tw';
+            twDot.title = '台灣原生特有種';
+            cell.appendChild(twDot);
+          }
+
           const miniCv = document.createElement('canvas');
           miniCv.width = 104;
-          miniCv.height = 84;
+          miniCv.height = 80;
           miniCanvases.set(a.id, miniCv);
 
           const label = document.createElement('div');
@@ -1346,9 +1643,10 @@
           cell.addEventListener('click', () => {
             myAnimalId = a.id;
             localStorage.setItem(ANIMAL_KEY, myAnimalId);
-            previewLeapImpulse = 1.0; // 點選時上方大預覽模型立即做出飛撲展示動作！
+            previewLeapImpulse = 1.0;
             playSound('bump');
             updateAnimalSelectionUI();
+            cell.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             broadcastHeartbeat();
             renderRoster();
           });
@@ -1365,8 +1663,10 @@
       function updateAnimalSelectionUI() {
         const a = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
         showcaseNum.textContent = a.num;
+        posturePill.textContent = a.postureName;
+        twPill.style.display = a.isTW ? 'block' : 'none';
         detailTitle.textContent = a.name;
-        detailEn.textContent = `${a.en} · ${a.weight}t`;
+        detailEn.textContent = `${a.en} · ${a.weight}t (${a.sizeScale}x)`;
         barWeight.style.width = `${a.wPct}%`;
         barSpeed.style.width = `${a.sPct}%`;
         barPush.style.width = `${a.pPct}%`;
@@ -1381,35 +1681,38 @@
       function renderSelectScreenPortraits(now) {
         if (overlay.classList.contains('hidden')) return;
 
-        // 1. 繪製兩小排 12 格角色圖示
         for (const [id, miniCv] of miniCanvases.entries()) {
           const mCtx = miniCv.getContext('2d');
           mCtx.clearRect(0, 0, miniCv.width, miniCv.height);
           const isSel = id === myAnimalId;
-          const phase = isSel ? now * 0.01 : 0.8;
-          drawRealisticAnimal(mCtx, id, 52, 48, isSel ? 1.55 : 1.32, 1, phase, isSel ? -0.12 : 0);
+          const phase = isSel ? now * 0.01 : 0.75;
+          drawAuthenticAnimal(mCtx, id, 52, 46, isSel ? 1.25 : 1.05, 1, phase, 0);
         }
 
-        // 2. 繪製上方超大動態展示舞台 (放大 3.8 倍檢視細節！)
         previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
-        // 舞台背景放射光暈與速度線
-        const grad = previewCtx.createRadialGradient(210, 160, 15, 210, 160, 175);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
-        grad.addColorStop(1, 'rgba(203, 213, 225, 0)');
-        previewCtx.fillStyle = grad;
-        previewCtx.fillRect(0, 0, 420, 312);
+        // 繪製體型高度比例尺格線 (1m / 2m / 3m)，直觀感受巨象與博美的體型差異！
+        previewCtx.strokeStyle = 'rgba(15, 23, 42, 0.1)';
+        previewCtx.lineWidth = 1;
+        previewCtx.setLineDash([4, 4]);
+        for (let y = 75; y <= 235; y += 52) {
+          previewCtx.beginPath();
+          previewCtx.moveTo(15, y);
+          previewCtx.lineTo(395, y);
+          previewCtx.stroke();
+        }
+        previewCtx.setLineDash([]);
 
-        const jumpY = Math.sin(previewLeapImpulse * Math.PI) * -32;
-        const pitch = -0.14 - Math.sin(previewLeapImpulse * Math.PI) * 0.18;
-        drawRealisticAnimal(
+        const jumpY = Math.sin(previewLeapImpulse * Math.PI) * -26;
+        const pitch = -Math.sin(previewLeapImpulse * Math.PI) * 0.14;
+        drawAuthenticAnimal(
           previewCtx,
           myAnimalId,
           205,
-          176 + jumpY,
-          3.95,
+          182 + jumpY,
+          3.45,
           1,
-          now * 0.011,
+          now * 0.01,
           pitch
         );
       }
@@ -1439,7 +1742,7 @@
         setTimeout(() => toastEl.classList.remove('show'), 2200);
       }
 
-      // Seeded PRNG (Mulberry32)
+      // Seeded PRNG
       let rngState = 987654321;
       function seedRandom(seed) {
         rngState = seed >>> 0;
@@ -1566,7 +1869,6 @@
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
-      // 濃霧與塵埃粒子
       const mistClouds = Array.from({ length: 14 }, () => ({
         x: Math.random() * LOGIC_W,
         y: Math.random() * 600,
@@ -1628,7 +1930,7 @@
       let brokerIdx = 0;
 
       function getTopic(room) {
-        return `tokyo-jungle-v3/room/${room}`;
+        return `tokyo-jungle-v4/room/${room}`;
       }
 
       function connectMultiplayer() {
@@ -1645,7 +1947,7 @@
         }
 
         mqttClient = mqtt.connect(url, {
-          clientId: 'tkjg_' + myId + '_' + Math.floor(Math.random() * 999),
+          clientId: 'tkj4_' + myId + '_' + Math.floor(Math.random() * 999),
           clean: true,
           connectTimeout: 5000,
           reconnectPeriod: 3000
@@ -1736,7 +2038,7 @@
           p = {
             id: msg.id,
             name: msg.name || '生存者',
-            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'tiger',
+            animalId: ANIMAL_MAP[msg.ani] ? msg.ani : 'tw_bear',
             x: LOGIC_W / 2,
             worldY: 200,
             vx: 0,
@@ -1870,8 +2172,8 @@
         if (navigator.share) {
           try {
             await navigator.share({
-              title: 'TOKYO JUNGLE：地下生存多人連線',
-              text: `快選一隻猛獸加入區域【${currentRoom}】，一起來東京叢林下樓梯生存戰！`,
+              title: 'TOKYO JUNGLE × 台灣原生猛獸 多人連線',
+              text: `快選一隻台灣特有種或猛獸加入區域【${currentRoom}】，一起連線生存對戰！`,
               url: shareUrl
             });
             return;
@@ -2193,7 +2495,7 @@
         }
       }
 
-      function triggerGameOver(reason) {
+      function triggerGameOver() {
         state = 'GAMEOVER';
         playSound('gameover');
         publishMsg({ t: 'dead', fl: floor });
@@ -2202,7 +2504,7 @@
         if (floor > bestFloor) {
           bestFloor = floor;
           localStorage.setItem(STORAGE_KEY, String(bestFloor));
-          bestScoreText.textContent = `最高生存: B${String(bestFloor).padStart(4, '0')}`;
+          bestScoreText.textContent = `最高: B${String(bestFloor).padStart(4, '0')}`;
         }
 
         const ani = ANIMAL_MAP[myAnimalId] || ANIMALS[0];
@@ -2238,7 +2540,7 @@
         if (plat.type === 'supply' && plat.crateIntact) {
           plat.crateIntact = false;
           plat.touched = true;
-          healPlayer(4, cx, cy - 10, '獵物補給 +4 HP!');
+          healPlayer(4, cx, cy - 10, '空投補給 +4 HP!');
           player.adrenalineTimer = 3.5;
           playSound('supply');
           spawnParticles(cx, plat.y, '#d97706', 16);
@@ -2249,18 +2551,20 @@
           if (!plat.touched) {
             plat.touched = true;
             let dmg = 5;
-            if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
+            if (ani.id === 'tw_pangolin') dmg = 2; // 台灣穿山甲鱗甲減半
+            else if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
             else if (ani.weight >= 2.1) dmg = 4;
             hurtPlayer(dmg, cx, cy, '鐵絲網 ');
           }
         } else if (plat.type === 'taxi') {
           if (!plat.touched) {
             plat.touched = true;
-            healPlayer(1, cx, cy, '+1 HP');
+            const healAmt = ani.id === 'tw_deer' ? 2 : 1;
+            healPlayer(healAmt, cx, cy, ani.id === 'tw_deer' ? '梅花鹿躍 +2 HP' : '+1 HP');
           }
           plat.springCompress = 1;
           player.onPlatform = null;
-          const weightFactor = Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
+          const weightFactor = ani.id === 'tw_deer' ? 0.85 : Math.max(0.72, Math.min(1.16, 1.06 / Math.sqrt(ani.weight)));
           player.vy = -410 * weightFactor;
           playSound('spring');
           spawnParticles(cx, plat.y, '#b45309', 10);
@@ -2269,9 +2573,9 @@
             plat.touched = true;
             let bonus = 1;
             let label = '+1 HP';
-            if (ani.id === 'beagle' && Math.random() < 0.3) {
+            if ((ani.id === 'beagle' || ani.id === 'pomeranian') && Math.random() < 0.28) {
               bonus = 2;
-              label = '嗅覺本能 +2 HP';
+              label = `${ani.name} +2 HP`;
             }
             healPlayer(bonus, cx, cy, label);
             playSound('land', ani.weight);
@@ -2365,9 +2669,9 @@
           const targetTilt = Math.max(-0.42, Math.min(0.42, p.baseTilt + torque * tiltSensitivity));
           p.tilt += (targetTilt - p.tilt) * Math.min(1, dt * 10);
 
-          // 腐朽木板：渡鴉不觸發斷裂，博美減緩斷裂
-          if (p.type === 'wood' && p.touched && !p.broken && ani.id !== 'crow') {
-            const weightRate = ani.id === 'pomeranian' ? 0.42 : Math.max(0.45, Math.max(load, ani.weight));
+          // 腐朽神社木板：石虎與博美減緩斷裂
+          if (p.type === 'wood' && p.touched && !p.broken) {
+            const weightRate = (ani.id === 'pomeranian' || ani.id === 'tw_leopard_cat') ? 0.42 : Math.max(0.45, Math.max(load, ani.weight));
             p.breakTimer += dt * weightRate;
             if (p.breakTimer >= 0.42) {
               p.broken = true;
@@ -2400,7 +2704,7 @@
           }
         }
 
-        // 水平移動與動物專長
+        // 水平移動與 18 動物專長
         let moveDir = 0;
         if (player.stunTimer <= 0) {
           if (input.left) moveDir -= 1;
@@ -2415,19 +2719,23 @@
 
         let speedMultiplier = ani.speedMul;
         let boarCharging = false;
-        if (ani.id === 'boar' && player.runTime > 0.32) {
+        if (ani.id === 'tw_boar' && player.runTime > 0.32) {
           speedMultiplier *= 1.32;
           boarCharging = true;
           if (Math.random() < 0.35) {
             spawnParticles(player.x + 15, player.y + 24, '#78350f', 1);
           }
         }
+        // 台灣黑熊殘血狂暴
+        if (ani.id === 'tw_bear' && hp <= 4) {
+          speedMultiplier *= 1.25;
+        }
         if (player.adrenalineTimer > 0) {
           speedMultiplier *= 1.25;
         }
 
         const targetVx = moveDir * player.baseSpeed * speedMultiplier;
-        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo';
+        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo' && ani.id !== 'tw_pangolin';
         const accel = onMoss ? 4.2 : 18.0;
         player.vx += (targetVx - player.vx) * Math.min(1, accel * dt);
 
@@ -2448,7 +2756,9 @@
           if (p.type === 'conveyor_l') totalVx -= 125 * convFactor;
           if (p.type === 'conveyor_r') totalVx += 125 * convFactor;
 
-          if (ani.id !== 'hippo' && ani.id !== 'wolf') {
+          // 台灣藍鵲、長鬃山羊、穿山甲、河馬、灰狼免疫斜坡滑落
+          const noSlide = ani.id === 'tw_magpie' || ani.id === 'tw_serow' || ani.id === 'tw_pangolin' || ani.id === 'hippo' || ani.id === 'wolf';
+          if (!noSlide) {
             const slideMul = onMoss ? 410 : 275;
             totalVx += Math.sin(p.tilt) * slideMul;
           }
@@ -2462,7 +2772,7 @@
           }
         }
 
-        // 多人猛獸碰撞與孟加拉虎踩躍 / 熊貓太極反彈
+        // 多人猛獸碰撞
         const myWorldY = player.y + scrollDistance;
         for (const rp of peers.values()) {
           if (!rp.alive) continue;
@@ -2485,7 +2795,7 @@
               incomingForce *= 1.65;
               addPopup(player.x + 15, player.y, '太極彈飛！', '#18181b');
             }
-            if (boarCharging) incomingForce *= 0.4;
+            if (boarCharging || (ani.id === 'tw_bear' && hp <= 4)) incomingForce *= 0.4;
             player.pushVx = pushSign * incomingForce;
             playSound('bump');
             spawnParticles(player.x + 15, player.y + 15, '#78350f', 5);
@@ -2494,26 +2804,26 @@
 
         player.x += totalVx * dt;
 
-        // 左右牆壁邊界（瞪羚貼牆二段跳）
+        // 左右岩壁邊界（台灣長鬃山羊貼壁蹬牆跳）
         const wallWidth = 13;
         if (player.x <= wallWidth) {
           player.x = wallWidth;
-          if (ani.id === 'gazelle' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+          if (ani.id === 'tw_serow' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
             player.vy = -295;
             player.pushVx = 165;
             playSound('spring');
-            addPopup(player.x + 15, player.y, '羚羊蹬牆跳！', '#18181b');
+            addPopup(player.x + 15, player.y, '長鬃山羊蹬壁！', '#18181b');
           }
         }
         if (player.x + player.w >= LOGIC_W - wallWidth) {
           player.x = LOGIC_W - wallWidth - player.w;
-          if (ani.id === 'gazelle' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+          if (ani.id === 'tw_serow' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
             player.canDoubleJump = false;
             player.vy = -295;
             player.pushVx = -165;
             playSound('spring');
-            addPopup(player.x + 15, player.y, '羚羊蹬牆跳！', '#18181b');
+            addPopup(player.x + 15, player.y, '長鬃山羊蹬壁！', '#18181b');
           }
         }
 
@@ -2528,7 +2838,7 @@
           const overlap = (player.x + player.w - 4 > p.x) && (player.x + 4 < p.x + p.w);
           if (!overlap || p.broken) {
             player.onPlatform = null;
-            if (ani.id === 'tiger' && moveDir !== 0 && !p.broken) {
+            if ((ani.id === 'tiger' || ani.id === 'tw_pheasant') && moveDir !== 0 && !p.broken) {
               player.pushVx = moveDir * 145;
               player.vy = -125;
             } else {
@@ -2538,17 +2848,18 @@
         }
 
         if (!player.onPlatform) {
-          const isGlider = ani.id === 'crane' || ani.id === 'crow';
-          const gravity = (isGlider && player.vy > 0) ? 560 : 980;
-          const maxFall = isGlider ? 330 : 580;
+          const isGlider = ani.posture === 'soaring_bird';
+          const gravity = (isGlider && player.vy > 0) ? 550 : 980;
+          const maxFall = isGlider ? 320 : 580;
           player.vy = Math.min(maxFall, player.vy + gravity * dt);
 
-          if (ani.id === 'gazelle' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
+          // 台灣野兔失足空中二段跳
+          if (ani.id === 'hare' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
             player.canDoubleJump = false;
-            player.vy = -270;
+            player.vy = -275;
             playSound('spring');
             spawnParticles(player.x + 15, player.y + 26, '#ffffff', 6);
-            addPopup(player.x + 15, player.y, '羚羊二段躍！', '#18181b');
+            addPopup(player.x + 15, player.y, '野兔二段躍！', '#18181b');
           }
 
           player.y += (player.vy * dt) - dy;
@@ -2570,7 +2881,7 @@
 
         const ceilingSpikeH = 22;
         if (player.y <= ceilingSpikeH) {
-          const dmg = (ani.id === 'lion' || ani.weight >= 2.1) ? 3 : 5;
+          const dmg = (ani.id === 'tw_pangolin' || ani.id === 'lion' || ani.weight >= 2.1) ? 3 : 5;
           hurtPlayer(dmg, player.x + player.w / 2, ceilingSpikeH + 10, '頂部鋼筋 ');
           player.onPlatform = null;
           player.y = ceilingSpikeH + 5;
@@ -2580,7 +2891,7 @@
         if (player.y > H + 35) {
           hp = 0;
           updateHUD();
-          triggerGameOver('墜入東京地下深淵！');
+          triggerGameOver();
         }
 
         for (let i = shockwaves.length - 1; i >= 0; i--) {
@@ -2607,9 +2918,8 @@
         }
       }
 
-      // ================== 致敬參考圖的「蒼白迷霧 × 高反差廢墟」背景渲染 ==================
+      // ================== 蒼白迷霧 × 高反差廢墟背景渲染 ==================
       function drawAtmosphericBackground() {
-        // 參考圖標誌性的明亮冷白迷霧漸層背景，襯托深色寫實猛獸剪影與毛皮肌理
         const grad = ctx.createLinearGradient(0, 0, 0, H);
         if (floor < 30) {
           grad.addColorStop(0, '#eef2f6');
@@ -2627,7 +2937,6 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, LOGIC_W, H);
 
-        // 遠景模糊廢墟鋼骨橋墩剪影
         const bgScroll = (scrollDistance * 0.3) % 190;
         for (let y = -bgScroll; y < H + 190; y += 190) {
           ctx.fillStyle = 'rgba(71, 85, 105, 0.12)';
@@ -2642,7 +2951,6 @@
           ctx.fill();
         }
 
-        // 經典《TOKYO JUNGLE》襯線體巨型樓層浮水印 (如參考圖左下角的黑色巨型數字 "1")
         ctx.save();
         ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
         ctx.font = '900 105px Georgia, "Times New Roman", serif';
@@ -2651,7 +2959,6 @@
         ctx.fillText(String(floor), LOGIC_W / 2, H * 0.48);
         ctx.restore();
 
-        // 流動白霧層
         for (const mc of mistClouds) {
           const mGrad = ctx.createRadialGradient(mc.x, mc.y, 4, mc.x, mc.y, mc.r);
           mGrad.addColorStop(0, `rgba(255, 255, 255, ${mc.alpha})`);
@@ -2662,7 +2969,6 @@
           ctx.fill();
         }
 
-        // 兩側深色斑駁水泥岩壁與枯藤
         const wallW = 13;
         ctx.fillStyle = '#27272a';
         ctx.fillRect(0, 0, wallW, H);
@@ -2725,7 +3031,6 @@
           const hw = p.w / 2;
           const hh = p.h / 2;
 
-          // 階梯底部投影
           ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
           ctx.fillRect(-hw + 2, hh, p.w, 4);
 
@@ -2854,21 +3159,21 @@
         const cx = x + 15;
         const cy = y + 14;
 
-        // 頭頂名稱與血量條
+        const labelOffset = ani.posture === 'bipedal_bear' ? 20 : (ani.posture === 'colossal' ? 18 : 12);
+
         ctx.font = '900 11px system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = isLocal ? '#78350f' : '#27272a';
-        ctx.fillText(name, cx, y - 11);
+        ctx.fillText(name, cx, y - labelOffset);
 
         const barW = 26;
         ctx.fillStyle = 'rgba(24, 24, 27, 0.85)';
-        ctx.fillRect(cx - barW / 2, y - 7, barW, 3.5);
+        ctx.fillRect(cx - barW / 2, y - labelOffset + 3, barW, 3.5);
         ctx.fillStyle = hpVal > 4 ? '#d97706' : '#dc2626';
-        ctx.fillRect(cx - barW / 2, y - 7, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
+        ctx.fillRect(cx - barW / 2, y - labelOffset + 3, Math.max(0, (hpVal / MAX_HP) * barW), 3.5);
 
-        const sizeScale = Math.max(0.86, Math.min(1.25, 0.82 + ani.weight * 0.17));
-        const pitch = Math.max(-0.32, Math.min(0.32, vy * 0.0006));
-        drawRealisticAnimal(ctx, animalId, cx, cy, sizeScale, facing, walkFrame, pitch);
+        const pitch = ani.posture === 'bipedal_bear' ? 0 : Math.max(-0.28, Math.min(0.28, vy * 0.0005));
+        drawAuthenticAnimal(ctx, animalId, cx, cy, 0.96, facing, walkFrame, pitch);
 
         ctx.restore();
       }
