@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#14181d" />
-  <title>TOKYO JUNGLE × 台灣原生猛獸：18動物多人連線版</title>
+  <meta name="theme-color" content="#fdf6e3" />
+  <title>繪本森林大冒險 × 24動物多人連線版</title>
   <script src="https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"></script>
   <style>
     * {
@@ -22,9 +22,9 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #0d1014;
-      color: #18181b;
-      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Serif TC', 'Noto Sans TC', sans-serif;
+      background-color: #2b2118;
+      color: #451a03;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans TC', sans-serif;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -40,11 +40,11 @@
       max-height: 940px;
       display: flex;
       flex-direction: column;
-      background: #cfd6df;
-      box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+      background: #fdf6e3;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.75);
       overflow: hidden;
-      border-left: 1px solid #334155;
-      border-right: 1px solid #334155;
+      border-left: 2px solid #78350f;
+      border-right: 2px solid #78350f;
     }
 
     /* 精簡懸浮血條（無動物名、無地點、無音/獸按鈕、無 B24） */
@@ -253,11 +253,11 @@
       border-color: #ffffff;
     }
 
-    /* ============== 《TOKYO JUNGLE》18 動物單畫面 6×3 選角大廳 ============== */
+    /* ============== 繪本風 24 動物單畫面 6×4 選角大廳 ============== */
     .overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 20%, rgba(248, 250, 252, 0.98) 0%, rgba(212, 220, 232, 0.98) 65%, rgba(168, 179, 194, 0.98) 100%);
+      background: radial-gradient(circle at 50% 18%, rgba(255, 251, 235, 0.98) 0%, rgba(254, 243, 199, 0.98) 65%, rgba(253, 230, 138, 0.96) 100%);
       backdrop-filter: blur(8px);
       display: flex;
       flex-direction: column;
@@ -266,7 +266,7 @@
       padding: 6px 8px;
       z-index: 20;
       overflow: hidden;
-      color: #18181b;
+      color: #451a03;
     }
 
     .overlay.hidden {
@@ -311,16 +311,16 @@
       font-weight: 800;
     }
 
-    /* 選中角色展示舞台 (緊湊版以配合單畫面 6×3) */
+    /* 選中角色繪本動態預覽舞台 (緊湊版以配合單畫面 6×4) */
     .showcase-stage {
       position: relative;
       width: 100%;
-      height: 124px;
+      height: 118px;
       flex-shrink: 0;
-      background: radial-gradient(ellipse at 45% 55%, #ffffff 0%, #e2e8f0 65%, #cbd5e1 100%);
-      border: 2px solid #18181b;
-      border-radius: 7px;
-      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.12);
+      background: radial-gradient(ellipse at 45% 55%, #ffffff 0%, #fef9c3 65%, #fde68a 100%);
+      border: 2.5px solid #5c3a21;
+      border-radius: 12px;
+      box-shadow: inset 0 0 18px rgba(180, 83, 9, 0.10), 0 4px 10px rgba(92, 58, 33, 0.14);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -449,14 +449,14 @@
       overflow: hidden;
     }
 
-    /* 6 × 3 單畫面完整選角網格（不須滑動） */
+    /* 6 × 4 單畫面完整選角網格（不須滑動） */
     .roster-section-label {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
       font-weight: 900;
-      color: #27272a;
+      color: #5c3a21;
       padding: 0 2px;
       flex-shrink: 0;
     }
@@ -471,16 +471,16 @@
     .animal-grid-6x3 {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      grid-template-rows: repeat(3, 50px);
-      gap: 4px;
+      grid-template-rows: repeat(4, 43px);
+      gap: 3px;
       width: 100%;
     }
 
     .animal-cell {
       position: relative;
-      background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 100%);
-      border: 1.5px solid #52525b;
-      border-radius: 5px;
+      background: linear-gradient(180deg, #fffdf7 0%, #fef3c7 100%);
+      border: 1.5px solid #78350f;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -492,8 +492,8 @@
     }
 
     .animal-cell canvas {
-      width: 44px;
-      height: 33px;
+      width: 38px;
+      height: 28px;
       display: block;
       pointer-events: none;
     }
@@ -505,13 +505,13 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #15803d;
+      background: #16a34a;
     }
 
     .animal-cell-name {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 900;
-      color: #18181b;
+      color: #451a03;
       line-height: 1;
       white-space: nowrap;
       overflow: hidden;
@@ -523,9 +523,9 @@
     .animal-cell.selected {
       transform: scale(1.16) translateY(-2px);
       z-index: 15;
-      background: radial-gradient(circle at 50% 40%, #ffffff 0%, #fef3c7 100%);
-      border: 2px solid #b45309;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35), 0 0 0 1.5px #f59e0b;
+      background: radial-gradient(circle at 50% 40%, #ffffff 0%, #fde68a 100%);
+      border: 2px solid #d97706;
+      box-shadow: 0 6px 14px rgba(92, 58, 33, 0.32), 0 0 0 1.5px #f59e0b;
     }
 
     .animal-cell.selected .animal-cell-name {
@@ -534,11 +534,11 @@
 
     /* 多人連線設定盒（支援 8 人房間 + 準備/房主狀態） */
     .mp-box {
-      background: rgba(24, 24, 27, 0.94);
-      border: 1.5px solid #18181b;
-      border-radius: 7px;
+      background: rgba(69, 26, 3, 0.92);
+      border: 2px solid #5c3a21;
+      border-radius: 10px;
       padding: 6px 8px;
-      color: #f4f4f5;
+      color: #fef3c7;
       text-align: left;
       flex-shrink: 0;
     }
@@ -752,11 +752,11 @@
         <span class="joy-arrow right">▶</span>
       </div>
 
-      <!-- 《TOKYO JUNGLE》18 種寫實動物單畫面 6×3 選角大廳 -->
+      <!-- 繪本風 24 種動物單畫面 6×4 選角大廳 -->
       <div class="overlay" id="overlay">
         <div class="card">
           <div class="header-banner">
-            <div class="title" id="overlayTitle">TOKYO JUNGLE · 18 動物</div>
+            <div class="title" id="overlayTitle">繪本森林 · 24 動物</div>
             <div class="badge" id="overlayBadge">體重 · 速度 · 衝撞</div>
           </div>
 
@@ -789,9 +789,9 @@
             </div>
           </div>
 
-          <!-- 6×3 選角列 (一個畫面完整顯示 18 隻，無須滑動) -->
+          <!-- 6×4 選角列 (一個畫面完整顯示 24 隻，無須滑動) -->
           <div class="roster-section-label">
-            <span>▼ 6×3 選角（點選放大檢視 · 最多 8 人同房）</span>
+            <span>▼ 6×4 選角（點選放大檢視 · 最多 8 人同房）</span>
             <span id="bestScoreText" style="display:none"></span>
           </div>
           <div class="animal-grid-scroll-wrap">
@@ -954,6 +954,48 @@
           weight: 0.56, sizeScale: 0.78, speedMul: 1.36, pushMul: 0.6,
           wStat: 1, sStat: 10, cStat: 1, wPct: 10, sPct: 100, pPct: 10,
           desc: '【沙漠神速】全場最快，空中轉向靈敏；踩腐朽木板斷裂速度減緩 50%。'
+        },
+        {
+          id: 'pangolin', name: '台灣穿山甲', en: "FORMOSAN PANGOLIN", isTW: true,
+          posture: 'colossal', postureName: '鱗甲護體姿', face: -1,
+          weight: 1.42, sizeScale: 1.0, speedMul: 1.01, pushMul: 1.23,
+          wStat: 5, sStat: 4, cStat: 5, wPct: 50, sPct: 40, pPct: 50,
+          desc: '【縮球滾動】踩中尖刺傷害減半並高彈跳脫離，碰撞對手反彈力強。'
+        },
+        {
+          id: 'leopardcat', name: '台灣石虎', en: "FORMOSAN LEOPARD CAT", isTW: true,
+          posture: 'leaping_predator', postureName: '山林潛行姿', face: -1,
+          weight: 0.99, sizeScale: 0.95, speedMul: 1.24, pushMul: 1.07,
+          wStat: 3, sStat: 8, cStat: 4, wPct: 30, sPct: 80, pPct: 40,
+          desc: '【山林突襲】連續安全降落 3 層進入專注，移速 +20% 並突襲推開同梯對手。'
+        },
+        {
+          id: 'capybara', name: '水豚', en: "CAPYBARA", isTW: false,
+          posture: 'colossal', postureName: '頂橘靜坐姿', face: -1,
+          weight: 1.42, sizeScale: 1.1, speedMul: 0.95, pushMul: 1.38,
+          wStat: 5, sStat: 3, cStat: 6, wPct: 50, sPct: 30, pPct: 60,
+          desc: '【佛系溫泉】靜止站立 0.8 秒進入放鬆回血，同梯讓對手短暫緩速。'
+        },
+        {
+          id: 'penguin', name: '國王企鵝', en: "KING PENGUIN", isTW: false,
+          posture: 'bipedal_bear', postureName: '搖擺企鵝姿', face: 0,
+          weight: 1.1, sizeScale: 1.0, speedMul: 1.07, pushMul: 1.23,
+          wStat: 4, sStat: 5, cStat: 5, wPct: 40, sPct: 50, pPct: 50,
+          desc: '【肚皮滑行】青苔與斜坡不打滑，反而觸發高速肚皮衝刺並撞開對手！'
+        },
+        {
+          id: 'sloth', name: '樹懶', en: "THREE-TOED SLOTH", isTW: false,
+          posture: 'bipedal_bear', postureName: '微笑抓地姿', face: 0,
+          weight: 1.64, sizeScale: 1.05, speedMul: 0.88, pushMul: 1.53,
+          wStat: 6, sStat: 2, cStat: 7, wPct: 60, sPct: 20, pPct: 70,
+          desc: '【不動如山】強韌長爪死抓階梯，完全免疫狂風、磁場與他人推擠擊退！'
+        },
+        {
+          id: 'chameleon', name: '變色龍', en: "VEILED CHAMELEON", isTW: false,
+          posture: 'leaping_predator', postureName: '捲尾擬態姿', face: -1,
+          weight: 0.56, sizeScale: 0.82, speedMul: 1.13, pushMul: 0.6,
+          wStat: 1, sStat: 6, cStat: 1, wPct: 10, sPct: 60, pPct: 10,
+          desc: '【擬態保護色】每下潛 10 層獲得 1.8 秒隱身穿透，免疫對手推擠與方向反轉！'
         }
       ];
 
@@ -1434,6 +1476,9 @@
         slowTimer: 0,
         featherTimer: 0,
         giantTimer: 0,
+        streakCount: 0,
+        stillTimer: 0,
+        capyHealCd: 0,
         actionState: 'idle'
       };
 
@@ -2167,6 +2212,9 @@
         player.slowTimer = 0;
         player.featherTimer = 0;
         player.giantTimer = 0;
+        player.streakCount = 0;
+        player.stillTimer = 0;
+        player.capyHealCd = 0;
         player.actionState = 'idle';
         resetFieldEvents();
 
@@ -2278,11 +2326,18 @@
         if (plat.type === 'barbed') {
           if (!plat.touched) {
             plat.touched = true;
+            player.streakCount = 0;
             let dmg = 5;
-            if (ani.id === 'crocodile') dmg = 2; // 台灣穿山甲鱗甲減半
+            if (ani.id === 'crocodile' || ani.id === 'pangolin') dmg = 2; // 鱗甲護體減半
             else if (ani.id === 'lion') dmg = 3; // 雄獅鬃毛減傷
             else if (ani.weight >= 2.1) dmg = 4;
             hurtPlayer(dmg, cx, cy, '鐵絲網 ');
+            if (ani.id === 'pangolin') {
+              player.onPlatform = null;
+              player.vy = -255;
+              player.jumpTimer = 0.3;
+              addPopup(cx, cy - 16, '鱗片彈跳！', '#b45309');
+            }
           }
         } else if (plat.type === 'taxi') {
           if (!plat.touched) {
@@ -2300,6 +2355,7 @@
         } else {
           if (!plat.touched) {
             plat.touched = true;
+            player.streakCount = (player.streakCount || 0) + 1;
             let bonus = 1;
             let label = '+1 HP';
             if ((ani.id === 'fox' || ani.id === 'octopus') && Math.random() < 0.28) {
@@ -2373,6 +2429,10 @@
           floor = newFloor;
           if (ani.id === 'beaver' && floor % 12 === 0) {
             healPlayer(2, player.x + 15, player.y, '竹葉回復 +2 HP');
+          }
+          if (ani.id === 'chameleon' && floor % 10 === 0) {
+            player.phaseTimer = Math.max(player.phaseTimer, 1.8);
+            addPopup(player.x + 15, player.y - 10, '擬態保護色！', '#059669');
           }
           updateHUD();
         }
@@ -2480,18 +2540,31 @@
           }
         }
 
-        // 水平移動與 18 動物專長
+        // 水平移動與 24 動物專長
         let moveDir = 0;
         if (player.stunTimer <= 0) {
           if (input.left) moveDir -= 1;
           if (input.right) moveDir += 1;
-          if (player.reverseTimer > 0) moveDir = -moveDir;
+          if (player.reverseTimer > 0 && ani.id !== 'chameleon') moveDir = -moveDir;
         }
 
         if (moveDir !== 0 && moveDir === player.facing) {
           player.runTime += dt;
+          player.stillTimer = 0;
         } else {
           player.runTime = 0;
+          if (player.onPlatform && moveDir === 0) {
+            player.stillTimer = (player.stillTimer || 0) + dt;
+          } else {
+            player.stillTimer = 0;
+          }
+        }
+
+        if (player.capyHealCd > 0) player.capyHealCd = Math.max(0, player.capyHealCd - dt);
+        if (ani.id === 'capybara' && player.onPlatform && player.stillTimer >= 0.8 && player.capyHealCd <= 0) {
+          player.capyHealCd = 1.8;
+          healPlayer(1, player.x + 15, player.y - 8, '佛系溫泉 +1');
+          spawnParticles(player.x + 15, player.y, '#fb923c', 5);
         }
 
         let speedMultiplier = ani.speedMul;
@@ -2504,9 +2577,22 @@
             spawnParticles(player.x + 15, player.y + 24, '#78350f', 1);
           }
         }
+        // 台灣石虎連續安全降落 3 層專注加速
+        if (ani.id === 'leopardcat' && player.streakCount >= 3) {
+          speedMultiplier *= 1.20;
+        }
         // 台灣黑熊殘血狂暴
         if (ani.id === 'bear' && hp <= 4) {
           speedMultiplier *= 1.25;
+        }
+        // 國王企鵝在青苔或斜坡上觸發肚皮滑行加速
+        const penguinSliding = ani.id === 'penguin' && player.onPlatform && (
+          player.onPlatform.type === 'moss' ||
+          player.onPlatform.type === 'slanted_l' ||
+          player.onPlatform.type === 'slanted_r'
+        );
+        if (penguinSliding) {
+          speedMultiplier *= 1.35;
         }
         if (player.adrenalineTimer > 0 || player.featherTimer > 0) {
           speedMultiplier *= 1.25;
@@ -2516,7 +2602,7 @@
         }
 
         const targetVx = moveDir * player.baseSpeed * speedMultiplier;
-        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo' && ani.id !== 'crocodile';
+        const onMoss = player.onPlatform && player.onPlatform.type === 'moss' && ani.id !== 'hippo' && ani.id !== 'crocodile' && ani.id !== 'penguin';
         const accel = onMoss ? 4.2 : 18.0;
         player.vx += (targetVx - player.vx) * Math.min(1, accel * dt);
 
@@ -2530,11 +2616,11 @@
         }
 
         let totalVx = player.vx + player.pushVx;
-        const isFieldImmune = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'bison' || ani.id === 'octopus';
+        const isFieldImmune = player.giantTimer > 0 || ani.id === 'elephant' || ani.id === 'bison' || ani.id === 'octopus' || ani.id === 'sloth' || ani.id === 'chameleon';
         if (fieldEvents.windTimer > 0 && !isFieldImmune) {
           totalVx += fieldEvents.windDir * (player.onPlatform ? 85 : 135);
         }
-        if (fieldEvents.magnetTimer > 0) {
+        if (fieldEvents.magnetTimer > 0 && ani.id !== 'sloth') {
           const toCenter = (LOGIC_W / 2) - (player.x + player.w / 2);
           totalVx += Math.sign(toCenter) * Math.min(95, Math.abs(toCenter) * 0.8);
         }
@@ -2545,11 +2631,12 @@
           if (p.type === 'conveyor_l') totalVx -= 125 * convFactor;
           if (p.type === 'conveyor_r') totalVx += 125 * convFactor;
 
-          // 台灣藍鵲、長鬃山羊、穿山甲、河馬、灰狼免疫斜坡滑落
-          const noSlide = ani.id === 'condor' || ani.id === 'springbok' || ani.id === 'crocodile' || ani.id === 'hippo' || ani.id === 'horse' || ani.id === 'octopus';
+          const noSlide = ani.id === 'condor' || ani.id === 'springbok' || ani.id === 'crocodile' || ani.id === 'hippo' || ani.id === 'horse' || ani.id === 'octopus' || ani.id === 'penguin';
           if (!noSlide) {
             const slideMul = onMoss ? 410 : 275;
             totalVx += Math.sin(p.tilt) * slideMul;
+          } else if (penguinSliding && Math.abs(p.tilt) > 0.05) {
+            totalVx += Math.sign(p.tilt) * 95;
           }
 
           if (p.type === 'electric' && electricCycle && player.invulnerable <= 0) {
@@ -2626,10 +2713,23 @@
             }
 
             const pushSign = dx >= 0 ? 1 : -1;
+            if (ani.id === 'sloth') {
+              addPopup(player.x + 15, player.y - 8, '不動如山！', '#78350f');
+              continue;
+            }
             let incomingForce = 215 * (rpAni.pushMul / Math.pow(ani.weight, 0.65));
-            if (rpAni.id === 'beaver') {
-              incomingForce *= 1.65;
-              addPopup(player.x + 15, player.y, '太極彈飛！', '#18181b');
+            if (rpAni.id === 'beaver' || rpAni.id === 'pangolin' || rpAni.id === 'penguin') {
+              incomingForce *= 1.55;
+              const popText = rpAni.id === 'beaver' ? '太極彈飛！' : (rpAni.id === 'pangolin' ? '鱗球彈飛！' : '肚皮撞飛！');
+              addPopup(player.x + 15, player.y, popText, '#92400e');
+            }
+            if (rpAni.id === 'capybara') {
+              player.slowTimer = Math.max(player.slowTimer, 1.2);
+              addPopup(player.x + 15, player.y - 12, '佛系緩速...', '#ea580c');
+            }
+            if (rpAni.id === 'leopardcat') {
+              incomingForce *= 1.35;
+              addPopup(player.x + 15, player.y - 12, '石虎突襲！', '#b45309');
             }
             if (boarCharging || (ani.id === 'bear' && hp <= 4)) incomingForce *= 0.4;
             player.pushVx = pushSign * incomingForce;
@@ -2702,14 +2802,14 @@
           const maxFall = isGlider ? 290 : 580;
           player.vy = Math.min(maxFall, player.vy + gravity * dt);
 
-          // 台灣野兔失足空中二段跳
+          // 環尾狐猴空中翻身二段跳
           if (ani.id === 'lemur' && player.canDoubleJump && player.vy > 210 && (input.left || input.right)) {
             player.canDoubleJump = false;
             player.vy = -275;
             player.jumpTimer = 0.35;
             playSound('spring');
             spawnParticles(player.x + 15, player.y + 26, '#ffffff', 6);
-            addPopup(player.x + 15, player.y, '野兔二段躍！', '#18181b');
+            addPopup(player.x + 15, player.y, '空中翻身！', '#92400e');
           }
 
           player.y += (player.vy * dt) - dy;
@@ -2772,61 +2872,70 @@
       function drawAtmosphericBackground() {
         const grad = ctx.createLinearGradient(0, 0, 0, H);
         if (floor < 30) {
-          grad.addColorStop(0, '#eef2f6');
-          grad.addColorStop(0.55, '#d5dde7');
-          grad.addColorStop(1, '#b8c4d4');
+          // 繪本暖陽森林樹洞
+          grad.addColorStop(0, '#fffbeb');
+          grad.addColorStop(0.5, '#fef3c7');
+          grad.addColorStop(1, '#dcfce7');
         } else if (floor < 60) {
-          grad.addColorStop(0, '#dbe4ee');
-          grad.addColorStop(0.55, '#b8c7d9');
-          grad.addColorStop(1, '#94a8be');
+          // 繪本薰衣草蘑菇奇境
+          grad.addColorStop(0, '#faf5ff');
+          grad.addColorStop(0.55, '#ede9fe');
+          grad.addColorStop(1, '#dbeafe');
         } else {
-          grad.addColorStop(0, '#e5dcd8');
-          grad.addColorStop(0.55, '#cbbab2');
-          grad.addColorStop(1, '#a68d82');
+          // 繪本蜜桃糖果地心
+          grad.addColorStop(0, '#fff7ed');
+          grad.addColorStop(0.55, '#ffedd5');
+          grad.addColorStop(1, '#fed7aa');
         }
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, LOGIC_W, H);
 
-        const bgScroll = (scrollDistance * 0.3) % 190;
-        for (let y = -bgScroll; y < H + 190; y += 190) {
-          ctx.fillStyle = 'rgba(71, 85, 105, 0.12)';
-          ctx.fillRect(14, y, LOGIC_W - 28, 16);
+        // 柔和手繪樹枝與遠景層次
+        const bgScroll = (scrollDistance * 0.25) % 210;
+        for (let y = -bgScroll; y < H + 210; y += 210) {
+          ctx.fillStyle = floor < 30 ? 'rgba(134, 239, 172, 0.26)' : (floor < 60 ? 'rgba(196, 181, 253, 0.22)' : 'rgba(253, 186, 116, 0.26)');
           ctx.beginPath();
-          ctx.moveTo(14, y + 16);
-          ctx.lineTo(65, y + 75);
-          ctx.lineTo(14, y + 75);
-          ctx.moveTo(LOGIC_W - 14, y + 16);
-          ctx.lineTo(LOGIC_W - 65, y + 75);
-          ctx.lineTo(LOGIC_W - 14, y + 75);
+          ctx.ellipse(LOGIC_W * 0.25, y + 60, 75, 22, -0.1, 0, Math.PI * 2);
+          ctx.ellipse(LOGIC_W * 0.78, y + 145, 68, 20, 0.12, 0, Math.PI * 2);
           ctx.fill();
         }
 
+        // 繪本柔白小雲朵
         for (const mc of mistClouds) {
-          const mGrad = ctx.createRadialGradient(mc.x, mc.y, 4, mc.x, mc.y, mc.r);
-          mGrad.addColorStop(0, `rgba(255, 255, 255, ${mc.alpha})`);
-          mGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = mGrad;
+          ctx.save();
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.65, mc.alpha + 0.25)})`;
           ctx.beginPath();
-          ctx.arc(mc.x, mc.y, mc.r, 0, Math.PI * 2);
+          ctx.arc(mc.x, mc.y, mc.r * 0.55, 0, Math.PI * 2);
+          ctx.arc(mc.x - mc.r * 0.35, mc.y + 4, mc.r * 0.38, 0, Math.PI * 2);
+          ctx.arc(mc.x + mc.r * 0.35, mc.y + 4, mc.r * 0.38, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         }
 
+        // 繪本圓木岩壁（牆壁推擠事件時變成橘紅警告條紋木樁）
         const wallW = getWallWidth();
-        ctx.fillStyle = fieldEvents.wallTimer > 0 ? '#78350f' : '#27272a';
+        const wallColor = fieldEvents.wallTimer > 0 ? '#c2410c' : '#854d0e';
+        const wallInner = fieldEvents.wallTimer > 0 ? '#ea580c' : '#a16207';
+        ctx.fillStyle = wallColor;
         ctx.fillRect(0, 0, wallW, H);
         ctx.fillRect(LOGIC_W - wallW, 0, wallW, H);
+        ctx.fillStyle = wallInner;
+        ctx.fillRect(0, 0, Math.max(2, wallW - 4), H);
+        ctx.fillRect(LOGIC_W - wallW + 4, 0, Math.max(2, wallW - 4), H);
 
-        if (fieldEvents.wallTimer > 0) {
-          ctx.fillStyle = '#facc15';
-          ctx.fillRect(wallW - 4, 0, 4, H);
-          ctx.fillRect(LOGIC_W - wallW, 0, 4, H);
-        }
+        // 深棕手繪邊線
+        ctx.fillStyle = fieldEvents.wallTimer > 0 ? '#fde047' : '#451a03';
+        ctx.fillRect(wallW - 2.5, 0, 2.5, H);
+        ctx.fillRect(LOGIC_W - wallW, 0, 2.5, H);
 
-        for (let y = -wallOffset; y < H; y += 20) {
-          ctx.strokeStyle = '#18181b';
-          ctx.lineWidth = 1.5;
-          ctx.strokeRect(1, y, wallW - 2, 20);
-          ctx.strokeRect(LOGIC_W - wallW + 1, y, wallW - 2, 20);
+        // 手繪原木石塊圓角紋理
+        ctx.strokeStyle = '#5c3a21';
+        ctx.lineWidth = 1.6;
+        for (let y = -wallOffset; y < H; y += 22) {
+          ctx.beginPath();
+          ctx.roundRect(1, y + 1, wallW - 4, 19, 4);
+          ctx.roundRect(LOGIC_W - wallW + 3, y + 1, wallW - 4, 19, 4);
+          ctx.stroke();
         }
       }
 
@@ -2837,10 +2946,10 @@
         // 0.8s 下壓前紅色警示線
         if (fieldEvents.ceilingTimer > 5.0) {
           ctx.save();
-          ctx.fillStyle = `rgba(220, 38, 38, ${0.22 + Math.sin(Date.now() * 0.03) * 0.16})`;
+          ctx.fillStyle = `rgba(239, 68, 68, ${0.22 + Math.sin(Date.now() * 0.03) * 0.16})`;
           ctx.fillRect(0, 0, LOGIC_W, 40);
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#dc2626';
+          ctx.lineWidth = 2.5;
           ctx.setLineDash([8, 6]);
           ctx.beginPath();
           ctx.moveTo(0, 40); ctx.lineTo(LOGIC_W, 40);
@@ -2848,23 +2957,29 @@
           ctx.restore();
         }
 
-        ctx.fillStyle = '#18181b';
-        ctx.fillRect(0, 0, LOGIC_W, Math.max(7, baseTop + 7));
+        // 手繪深棕木橫樑
+        ctx.fillStyle = '#5c3a21';
+        ctx.fillRect(0, 0, LOGIC_W, Math.max(8, baseTop + 8));
+        ctx.fillStyle = '#92400e';
+        ctx.fillRect(0, Math.max(2, baseTop + 2), LOGIC_W, 4);
 
         const spikeW = 18;
         for (let x = 12; x < LOGIC_W - 12; x += spikeW) {
           const grad = ctx.createLinearGradient(x, baseTop + 6, x + spikeW, spikeH);
-          grad.addColorStop(0, '#27272a');
-          grad.addColorStop(0.6, '#52525b');
-          grad.addColorStop(1, '#dc2626');
+          grad.addColorStop(0, '#fef2f2');
+          grad.addColorStop(0.55, '#fca5a5');
+          grad.addColorStop(1, '#ef4444');
           ctx.fillStyle = grad;
 
           ctx.beginPath();
-          ctx.moveTo(x, baseTop + 6);
+          ctx.moveTo(x + 1, baseTop + 6);
           ctx.lineTo(x + spikeW / 2, spikeH);
-          ctx.lineTo(x + spikeW, baseTop + 6);
+          ctx.lineTo(x + spikeW - 1, baseTop + 6);
           ctx.closePath();
           ctx.fill();
+          ctx.strokeStyle = '#451a03';
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
         }
       }
 
@@ -2895,74 +3010,77 @@
           const hw = p.w / 2;
           const hh = p.h / 2;
 
-          ctx.fillStyle = 'rgba(15, 23, 42, 0.18)';
-          ctx.fillRect(-hw + 2, hh, p.w, 4);
+          ctx.fillStyle = 'rgba(92, 58, 33, 0.16)';
+          ctx.beginPath();
+          ctx.roundRect(-hw + 2, hh, p.w, 5, 4);
+          ctx.fill();
 
           if (p.type === 'steel') {
+            // 繪本穩固草皮木頭踏板
             const overloadShake = p.overloadTimer > 0 ? (Math.random() - 0.5) * 4 : 0;
             const sg = ctx.createLinearGradient(0, -hh, 0, hh);
-            sg.addColorStop(0, p.overloadTimer > 0 ? '#c2410c' : '#64748b');
-            sg.addColorStop(0.3, p.overloadTimer > 0 ? '#9a3412' : '#334155');
-            sg.addColorStop(1, '#1e293b');
+            sg.addColorStop(0, p.overloadTimer > 0 ? '#fb923c' : '#d97706');
+            sg.addColorStop(1, p.overloadTimer > 0 ? '#9a3412' : '#92400e');
             ctx.fillStyle = sg;
             ctx.beginPath();
-            ctx.roundRect(-hw + overloadShake, -hh, p.w, p.h, 3);
+            ctx.roundRect(-hw + overloadShake, -hh, p.w, p.h, 6);
             ctx.fill();
-            ctx.fillStyle = p.overloadTimer > 0 ? '#fdba74' : '#94a3b8';
-            ctx.fillRect(-hw + 2 + overloadShake, -hh + 1, p.w - 4, 2);
-            ctx.fillStyle = '#0f172a';
-            for (let rx = -hw + 10; rx < hw - 6; rx += 18) {
-              ctx.beginPath();
-              ctx.arc(rx + overloadShake, 0, 2, 0, Math.PI * 2);
-              ctx.fill();
-            }
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // 綠草頂飾
+            ctx.fillStyle = p.overloadTimer > 0 ? '#fdba74' : '#4ade80';
+            ctx.beginPath();
+            ctx.roundRect(-hw + 2 + overloadShake, -hh + 1, p.w - 4, 5, 4);
+            ctx.fill();
           } else if (p.type === 'seesaw') {
+            // 繪本平衡木翹翹板
             const wGrad = ctx.createLinearGradient(0, -hh, 0, hh);
-            wGrad.addColorStop(0, '#d97706');
-            wGrad.addColorStop(1, '#78350f');
+            wGrad.addColorStop(0, '#fcd34d');
+            wGrad.addColorStop(1, '#d97706');
             ctx.fillStyle = wGrad;
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 4);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
-            ctx.strokeStyle = '#fbbf24';
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.arc(0, 0, 5.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#451a03';
             ctx.lineWidth = 1.5;
             ctx.stroke();
-            // 中央支點三角與金色軸心
-            ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(0, 0, 5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#18181b';
-            ctx.beginPath();
-            ctx.arc(0, 0, 2, 0, Math.PI * 2);
-            ctx.fill();
           } else if (p.type === 'wood') {
+            // 繪本酥脆餅乾裂紋木板
             const shakeX = p.touched && !p.broken ? (Math.random() - 0.5) * 4 : 0;
             const wg = ctx.createLinearGradient(0, -hh, 0, hh);
-            wg.addColorStop(0, '#b45309');
-            wg.addColorStop(0.5, '#78350f');
-            wg.addColorStop(1, '#451a03');
+            wg.addColorStop(0, '#fde68a');
+            wg.addColorStop(1, '#d97706');
             ctx.fillStyle = wg;
             ctx.beginPath();
-            ctx.roundRect(-hw + shakeX, -hh, p.w, p.h, 2);
+            ctx.roundRect(-hw + shakeX, -hh, p.w, p.h, 5);
             ctx.fill();
-            ctx.strokeStyle = '#1c0a00';
+            ctx.strokeStyle = '#78350f';
             ctx.lineWidth = 2;
+            ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(-18 + shakeX, -hh); ctx.lineTo(-10 + shakeX, 1); ctx.lineTo(-15 + shakeX, hh);
             ctx.moveTo(14 + shakeX, -hh); ctx.lineTo(6 + shakeX, 0); ctx.lineTo(12 + shakeX, hh);
             ctx.stroke();
           } else if (p.type === 'taxi') {
-            // 淺顯易懂：紅色彈簧階梯（紅底板 + 中間立體螺旋彈簧 + 紅色上彈板 + ↑↑）
+            // 繪本馬戲團紅白彈簧墊
             const comp = p.springCompress * 6;
-            // 底部紅座
             ctx.fillStyle = '#991b1b';
             ctx.beginPath();
-            ctx.roundRect(-hw, hh - 4, p.w, 5, 2);
+            ctx.roundRect(-hw, hh - 4, p.w, 5, 3);
             ctx.fill();
-            // 中間閃亮金屬彈簧線圈
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 2.6;
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 2.8;
             ctx.beginPath();
             for (let sx = -18; sx <= 18; sx += 9) {
               ctx.moveTo(sx, hh - 4);
@@ -2970,51 +3088,53 @@
               ctx.lineTo(sx + 9, hh - 4);
             }
             ctx.stroke();
-            // 紅色亮面上彈跳板
             const rg = ctx.createLinearGradient(0, -hh + comp, 0, -hh + 8 + comp);
-            rg.addColorStop(0, '#f87171');
+            rg.addColorStop(0, '#fca5a5');
             rg.addColorStop(0.4, '#ef4444');
             rg.addColorStop(1, '#b91c1c');
             ctx.fillStyle = rg;
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh - 2 + comp, p.w, 8, 4);
+            ctx.roundRect(-hw, -hh - 2 + comp, p.w, 8, 5);
             ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1.2;
-            ctx.strokeRect(-hw + 2, -hh + comp, p.w - 4, 4);
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
           } else if (p.type === 'moss') {
-            ctx.fillStyle = '#334155';
+            // 繪本水光苔癬石板
+            ctx.fillStyle = '#a8a29e';
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
             const mg = ctx.createLinearGradient(0, -hh, 0, -hh + 7);
-            mg.addColorStop(0, '#84cc16');
-            mg.addColorStop(1, '#3f6212');
+            mg.addColorStop(0, '#bef264');
+            mg.addColorStop(1, '#65a30d');
             ctx.fillStyle = mg;
             ctx.beginPath();
-            ctx.roundRect(-hw - 1, -hh - 1, p.w + 2, 7, 4);
+            ctx.roundRect(-hw - 1, -hh - 1, p.w + 2, 7, 5);
             ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.65)';
+            ctx.fillStyle = 'rgba(255,255,255,0.75)';
             ctx.beginPath();
-            ctx.arc(-20, -hh + 2, 1.8, 0, Math.PI * 2);
-            ctx.arc(14, -hh + 2, 1.5, 0, Math.PI * 2);
+            ctx.arc(-20, -hh + 2, 2, 0, Math.PI * 2);
+            ctx.arc(14, -hh + 2, 1.6, 0, Math.PI * 2);
             ctx.fill();
           } else if (p.type === 'conveyor_l' || p.type === 'conveyor_r') {
-            ctx.fillStyle = '#0f172a';
+            // 繪本橘黃齒輪輸送帶
+            ctx.fillStyle = '#fb923c';
             ctx.beginPath();
             ctx.roundRect(-hw, -hh, p.w, p.h, 7);
             ctx.fill();
-            ctx.strokeStyle = '#f59e0b';
+            ctx.strokeStyle = '#451a03';
             ctx.lineWidth = 2;
             ctx.stroke();
-            // 兩端滾輪軸承
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = '#fef3c7';
             ctx.beginPath();
             ctx.arc(-hw + 7, 0, 4.5, 0, Math.PI * 2);
             ctx.arc(hw - 7, 0, 4.5, 0, Math.PI * 2);
             ctx.fill();
-            // 清晰流動亮黃箭頭
-            ctx.strokeStyle = '#fde047';
+            ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 2.4;
             const dir = p.type === 'conveyor_r' ? 1 : -1;
             const shift = dir * (conveyorAnim - 8);
@@ -3027,13 +3147,19 @@
               ctx.stroke();
             }
           } else if (p.type === 'barbed') {
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(-hw, -hh + 5, p.w, p.h - 5);
+            // 繪本紅白警告尖刺木條
+            ctx.fillStyle = '#78350f';
+            ctx.beginPath();
+            ctx.roundRect(-hw, -hh + 5, p.w, p.h - 4, 4);
+            ctx.fill();
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
             for (let sx = -hw + 2; sx < hw - 6; sx += 10) {
               const spg = ctx.createLinearGradient(sx, -hh - 8, sx, -hh + 5);
               spg.addColorStop(0, '#ef4444');
-              spg.addColorStop(0.5, '#e2e8f0');
-              spg.addColorStop(1, '#475569');
+              spg.addColorStop(0.55, '#fecaca');
+              spg.addColorStop(1, '#ffffff');
               ctx.fillStyle = spg;
               ctx.beginPath();
               ctx.moveTo(sx, -hh + 5);
@@ -3041,22 +3167,25 @@
               ctx.lineTo(sx + 10, -hh + 5);
               ctx.closePath();
               ctx.fill();
+              ctx.strokeStyle = '#451a03';
+              ctx.lineWidth = 1.2;
+              ctx.stroke();
             }
           } else if (p.type === 'electric') {
-            ctx.fillStyle = electricCycle ? '#0284c7' : '#1e293b';
+            // 繪本電擊亮藍雲朵板
+            ctx.fillStyle = electricCycle ? '#38bdf8' : '#64748b';
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
-            // 黃黑警戒兩端
-            ctx.fillStyle = '#facc15';
-            ctx.fillRect(-hw, -hh, 10, p.h);
-            ctx.fillRect(hw - 10, -hh, 10, p.h);
-            ctx.fillStyle = '#09090b';
-            ctx.fillRect(-hw + 3, -hh, 4, p.h);
-            ctx.fillRect(hw - 7, -hh, 4, p.h);
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(-hw + 2, -hh + 1, 9, p.h - 2);
+            ctx.fillRect(hw - 11, -hh + 1, 9, p.h - 2);
             if (electricCycle) {
-              ctx.strokeStyle = '#7dd3fc';
-              ctx.lineWidth = 2.4;
+              ctx.strokeStyle = '#fef08a';
+              ctx.lineWidth = 2.6;
               ctx.beginPath();
               ctx.moveTo(-hw + 10, -hh - 3);
               for (let ex = -hw + 20; ex <= hw - 10; ex += 10) {
@@ -3065,29 +3194,37 @@
               ctx.stroke();
             }
           } else if (p.type === 'slanted_l' || p.type === 'slanted_r') {
+            // 繪本滑梯木板
             const slg = ctx.createLinearGradient(0, -hh, 0, hh);
-            slg.addColorStop(0, '#475569');
-            slg.addColorStop(1, '#1e293b');
+            slg.addColorStop(0, '#f59e0b');
+            slg.addColorStop(1, '#b45309');
             ctx.fillStyle = slg;
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
-            ctx.fillStyle = '#f59e0b';
-            ctx.fillRect(-hw, -hh, p.w, 3);
+            ctx.strokeStyle = '#451a03';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+            ctx.fillStyle = '#fef3c7';
+            ctx.fillRect(-hw + 4, -hh + 2, p.w - 8, 3);
           } else if (p.type === 'supply') {
-            ctx.fillStyle = '#15803d';
+            // 繪本草地＋急救禮盒
+            ctx.fillStyle = '#22c55e';
             ctx.beginPath();
-            ctx.roundRect(-hw, -hh, p.w, p.h, 3);
+            ctx.roundRect(-hw, -hh, p.w, p.h, 6);
             ctx.fill();
+            ctx.strokeStyle = '#14532d';
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
             if (p.crateIntact) {
-              ctx.fillStyle = '#ffffff';
+              ctx.fillStyle = '#fffbeb';
               ctx.beginPath();
-              ctx.roundRect(-12, -hh - 17, 24, 17, 3);
+              ctx.roundRect(-12, -hh - 17, 24, 17, 5);
               ctx.fill();
-              ctx.strokeStyle = '#166534';
-              ctx.lineWidth = 1.5;
+              ctx.strokeStyle = '#451a03';
+              ctx.lineWidth = 1.6;
               ctx.stroke();
-              ctx.fillStyle = '#dc2626';
+              ctx.fillStyle = '#ef4444';
               ctx.fillRect(-2, -hh - 14, 4, 11);
               ctx.fillRect(-5.5, -hh - 10.5, 11, 4);
             }
