@@ -1019,9 +1019,11 @@
           return tier === 'heavy' ? 3 : 2;
         }
         if (source === 'flame') {
-          if (tier === 'light') return 1;
-          if (tier === 'heavy') return 3;
-          return 2;
+          let dmg = tier === 'light' ? 1 : (tier === 'heavy' ? 3 : 2);
+          if (ani.id === 'capybara' || ani.id === 'fox' || ani.id === 'penguin') {
+            dmg = Math.max(1, Math.floor(dmg * 0.5));
+          }
+          return dmg;
         }
         if (source === 'electric') {
           if (ani.id === 'hippo') return 1;
@@ -1511,6 +1513,9 @@
         streakCount: 0,
         stillTimer: 0,
         capyHealCd: 0,
+        wallEffectCd: 0,
+        wallWaveCd: 0,
+        pangolinRollTimer: 0,
         actionState: 'idle'
       };
 
@@ -1776,6 +1781,7 @@
           vy: Math.round(player.vy),
           f: player.facing,
           act: player.actionState || 'idle',
+          roll: player.pangolinRollTimer > 0 ? 1 : 0,
           hp,
           fl: floor,
           alive: hp > 0
@@ -1826,6 +1832,7 @@
           p.vy = msg.vy || 0;
           p.facing = msg.f || 1;
           p.actionState = msg.act || 'idle';
+          p.rolling = !!msg.roll;
           p.hp = msg.hp;
           p.floor = msg.fl;
           p.alive = !!msg.alive;
@@ -1892,6 +1899,14 @@
             }
           }
           triggerPickupEvent(msg.kind, false, msg.dir || 1, p.name || '');
+        } else if (msg.t === 'wall_stun') {
+          const myWorldY = player.y + scrollDistance;
+          if (Math.abs(myWorldY - msg.wy) <= 44 && Math.abs((player.x + 15) - msg.x) <= (msg.r || 145)) {
+            player.stunTimer = Math.max(player.stunTimer, msg.stun || 0.4);
+            shakeTime = Math.max(shakeTime, 0.18);
+            addPopup(player.x + 15, player.y, '撞牆震暈!', '#f59e0b');
+            spawnParticles(player.x + 15, player.y + 15, '#f59e0b', 8);
+          }
         } else if (msg.t === 'dead') {
           p.alive = false;
           p.hp = 0;
@@ -2275,6 +2290,9 @@
         player.streakCount = 0;
         player.stillTimer = 0;
         player.capyHealCd = 0;
+        player.wallEffectCd = 0;
+        player.wallWaveCd = 0;
+        player.pangolinRollTimer = 0;
         player.actionState = 'idle';
         resetFieldEvents();
 
@@ -2579,6 +2597,9 @@
         if (player.shockTimer > 0) player.shockTimer = Math.max(0, player.shockTimer - dt);
         if (player.jumpTimer > 0) player.jumpTimer = Math.max(0, player.jumpTimer - dt);
         if (player.skillCooldown > 0) player.skillCooldown = Math.max(0, player.skillCooldown - dt);
+        if (player.wallEffectCd > 0) player.wallEffectCd = Math.max(0, player.wallEffectCd - dt);
+        if (player.wallWaveCd > 0) player.wallWaveCd = Math.max(0, player.wallWaveCd - dt);
+        if (player.pangolinRollTimer > 0) player.pangolinRollTimer = Math.max(0, player.pangolinRollTimer - dt);
         if (player.phaseTimer > 0) player.phaseTimer = Math.max(0, player.phaseTimer - dt);
         if (player.reverseTimer > 0) player.reverseTimer = Math.max(0, player.reverseTimer - dt);
         if (player.slowTimer > 0) player.slowTimer = Math.max(0, player.slowTimer - dt);
@@ -2850,6 +2871,9 @@
             if (rpAni.id === 'beaver' || rpAni.id === 'pangolin' || rpAni.id === 'penguin') {
               incomingForce *= 1.55;
             }
+            if (rp.rolling) {
+              incomingForce *= 2.2;
+            }
             if (rpAni.id === 'capybara') {
               player.slowTimer = Math.max(player.slowTimer, 1.2);
             }
@@ -2878,35 +2902,99 @@
           }
         }
 
-        // 左右岩壁邊界（支援單側推擠至空間剩 55% + 推擠火焰扣血 + 跳羚蹬牆跳）
+        // 左右岩壁邊界與各動物牆壁專屬互動
         const leftWallW = getLeftWallWidth();
         const rightWallW = getRightWallWidth();
         const lPushedWall = fieldEvents.wallTimer > 0 && fieldEvents.wallSide < 0;
         const rPushedWall = fieldEvents.wallTimer > 0 && fieldEvents.wallSide >= 0;
 
+        const handleSideWallHit = (side, wallEdgeX, isPushedFlameWall) => {
+          const pushDir = -side; // 撞左牆(-1)往右(+1)推；撞右牆(+1)往左(-1)推
+          if (isPushedFlameWall) {
+            if (player.invulnerable <= 0) {
+              hurtPlayer(getBodyDamage('flame', 2, ani), player.x + 15, player.y, '火牆燙傷 ');
+              player.pushVx = pushDir * 210;
+            }
+            return;
+          }
+
+          const towardWall = moveDir === side || (totalVx * side) > 35;
+
+          // 變色龍：碰到牆壁瞬間從另一邊牆壁出來
+          if (ani.id === 'chameleon' && player.wallEffectCd <= 0 && towardWall) {
+            player.x = side < 0 ? (LOGIC_W - rightWallW - player.w - 6) : (leftWallW + 6);
+            player.wallEffectCd = 0.45;
+            player.phaseTimer = Math.max(player.phaseTimer, 0.45);
+            spawnParticles(wallEdgeX, player.y + 15, '#22c55e', 10);
+            spawnParticles(player.x + player.w / 2, player.y + 15, '#22c55e', 10);
+            playSound('spring');
+            return;
+          }
+
+          // 跳羚：空中貼牆蹬牆跳
+          if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
+            player.canDoubleJump = false;
+            player.vy = -295;
+            player.pushVx = pushDir * 165;
+            player.facing = pushDir;
+            playSound('spring');
+            return;
+          }
+
+          // 貓科蹬牆反彈跳（依體型/種類區分反彈遠近）
+          const felineBounce = { sandcat: [420, -265], leopardcat: [350, -245], jaguar: [330, -240], lion: [240, -205] };
+          if (felineBounce[ani.id] && !player.onPlatform && player.wallEffectCd <= 0 && towardWall) {
+            const [bx, by] = felineBounce[ani.id];
+            player.pushVx = pushDir * bx;
+            player.vy = by;
+            player.facing = pushDir;
+            player.jumpTimer = 0.35;
+            player.wallEffectCd = 0.38;
+            playSound('spring');
+            spawnParticles(wallEdgeX, player.y + 16, '#fbbf24', 8);
+            return;
+          }
+
+          // 台灣穿山甲：縮球撞牆如彈珠高速彈射並可撞飛對手
+          if (ani.id === 'pangolin' && player.wallEffectCd <= 0 && towardWall) {
+            player.pushVx = pushDir * 440;
+            player.vy = Math.min(player.vy, -210);
+            player.facing = pushDir;
+            player.wallEffectCd = 0.45;
+            player.pangolinRollTimer = 0.7;
+            playSound('spring');
+            spawnParticles(wallEdgeX, player.y + 16, '#d97706', 10);
+            return;
+          }
+
+          // 滑翔類（蜜袋鼯／大角鴞／安第斯神鷹）：借力反向滑翔推進
+          if (ani.posture === 'soaring_bird' && !player.onPlatform && player.wallEffectCd <= 0 && towardWall) {
+            player.pushVx = pushDir * 255;
+            player.vy = Math.min(player.vy, -155);
+            player.facing = pushDir;
+            player.wallEffectCd = 0.45;
+            playSound('spring');
+            spawnParticles(wallEdgeX, player.y + 14, '#fef3c7', 7);
+            return;
+          }
+
+          // 重型（歐亞野牛／非洲象／河馬）：不反彈，撞牆產生震波震暈附近同高度對手 0.4 秒
+          if ((ani.id === 'bison' || ani.id === 'elephant' || ani.id === 'hippo') && player.wallWaveCd <= 0 && towardWall) {
+            player.wallWaveCd = 1.25;
+            shakeTime = Math.max(shakeTime, 0.25);
+            playSound('stomp');
+            shockwaves.push({ x: wallEdgeX, y: player.y + 15, r: 10, maxR: 135, life: 0.42, color: '#f59e0b' });
+            spawnParticles(wallEdgeX, player.y + 15, '#f59e0b', 12);
+            publishMsg({ t: 'wall_stun', wy: Math.round(player.y + scrollDistance), x: Math.round(wallEdgeX), r: 145, stun: 0.4 });
+          }
+        };
+
         if (player.x <= leftWallW) {
           player.x = leftWallW;
-          if (lPushedWall && player.invulnerable <= 0) {
-            hurtPlayer(getBodyDamage('flame', 2, ani), player.x + 15, player.y, '火牆燙傷 ');
-            player.pushVx = 210;
-          } else if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
-            player.canDoubleJump = false;
-            player.vy = -295;
-            player.pushVx = 165;
-            playSound('spring');
-          }
-        }
-        if (player.x + player.w >= LOGIC_W - rightWallW) {
+          handleSideWallHit(-1, leftWallW, lPushedWall);
+        } else if (player.x + player.w >= LOGIC_W - rightWallW) {
           player.x = LOGIC_W - rightWallW - player.w;
-          if (rPushedWall && player.invulnerable <= 0) {
-            hurtPlayer(getBodyDamage('flame', 2, ani), player.x + 15, player.y, '火牆燙傷 ');
-            player.pushVx = -210;
-          } else if (ani.id === 'springbok' && !player.onPlatform && player.vy > 40 && player.canDoubleJump) {
-            player.canDoubleJump = false;
-            player.vy = -295;
-            player.pushVx = -165;
-            playSound('spring');
-          }
+          handleSideWallHit(1, LOGIC_W - rightWallW, rPushedWall);
         }
 
         const prevFootY = player.y + player.h;
@@ -2931,8 +3019,14 @@
 
         if (!player.onPlatform) {
           const isGlider = ani.posture === 'soaring_bird' || player.featherTimer > 0;
-          const gravity = (isGlider && player.vy > 0) ? 500 : 980;
-          const maxFall = isGlider ? 290 : 580;
+          const isWallClinger = (ani.id === 'octopus' || ani.id === 'sloth') &&
+            ((player.x <= leftWallW + 3 && !lPushedWall) || (player.x + player.w >= LOGIC_W - rightWallW - 3 && !rPushedWall));
+          let gravity = (isGlider && player.vy > 0) ? 500 : 980;
+          let maxFall = isGlider ? 290 : 580;
+          if (isWallClinger && player.vy > 0) {
+            gravity = 320;
+            maxFall = 120;
+          }
           player.vy = Math.min(maxFall, player.vy + gravity * dt);
 
           // 環尾狐猴空中翻身二段跳
